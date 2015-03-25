@@ -18,8 +18,6 @@ let s:Filepath = s:V.import('System.Filepath')
 
 let s:tsq = 'tsuquyomiTSServer'
 
-
-
 " ### Utilites {{{
 function! s:error(msg)
   echom (a:msg)
@@ -124,8 +122,93 @@ function! tsuquyomi#tsOpen(file)
   return tsuquyomi#sendCommand('open', l:args)
 endfunction
 
+" Send close command to TSServer.
+" This command does not return any response.
+function! tsuquyomi#tsClose(file)
+  let l:args = {'file': a:file}
+  return tsuquyomi#sendCommand('close', l:args)
+endfunction
+
+" Save an opened file to tmpfile.
+" This function can be called for only debugging.
+" This command does not return any response.
+function! tsuquyomi#tsSaveto(file, tmpfile)
+  let l:args = {'file': a:file, 'tmpfile': a:tmpfile}
+  return tsuquyomi#sendCommand('saveto', l:args)
+endfunction
+
+" Completions = "completions";
+function! tsuquyomi#tsCompletions(file, line, offset, prefix)
+  call s:error('not implemented!')
+endfunction
+
+" CompletionDetails = "completionEntryDetails";
+function! tsuquyomi#tsCompletions(file, line, offset, entryNames)
+  call s:error('not implemented!')
+endfunction
+
+" Configure = "configure";
+function! tsuquyomi#tsConfigure(file, tabSize, indentSize, hostInfo)
+  call s:error('not implemented!')
+endfunction
+
+" Definition = "definition";
+function! tsuquyomi#tsDefinition(file, line, offset)
+  call s:error('not implemented!')
+endfunction
+
+" Format = "format";
+function! tsuquyomi#tsFormat(file, line, offset, endLine, endOffset)
+  call s:error('not implemented!')
+endfunction
+
+" Formatonkey = "formatonkey";
+function! tsuquyomi#tsFormationkey(file, line, offset, key)
+  call s:error('not implemented!')
+endfunction
+
+" Geterr = "geterr";
+function! tsuquyomi#tsGeterr(files, delay)
+  call s:error('not implemented!')
+endfunction
+
+" NavBar = "navbar";
+function! tsuquyomi#tsNavBar(file)
+  call s:error('not implemented!')
+endfunction
+
+" Navto = "navto";
+function! tsuquyomi#tsNavto(file, searchValue, maxResultCount)
+  call s:error('not implemented!')
+endfunction
+
+" Quickinfo = "quickinfo";
+function! tsuquyomi#tsQuickinfo(line, offset)
+  call s:error('not implemented!')
+endfunction
+
+" References = "references";
+function! tsuquyomi#tsReferences(file, line, offset)
+  call s:error('not implemented!')
+endfunction
+
+" Reload = "reload";
+function! tsuquyomi#tsReload(line, tmpfile)
+  call s:error('not implemented!')
+endfunction
+
+" Rename = "rename";
+function! tsuquyomi#tsRename(file, line, offset, findInComments, findInString)
+  call s:error('not implemented!')
+endfunction
+
+" Brace = "brace";
+function! tsuquyomi#tsBrace(file, line, offset)
+  call s:error('not implemented!')
+endfunction
+
+" Unknown = "unknown";
 " ### TSServer command wrappers }}}
 
-
-let &cpo  = s:save_cpo
+let &cpo = s:save_cpo
 unlet s:save_cpo

@@ -2,3 +2,5 @@
 *.swo
 *.un~
 node_modules/
+NUL
+.tmp*
