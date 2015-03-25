@@ -2,13 +2,13 @@
 
 This is a Vim plugin for TypeScript coding.
 
-**Developing...**
+**Still developing...**
 
 ## Requirements
 
-+ vimproc
-+ node.js
-+ TypeScript (1.5.x ~)
++ [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
++ [Node.js](https://nodejs.org/)
++ [TypeScript](https://github.com/Microsoft/TypeScript) (1.5.x ~)
 
 
 ## Developing

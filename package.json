@@ -6,12 +6,13 @@
   "directories": {
     "test": "test"
   },
+  "repository": "https://github.com/Quramy/tsuquyomi.git",
   "devDependencies": {
     "typescript": "git://github.com/Microsoft/TypeScript.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
-  "author": "",
+  "author": "Quramy",
   "license": "MIT"
 }
