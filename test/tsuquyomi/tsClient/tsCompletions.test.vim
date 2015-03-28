@@ -1,6 +1,6 @@
 scriptencoding utf-8
 
-UTSuite [tsuquyomi#tsClient#tsCompletion] tsOpen
+UTSuite [tsuquyomi#tsClient#tsCompletions] tsCompletions
 
 let g:tsuquyomi_use_dev_node_module=1
 let g:tsuquyomi_waittime_after_open=0.2

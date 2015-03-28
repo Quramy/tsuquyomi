@@ -85,6 +85,7 @@ function! tsuquyomi#tsClient#sendTssStd(line)
   call tsuquyomi#tsClient#startTss()
   call s:P.writeln(s:tsq, a:line)
   let [out, err, type] = s:P.read(s:tsq, ['Content-Length: \d\+'])
+  echom err
   "echo type
   if type == 'timedout'
     return []
@@ -179,6 +180,13 @@ function! tsuquyomi#tsClient#tsCompletions(file, line, offset, prefix)
   endif
 endfunction
 
+" Emmit to change file to TSServer.
+" This command does not return any response.
+function! tsuquyomi#tsClient#tsChange(file, line, offset, endLine, endOffset, insertString)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'endLine': a:endLine, 'endOffset': a:endOffset, 'insertString': a:insertString}
+  return tsuquyomi#tsClient#sendCommand('change', l:args)
+endfunction
+
 " CompletionDetails = "completionEntryDetails";
 function! tsuquyomi#tsClient#tsCompletionEntryDetails(file, line, offset, entryNames)
   call s:error('not implemented!')
@@ -249,7 +257,8 @@ endfunction
 
 " Brace = "brace";
 function! tsuquyomi#tsClient#tsBrace(file, line, offset)
-  call s:error('not implemented!')
+  let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  return tsuquyomi#tsClient#sendCommand('brace', l:arg)
 endfunction
 
 " ### TSServer command wrappers }}}
