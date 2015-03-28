@@ -61,8 +61,10 @@ function! tsuquyomi#tsClient#startTss()
   if l:is_new == 'new'
     let [out, err, type] = s:P.read_wait(s:tsq, 0.1, [])
     let st = tsuquyomi#tsClient#statusTss()
-    if err != ''
-      call s:error('Fail to start TSServer... '.err)
+    if !g:tsuquyomi_tsserver_debug
+      if err != ''
+        call s:error('Fail to start TSServer... '.err)
+      endif
     endif
   endif
   return l:is_new
@@ -201,6 +203,16 @@ endfunction
 function! tsuquyomi#tsClient#tsDefinition(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
   let l:result = tsuquyomi#tsClient#sendCommand('definition', l:args)
+  if(len(l:result) == 1)
+    let l:info = l:result[0]
+    if(has_key(l:info, 'body'))
+      return l:info.body
+    else
+      return []
+    endif
+  else
+    "TODO
+  endif
   return l:result
 endfunction
 
