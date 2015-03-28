@@ -242,24 +242,34 @@ function! tsuquyomi#tsClient#tsNavto(file, searchValue, maxResultCount)
 endfunction
 
 " Quickinfo = "quickinfo";
-function! tsuquyomi#tsClient#tsQuickinfo(line, offset)
+function! tsuquyomi#tsClient#tsQuickinfo(file, line, offset)
   call s:error('not implemented!')
 endfunction
 
 " References = "references";
 function! tsuquyomi#tsClient#tsReferences(file, line, offset)
-  call s:error('not implemented!')
+  let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommand('references', l:arg)
+  return l:result
 endfunction
 
 " Reload an opend file.
 " It can be used for telling change of buffer to TSServer.
-" This command does not return any response.
 " PARAM: {string} file File name 
 " PARAM: {string} tmpfile
 " Reload = "reload";
 function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
-  return tsuquyomi#tsClient#sendCommand('reload', l:arg)
+  let l:result = tsuquyomi#tsClient#sendCommand('reload', l:arg)
+  if(len(l:result) == 1)
+    if(has_key(l:result[0], 'success'))
+      return l:result[0].success
+    else
+      return 0
+    endif
+  else
+    return 0
+  endif
 endfunction
 
 " Rename = "rename";

@@ -8,9 +8,9 @@ let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = tsuquyomi#rootDir()
 
 function! s:test1()
-  let file = s:Filepath.join(s:script_dir, 'test/resouces/SimpleModuleFile.ts')
+  let file = s:Filepath.join(s:script_dir, 'test/resources/SimpleModule.ts')
   call tsuquyomi#tsClient#tsOpen(file)
-  call tsuquyomi#tsClient#tsChange(file, 18, 3, 18, 28, '')
+  call tsuquyomi#tsClient#tsChange(file, 18, 3, 18, 29, '')
   call tsuquyomi#tsClient#tsSaveto(file, s:Filepath.join(s:script_dir, '.tmp.ts'))
   call tsuquyomi#tsClient#stopTss()
 endfunction

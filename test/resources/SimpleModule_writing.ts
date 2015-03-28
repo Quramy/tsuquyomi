@@ -16,7 +16,7 @@ module SimpleModule {
   }
 
   var myObj = new MyClass();
-  myObj.
+  myObj.s
   export function main (): void {
     myObj.say();
     return;

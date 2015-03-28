@@ -10,8 +10,8 @@ let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = tsuquyomi#rootDir()
 
 function! s:test1()
-  let file = s:Filepath.join(s:script_dir, 'test/resouces/SimpleModuleFile.ts')
+  let file = s:Filepath.join(s:script_dir, 'test/resources/SimpleModule.ts')
   call tsuquyomi#tsClient#tsOpen(file)
-  echo tsuquyomi#tsClient#tsReload(file, file) == []
+  Assert tsuquyomi#tsClient#tsReload(file, file) == 1
   call tsuquyomi#tsClient#stopTss()
 endfunction
