@@ -31,6 +31,9 @@ let g:tsuquyomi_waittime_after_open=
 "   autocmd!
 " augroup END
 
+command! TSQstart : call tsuquyomi#tsClient#startTss()
+command! TSQstatus : echom tsuquyomi#tsClient#statusTss()
+command! TSQstop : call tsuquyomi#tsClient#stopTss()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

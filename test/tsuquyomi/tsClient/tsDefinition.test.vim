@@ -17,6 +17,12 @@ function! s:test1()
   let result = tsuquyomi#tsClient#tsDefinition(l:file, 2, 15) 
   Assert len(result) == 1
   Assert s:Filepath.basename(result[0].file) == 'definitionTest.ts'
+  Assert has_key(result[0], 'start') != 0 
+  Assert has_key(result[0].start, 'line') != 0 
+  Assert has_key(result[0].start, 'offset') != 0 
+  Assert has_key(result[0], 'end') != 0 
+  Assert has_key(result[0].end, 'line') != 0 
+  Assert has_key(result[0].end, 'offset') != 0 
   call tsuquyomi#tsClient#stopTss()
 endfunction
 

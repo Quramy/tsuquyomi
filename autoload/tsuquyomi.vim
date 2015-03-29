@@ -11,18 +11,57 @@ set cpo&vim
 " let s:script_dir = expand('<sfile>:p:h')
 " 
 let s:V = vital#of('tsuquyomi')
-" let s:P = s:V.import('ProcessManager')
-" let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
 let s:root_dir = s:Filepath.join(s:script_dir, '../')
-" let s:tsq = 'tsuquyomiTSServer'
+
+" ### Buffer local variables {{{
+let b:tmpfilename = 0
+let b:is_opened = 0
+let b:is_dirty = 0
+" ### Buffer local variables }}}
+"
+" ### Buffer local functions {{{
+function! s:bGetTempfilename()
+  if(b:tmpfilename)
+    return b:tmpfilename
+  else
+    let b:tmpfilename = tempname()
+    return b:tmpfilename
+  endif
+endfunction
+
+function! s:bOpen()
+  call tsuquyomi#tsClient#tsOpen(expand('%'))
+  let b:is_opened = 1
+endfunction
+
+" ### Buffer local functions }}}
 
 " ### Utilites {{{
 function! s:error(msg)
   echom (a:msg)
   throw 'tsuquyomi: '.a:msg
 endfunction
+
+function! s:bufferToTmp()
+  let l:bufname = expand('%')
+  let l:fname = s:bGetTempfilename()
+  let l:buflist = getbufline('%', 1, '$')
+  call writefile(l:buflist, l:fname)
+  return l:fname
+endfunction
+
+" Save current buffer to a temp file, and emit to reload TSServer.
+" This function may be called for conversation with TSServer after user's change buffer.
+function! s:flash()
+  if b:is_dirty
+    let l:fname = s:bufferToTmp()
+    call tsuquyomi#tsClient#tsReload(expand('%'), l:fname)
+    let b:is_dirty = 0
+  endif
+endfunction
+
 " ### Utilites }}}
 
 " ### Public functions {{{
@@ -31,13 +70,21 @@ function! tsuquyomi#rootDir()
   return s:root_dir
 endfunction
 
+function! tsuquyomi#isDirty()
+  return b:is_dirty
+endfunction
+
+function! tsuquyomi#letDirty()
+  let b:is_dirty = 1
+endfunction
+
 function! tsuquyomi#open()
   let l:fileName = expand('%')
   if l:fileName == ''
     " TODO
     return 0
   endif
-  call tsuquyomi#tsClient#tsOpen(l:fileName)
+  call s:bOpen()
   return 1
 endfunction
 
@@ -47,7 +94,22 @@ function! tsuquyomi#reload()
     " TODO
     return 0
   endif
-  call tsuquyomi#tsClient#tsReload(l:fileName, l:fileName)
+  if b:is_opened
+    call tsuquyomi#tsClient#tsReload(l:fileName, l:fileName)
+  else
+    call s:bOpen()
+  endif
+  let b:is_dirty = 0
+  return 1
+endfunction
+
+function! tsuquyomi#dumpCurrent()
+  let l:fileName = expand('%')
+  if l:fileName == ''
+    " TODO
+    return 0
+  endif
+  call tsuquyomi#tsClient#tsSaveto(l:fileName, l:fileName.'.dump')
   return 1
 endfunction
 
@@ -63,11 +125,10 @@ function! tsuquyomi#complete(findstart, base)
   endwhile
 
   if(a:findstart)
+    call s:flash()
     return l:start - 1
   else
-    "echom a:base
     let l:res_dict = {'words': []}
-    "let l:res_dict.words = ['aaa', 'bbbb']
     let l:res_list = tsuquyomi#tsClient#tsCompletions(expand('%'), l:line, l:start, a:base)
     echom len(l:res_list)
     for info in l:res_list
@@ -77,14 +138,27 @@ function! tsuquyomi#complete(findstart, base)
   endif
 endfunction
 
-function! tsuquyomi#dumpCurrent()
-  let l:fileName = expand('%')
-  if l:fileName == ''
-    " TODO
-    return 0
+function! tsuquyomi#definition()
+  call s:flash()
+
+  let l:file = expand('%')
+  let l:line = line('.')
+  let l:offset = col('.')
+  let l:res_list = tsuquyomi#tsClient#tsDefinition(l:file, l:line, l:offset)
+
+  if(len(l:res_list) == 1)
+    " If get result, go to the location.
+    let l:info = l:res_list[0]
+    if l:file == l:info.file
+      " Same file
+      call cursor(l:info.start.line, l:info.start.offset)
+    else
+      " If other file, split window
+      execute 'split +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
+    endif
+  else
+    " If don't get result, do nothing.
   endif
-  call tsuquyomi#tsClient#tsSaveto(l:fileName, l:fileName.'.dump')
-  return 1
 endfunction
 
 " ### Public functions }}}
