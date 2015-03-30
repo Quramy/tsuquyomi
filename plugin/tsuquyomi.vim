@@ -8,9 +8,13 @@ scriptencoding utf-8
 " Preprocessing {{{
 if exists('g:loaded_tsuquyomi')
   finish
+elseif v:version < 704
+  echoerr 'Tsuquyomi does not work this version of Vim "' . v:version . '".'
+  finish
 endif
 
 let g:loaded_tsuquyomi = 1
+let g:tsuquyomi_is_available = 1
 
 let s:save_cpo = &cpo
 set cpo&vim

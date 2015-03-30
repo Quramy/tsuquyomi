@@ -5,6 +5,20 @@
 
 scriptencoding utf-8
 
+let s:V = vital#of('tsuquyomi')
+let s:P = s:V.import('ProcessManager')
+
+if(!exists(g:tsuquyomi_is_available) && !s:P.is_available())
+  let g:tsuquyomi_is_available = 0
+  echom '[tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
+  finish
+endif
+if(!g:tsuquyomi_is_available)
+  finish
+endif
+
+let g:tsuquyomi_is_available = 1
+
 " ### Buffer local variables {{{
 " These variables can be read by autoload/tsuquyomi.vim.
 "

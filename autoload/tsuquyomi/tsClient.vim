@@ -12,15 +12,27 @@ let s:script_dir = expand('<sfile>:p:h')
 
 let s:V = vital#of('tsuquyomi')
 let s:P = s:V.import('ProcessManager')
+
+if(!exists(g:tsuquyomi_is_available) && !s:P.is_available())
+  let g:tsuquyomi_is_available = 0
+  echom '[tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
+  finish
+endif
+if(!g:tsuquyomi_is_available)
+  finish
+endif
+
+let g:tsuquyomi_is_available = 1
+
 let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
 
 let s:tsq = 'tsuquyomiTSServer'
 
+
 " ### Utilites {{{
 function! s:error(msg)
-  echom (a:msg)
-  throw 'tsuquyomi: '.a:msg
+  echoerr (a:msg)
 endfunction
 
 function! s:waitTss(sec)
