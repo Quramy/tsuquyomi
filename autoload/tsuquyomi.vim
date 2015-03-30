@@ -171,6 +171,34 @@ function! tsuquyomi#definition()
   endif
 endfunction
 
+function! tsuquyomi#references()
+  call s:flash()
+
+  let l:file = expand('%')
+  let l:line = line('.')
+  let l:offset = col('.')
+
+  let l:res = tsuquyomi#tsClient#tsReferences(l:file, l:line, l:offset)
+  if(has_key(l:res, 'refs') && len(l:res.refs) != 0)
+    let l:location_list = []
+    for reference in res.refs
+      let l:location_info = {
+            \'filename': reference.file,
+            \'lnum': reference.start.line,
+            \'col': reference.start.offset,
+            \'text': reference.lineText
+            \}
+      call add(l:location_list, l:location_info)
+    endfor
+    if(len(l:location_list) > 0)
+      call setloclist(0, l:location_list, 'r')
+      lwindow
+    endif
+  else
+    echom 'Tsuquyomi References: Not found'
+  endif
+endfunction
+
 " ### Public functions }}}
 
 let &cpo = s:save_cpo

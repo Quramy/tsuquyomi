@@ -20,6 +20,7 @@ command! -buffer TsuquyomiReload : call tsuquyomi#reload()
 command! -buffer TsuquyomiDumpCurrent : call tsuquyomi#dumpCurrent()
 
 command! -buffer TsuquyomiDefinition : call tsuquyomi#definition()
+command! -buffer TsuquyomiReferences : call tsuquyomi#references()
 
 augroup tsuquyomi_defaults
   autocmd!
@@ -30,6 +31,7 @@ augroup END
 
 " TODO refactoring key map
 nnoremap <silent> <buffer> <C-]> : TsuquyomiDefinition <CR>
+nnoremap <silent> <buffer> <C-[> : TsuquyomiReferences <CR>
 
 setlocal omnifunc=tsuquyomi#complete
 

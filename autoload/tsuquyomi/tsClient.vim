@@ -161,7 +161,7 @@ endfunction
 " PARAM: {string} line The line number of location to complete.
 " PARAM: {string} offset The col number of location to complete.
 " PARAM: {string} prefix Prefix to filter result set.
-" RETURN: A List of completion info Dictionary.
+" RETURN: {list} A List of completion info Dictionary.
 "   e.g. :
 "     [
 "       {'name': 'close', 'kindModifiers': 'declare', 'kind': 'function'},
@@ -199,7 +199,14 @@ function! tsuquyomi#tsClient#tsConfigure(file, tabSize, indentSize, hostInfo)
   call s:error('not implemented!')
 endfunction
 
-" Definition = "definition";
+" Fetch location where the symbol at cursor(line, offset) in file is defined.
+" PARAM: {string} file File name.
+" PARAM: {string} line The line number of location to complete.
+" PARAM: {string} offset The col number of location to complete.
+" RETURNS: {list} A list of dictionaries of definition location.
+" e.g. : 
+" [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
+"   
 function! tsuquyomi#tsClient#tsDefinition(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
   let l:result = tsuquyomi#tsClient#sendCommand('definition', l:args)
@@ -250,7 +257,16 @@ endfunction
 function! tsuquyomi#tsClient#tsReferences(file, line, offset)
   let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
   let l:result = tsuquyomi#tsClient#sendCommand('references', l:arg)
-  return l:result
+  if(len(l:result) == 1)
+    let l:info = l:result[0]
+    if(has_key(l:info, 'body'))
+      return l:info.body
+    else
+      return {}
+    endif
+  else
+    "TODO
+  endif
 endfunction
 
 " Reload an opend file.
