@@ -15,11 +15,6 @@ let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
 let s:root_dir = s:Filepath.join(s:script_dir, '../')
 
-" ### Buffer local variables {{{
-let b:tmpfilename = 0
-let b:is_opened = 0
-let b:is_dirty = 0
-" ### Buffer local variables }}}
 "
 " ### Buffer local functions {{{
 function! s:bGetTempfilename()
@@ -50,6 +45,10 @@ function! s:bufferToTmp()
   let l:buflist = getbufline('%', 1, '$')
   call writefile(l:buflist, l:fname)
   return l:fname
+endfunction
+
+function! s:normalizePath(path)
+  return substitute(a:path, '\\', '/', 'g')
 endfunction
 
 " Save current buffer to a temp file, and emit to reload TSServer.
@@ -85,6 +84,17 @@ function! tsuquyomi#open()
     return 0
   endif
   call s:bOpen()
+  return 1
+endfunction
+
+function! tsuquyomi#close()
+  let l:fileName = expand('%')
+  if l:fileName == ''
+    "TODO
+    return 0
+  endif
+  call tsuquyomi#tsClient#tsClose(l:fileName)
+  let b:is_opened = 0
   return 1
 endfunction
 
@@ -141,7 +151,7 @@ endfunction
 function! tsuquyomi#definition()
   call s:flash()
 
-  let l:file = expand('%')
+  let l:file = s:normalizePath(expand('%'))
   let l:line = line('.')
   let l:offset = col('.')
   let l:res_list = tsuquyomi#tsClient#tsDefinition(l:file, l:line, l:offset)

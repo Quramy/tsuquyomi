@@ -5,6 +5,7 @@
 
 scriptencoding utf-8
 
+" Preprocessing {{{
 if exists('g:loaded_tsuquyomi')
   finish
 endif
@@ -13,6 +14,7 @@ let g:loaded_tsuquyomi = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
+" Preprocessing }}}
 
 " Global options defintion. {{{
 let g:tsuquyomi_use_dev_node_module =
@@ -31,9 +33,10 @@ let g:tsuquyomi_waittime_after_open=
 "   autocmd!
 " augroup END
 
-command! TSQstart : call tsuquyomi#tsClient#startTss()
-command! TSQstatus : echom tsuquyomi#tsClient#statusTss()
-command! TSQstop : call tsuquyomi#tsClient#stopTss()
+" Define commands to operate TSServer
+command! TsuquyomiStartTss : call tsuquyomi#tsClient#startTss()
+command! TsuquyomiStatusTss : echom tsuquyomi#tsClient#statusTss()
+command! TsuquyomiStopTss : call tsuquyomi#tsClient#stopTss()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

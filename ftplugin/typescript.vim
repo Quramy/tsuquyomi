@@ -5,11 +5,21 @@
 
 scriptencoding utf-8
 
-command! -buffer TSQopen : call tsuquyomi#open()
-command! -buffer TSQreload : call tsuquyomi#reload()
-command! -buffer TSQdumpCurrent : call tsuquyomi#dumpCurrent()
+" ### Buffer local variables {{{
+" These variables can be read by autoload/tsuquyomi.vim.
+"
+let b:tmpfilename = 0   " Where this buffer is flashed.
+let b:is_opened = 0     " Whether TSServer opens this buffer.
+let b:is_dirty = 0      " Whether the user has changed the buffer's text.
 
-command! -buffer TSQdefinition : call tsuquyomi#definition()
+" ### Buffer local variables }}}
+
+command! -buffer TsuquyomiOpen : call tsuquyomi#open()
+command! -buffer TsuquyomiClose : call tsuquyomi#close()
+command! -buffer TsuquyomiReload : call tsuquyomi#reload()
+command! -buffer TsuquyomiDumpCurrent : call tsuquyomi#dumpCurrent()
+
+command! -buffer TsuquyomiDefinition : call tsuquyomi#definition()
 
 augroup tsuquyomi_defaults
   autocmd!
@@ -19,7 +29,7 @@ augroup tsuquyomi_defaults
 augroup END
 
 " TODO refactoring key map
-nnoremap <silent> <buffer> <C-]> : TSQdefinition <CR>
+nnoremap <silent> <buffer> <C-]> : TsuquyomiDefinition <CR>
 
 setlocal omnifunc=tsuquyomi#complete
 
