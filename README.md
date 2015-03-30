@@ -40,21 +40,21 @@ let g:tsuquyomi_tsserver_path = "~/someDirectory/TypeScript/bin/tsserver.js"
 ### Completion
 Tsuquyomi supports Omni-Completion.
 
-By the default, type <C-x> <C-o> in insert mode, Tsuquyomi shows completions.
+By the default, type `<C-x> <C-o>` in insert mode, Tsuquyomi shows completions.
 
 ### Nav to definition
-Type <C-]> in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol on the cursor is defined.
+Type `<C-]>` in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol on the cursor is defined.
 
 Alternatively, call the Ex comand `:TququyomiDefinition`.
 
 ### Show references
-Type <C-^> in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol on the cursor is referenced.
+Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol on the cursor is referenced.
 
 Alternatively, call the Ex comand `:TsuquyomiReferences`.
 
 ### Show quickfix
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
-And if it contains errors, Tsuquyomi show them as a quickfix window.
+And if it contains errors, Tsuquyomi show them to Vim quickfix window.
 
 
 ## Future works
