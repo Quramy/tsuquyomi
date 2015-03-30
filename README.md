@@ -1,8 +1,6 @@
 # Tsuquyomi
 
-This is a Vim plugin for TypeScript developers.
-
-**Still developing...**
+Tsuquyomi is a Vim plugin for TypeScript developers.
 
 ## Features
 
@@ -19,9 +17,9 @@ This is a Vim plugin for TypeScript developers.
 + [TypeScript](https://github.com/Microsoft/TypeScript) (**1.5.0 or later**)
 
 ### Remarks
-**TypeScript v1.5.0 is not released. If you install TypeScript with `npm -g install typescript`, the installed version is not v1.5.0 but v1.4.x.
+**TypeScript v1.5.0 is not released. If you install TypeScript with `npm -g install typescript`, the installed version is not v1.5.0 but v1.4.x.**
 
-So, until v1.5.0 will be rerelased, please setup with the following procedure:
+**So, until v1.5.0 will be rerelased, please setup with the following procedure:**
 
 1. Get latest version TypeScript from github repo.
 
@@ -36,8 +34,6 @@ git clone https://github.com/Microsoft/TypeScript
 let g:tsuquyomi_use_dev_node_module = 2
 let g:tsuquyomi_tsserver_path = "~/someDirectory/TypeScript/bin/tsserver.js"
 ```
-
-**
 
 ## Usage
 
@@ -60,5 +56,11 @@ Alternatively, call the Ex comand `:TsuquyomiReferences`.
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi show them as a quickfix window.
 
-## Developing
-*T.B.D.*
+
+## Future works
+
++ rename
++ formatting
++ syntax highright
++ etc ...
+
