@@ -11,7 +11,7 @@ Tsuquyomi is a Vim plugin for TypeScript developers.
 
 ## Requirements
 
-+ [Vim](http://www.vim.org/) (v7.4 or later)
++ [Vim](http://www.vim.org/) (v7.4.0 or later)
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
 + [Node.js](https://nodejs.org/)
 + [TypeScript](https://github.com/Microsoft/TypeScript) (**1.5.0 or later**)
@@ -48,7 +48,7 @@ Type <C-]> in normal mode or visual mode, Tsuquyomi navigates to the location wh
 Alternatively, call the Ex comand `:TququyomiDefinition`.
 
 ### Show references
-Type <C-[> in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol on the cursor is referenced.
+Type <C-^> in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol on the cursor is referenced.
 
 Alternatively, call the Ex comand `:TsuquyomiReferences`.
 

@@ -41,7 +41,7 @@ INTRODUCTION					*tsuquyomi-introduction*
 INSTALL						*tsuquyomi-install*
 
 Tsuquyomi requires the following:
-* Vim (v.7.4.x or later)
+* Vim (v.7.4.0 or later)
 * Shougo/vimproc.vim ( *https://github.com/Shougo/vimproc.vim* )
 * Node.js and TypeScript (v.1.5.0 or later)
 
