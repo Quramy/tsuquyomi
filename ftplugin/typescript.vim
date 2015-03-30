@@ -14,14 +14,17 @@ let b:is_dirty = 0      " Whether the user has changed the buffer's text.
 
 " ### Buffer local variables }}}
 
-command! -buffer TsuquyomiOpen : call tsuquyomi#open()
-command! -buffer TsuquyomiClose : call tsuquyomi#close()
-command! -buffer TsuquyomiReload : call tsuquyomi#reload()
-command! -buffer TsuquyomiDumpCurrent : call tsuquyomi#dumpCurrent()
+command! -buffer TsuquyomiOpen          :call tsuquyomi#open()
+command! -buffer TsuquyomiClose         :call tsuquyomi#close()
+command! -buffer TsuquyomiReload        :call tsuquyomi#reload()
+command! -buffer TsuquyomiDumpCurrent   :call tsuquyomi#dumpCurrent()
 
-command! -buffer TsuquyomiDefinition : call tsuquyomi#definition()
-command! -buffer TsuquyomiReferences : call tsuquyomi#references()
-command! -buffer TsuquyomiGeterr : call tsuquyomi#geterr()
+command! -buffer TsuquyomiDefinition    :call tsuquyomi#definition()
+command! -buffer TsuquyomiReferences    :call tsuquyomi#references()
+command! -buffer TsuquyomiGeterr        :call tsuquyomi#geterr()
+
+noremap <silent> <buffer> <Plug>(TsuquyomiDefinition) :TsuquyomiDefinition <CR>
+noremap <silent> <buffer> <Plug>(TsuquyomiReferences) :TsuquyomiReferences <CR>
 
 augroup tsuquyomi_defaults
   autocmd!
@@ -31,9 +34,13 @@ augroup tsuquyomi_defaults
   autocmd TextChanged,TextChangedI *.ts silent! call tsuquyomi#letDirty()
 augroup END
 
-" TODO refactoring key map
-nnoremap <silent> <buffer> <C-]> : TsuquyomiDefinition <CR>
-nnoremap <silent> <buffer> <C-[> : TsuquyomiReferences <CR>
+" Default mapping.
+if !hasmapto('<Plug>(TsuquyomiDefinition)')
+  map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
+endif
+if !hasmapto('<Plug>(TsuquyomiReferences)')
+  map <buffer> <C-[> <Plug>(TsuquyomiReferences)
+endif
 
 setlocal omnifunc=tsuquyomi#complete
 

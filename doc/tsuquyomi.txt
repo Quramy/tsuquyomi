@@ -1,0 +1,125 @@
+*tsuquyomi.txt*	TypeScript editing plugin for Vim
+
+Version: 0.1.0
+Author : Quramy <yosuke.kurami at gmail.com>
+License: MIT license  {{{
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}}
+
+CONTENTS 					*tsuquyomi-contents*
+
+Introduction		|tsuquyomi-introduction|
+Install			|tsuquyomi-install|
+  Commands		  |tsuqutomi-commands|
+  Variables		  |tsuquyomi-variables|
+  Key Mappings		  |tsuquyomi-key-mappings|
+  Functions		  |tsuquyomi-functions|
+
+==============================================================================
+INTRODUCTION					*tsuquyomi-introduction*
+
+*tsuquyomi* supports you to edit TypeScript source files using TSServer.
+
+
+==============================================================================
+INSTALL						*tsuquyomi-install*
+
+Tsuquyomi requires the following:
+* Vim (v.7.4.x or later)
+* Shougo/vimproc.vim ( *https://github.com/Shougo/vimproc.vim* )
+* Node.js and TypeScript (v.1.5.0 or later)
+
+In first, If you haven't installed |vimproc|, please install this.
+(Please see *https://github.com/Shougo/vimproc.vim* )
+
+Seconde, install the latest version TypeScript.
+
+Prompt:
+>
+    	$ npm -g install typescript/git://github.com/Microsoft/TypeScript.git
+<
+
+==============================================================================
+INTERFACE					*tsuquyomi-interface*
+
+
+------------------------------------------------------------------------------
+COMMANDS					*tsuquyomi-commands*
+
+:TsuquyomiStartTss				*:TsuquyomiStartTss*
+			Start TSServer process using |vimproc|.
+			If already TSServer process is running, this command
+			does not anything.
+
+:TsuquyomiStopTss 				*:TsuquyomiStopTss*
+			Stop TSServer process if it exists.
+
+:TsuquyomiStatusTss				*:TsuquyomiStatusTss*
+			Show TSServer status.
+
+:TsuquyomiOpen					*:TsuquyomiOpen*
+			Notfy opening a file to TSServer.
+
+:TsuquyomiClose					*:TsuquyomiClose*
+			Let TSServer releace a file.
+
+
+:TsuquyomiDumpCurrent				*:TsuquyomiDumpCurrent*
+			Dump TSServer's buffer of file.
+			Note: Dump filename is `originalFileName` + `'.dump'` .
+------------------------------------------------------------------------------
+VARIABLES					*tsuquyomi-variables*
+
+						*g:tsuquyomi_use_dev_node_module*
+g:tsuquyomi_use_dev_node_module	(default 0)
+		Todo
+
+
+						*g:tsuquyomi_tsserver_path*
+g:tsuquyomi_tsserver_path	(default )
+		Todo
+
+
+						*g:tsuquyomi_nodejs_path*
+g:tsuquyomi_nodejs_path
+		Todo
+
+
+						*g:tsuquyomi_waittime_after_open*
+g:tsuquyomi_waittime_after_open	
+		Todo
+	
+------------------------------------------------------------------------------
+KEY MAPPINGS					*tsuquyomi-key-mappings*
+
+						*<Plug>(TsuquyomiDefinition)*
+<Plug>(TsuquyomiDefinition)
+		Navigates to the location where the symbol on the cursor is defined.
+
+						*<Plug>(TsuquyomiReferences)*
+<Plug>(TsuquyomiReferences)
+		Shows a list of location where the symbol on the cursor is referenced.
+
+------------------------------------------------------------------------------
+FUNCTIONS					*tsuquyomi-functions*
+
+Todo
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:

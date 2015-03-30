@@ -7,7 +7,7 @@ Tsuquyomi is a Vim plugin for TypeScript developers.
 + Completion (omni-completion)
 + Navigate to the location where a symbol is defined.
 + Show location(s) where a symbol is referenced.
-+ Show syntax and seamtics errors as Vim quickfix window.
++ Display a list of syntax and seamantics errors to Vim quickfix window.
 
 ## Requirements
 
@@ -43,12 +43,12 @@ Tsuquyomi supports Omni-Completion.
 By the default, type <C-x> <C-o> in insert mode, Tsuquyomi shows completions.
 
 ### Nav to definition
-Type <C-]> in normal mode, Tsuquyomi navigates to the location where the symbol on the cursor is defined.
+Type <C-]> in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol on the cursor is defined.
 
 Alternatively, call the Ex comand `:TququyomiDefinition`.
 
 ### Show references
-Type <C-[> in normal mode, Tsuquyomi shows a list of location where the symbol on the cursor is referenced.
+Type <C-[> in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol on the cursor is referenced.
 
 Alternatively, call the Ex comand `:TsuquyomiReferences`.
 
@@ -64,3 +64,5 @@ And if it contains errors, Tsuquyomi show them as a quickfix window.
 + syntax highright
 + etc ...
 
+## License
+MIT
