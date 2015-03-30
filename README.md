@@ -17,8 +17,23 @@ Tsuquyomi requires the followings:
 
 + [Vim](http://www.vim.org/) (v7.4.0 or later)
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
-+ [Node.js](https://nodejs.org/)
-+ [TypeScript](https://github.com/Microsoft/TypeScript) (**v1.5.0 or later**)
++ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (**v1.5.0 or later**)
+
+If you use [NeoBundle](https://github.com/Shougo/neobundle.vim) for Vim plugin management, append the following to your `.vimrc`:
+
+```vim
+NeoBundle 'Shougo/vimproc'
+NeoBundle 'Quramy/tsuquyomi'
+```
+
+And exec `:NeoBundleInstall`, make vimproc runtime.
+
+```bash
+cd ~/${VIM_PLUGIN_DIR}/bundle/vimproc
+make
+```
+
+(About vimproc installation, please see [the original install guide](https://github.com/Shougo/vimproc.vim#install).)
 
 ### Remarks
 **TypeScript v1.5.0 is not released. If you install TypeScript with `npm -g install typescript`, the installed version is not v1.5.0 but v1.4.x.**
@@ -28,15 +43,6 @@ Tsuquyomi requires the followings:
 ```bash
 npm -g install git://github.com/Microsoft/TypeScript.git
 ```
-
-If you use [NeoBundle](https://github.com/Shougo/neobundle.vim), append the following to your `.vimrc`:
-
-```vim
-NeoBundle 'Shougo/vimproc'
-NeoBundle 'Quramy/tsuquyomi'
-```
-
-And exec `:NeoBundleInstall`.
 
 ## Usage
 
