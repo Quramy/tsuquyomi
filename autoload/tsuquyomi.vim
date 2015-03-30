@@ -8,8 +8,6 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
-" let s:script_dir = expand('<sfile>:p:h')
-" 
 let s:V = vital#of('tsuquyomi')
 let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
@@ -51,6 +49,17 @@ function! s:normalizePath(path)
   return substitute(a:path, '\\', '/', 'g')
 endfunction
 
+" Check whether the current buffer is opened.
+" If not, show message to user.
+function! s:checkOpenAndMessage()
+  if b:is_opened
+    return 1
+  else
+    echom '[tsuquyomi] This buffer is not opened by TSServer. Please exec command ":TsuquyomiOpen" and retry.'
+    return 0
+  endif
+endfunction
+
 " Save current buffer to a temp file, and emit to reload TSServer.
 " This function may be called for conversation with TSServer after user's change buffer.
 function! s:flash()
@@ -77,6 +86,7 @@ function! tsuquyomi#letDirty()
   let b:is_dirty = 1
 endfunction
 
+" #### File operations {{{
 function! tsuquyomi#open()
   let l:fileName = expand('%')
   if l:fileName == ''
@@ -88,6 +98,11 @@ function! tsuquyomi#open()
 endfunction
 
 function! tsuquyomi#close()
+
+  if s:checkOpenAndMessage() == 0
+    return
+  endif
+
   let l:fileName = expand('%')
   if l:fileName == ''
     "TODO
@@ -114,6 +129,11 @@ function! tsuquyomi#reload()
 endfunction
 
 function! tsuquyomi#dumpCurrent()
+
+  if s:checkOpenAndMessage() == 0
+    return
+  endif
+
   let l:fileName = expand('%')
   if l:fileName == ''
     " TODO
@@ -122,8 +142,15 @@ function! tsuquyomi#dumpCurrent()
   call tsuquyomi#tsClient#tsSaveto(l:fileName, l:fileName.'.dump')
   return 1
 endfunction
+" #### File operations }}}
 
+" #### Complete {{{
 function! tsuquyomi#complete(findstart, base)
+
+  if s:checkOpenAndMessage() == 0
+    return
+  endif
+
   let l:line_str = getline('.')
   let l:line = line('.')
   let l:offset = col('.')
@@ -147,8 +174,15 @@ function! tsuquyomi#complete(findstart, base)
     return l:res_dict
   endif
 endfunction
+" ### Complete }}}
 
+" #### Definition {{{
 function! tsuquyomi#definition()
+
+  if s:checkOpenAndMessage() == 0
+    return
+  endif
+
   call s:flash()
 
   let l:file = s:normalizePath(expand('%'))
@@ -170,17 +204,28 @@ function! tsuquyomi#definition()
     " If don't get result, do nothing.
   endif
 endfunction
+" #### Definition }}}
 
+" #### References {{{
+" Show reference on a location window.
 function! tsuquyomi#references()
+
+  if s:checkOpenAndMessage() == 0
+    return
+  endif
+
   call s:flash()
 
   let l:file = expand('%')
   let l:line = line('.')
   let l:offset = col('.')
 
+  " 1. Fetch reference information.
   let l:res = tsuquyomi#tsClient#tsReferences(l:file, l:line, l:offset)
+
   if(has_key(l:res, 'refs') && len(l:res.refs) != 0)
     let l:location_list = []
+    " 2. Make a location list for `setloclist`
     for reference in res.refs
       let l:location_info = {
             \'filename': reference.file,
@@ -192,11 +237,68 @@ function! tsuquyomi#references()
     endfor
     if(len(l:location_list) > 0)
       call setloclist(0, l:location_list, 'r')
+      "3. Open location window.
       lwindow
     endif
   else
-    echom 'Tsuquyomi References: Not found'
+    echom '[Tsuquyomi] References: Not found...'
   endif
+endfunction
+" #### References }}}
+
+" #### Geterr {{{
+function! tsuquyomi#geterr()
+  if s:checkOpenAndMessage() == 0
+    return
+  endif
+
+  let l:files = [expand('%')]
+  let l:delayMsec = 50 "TODO export global option
+  
+  " 1. Fetch error information from TSServer.
+  let result = tsuquyomi#tsClient#tsGeterr(l:files, l:delayMsec)
+
+  let quickfix_list = []
+  " 2. Make a quick fix list for `setqflist`.
+  if(has_key(result, 'semanticDiag'))
+    for diagnostic in result.semanticDiag.diagnostics
+      let item = {}
+      let item.filename = result.semanticDiag.file
+      let item.lnum = diagnostic.start.line
+      if(has_key(diagnostic.start, 'col'))
+        let item.col = diagnostic.start.col
+      endif
+      let item.text = diagnostic.text
+      let item.type = 'E'
+      call add(quickfix_list, item)
+    endfor
+  endif
+
+  if(has_key(result, 'syntaxDiag'))
+    for diagnostic in result.syntaxDiag.diagnostics
+      let item = {}
+      let item.filename = result.syntaxDiag.file
+      let item.lnum = diagnostic.start.line
+      if(has_key(diagnostic.start, 'col'))
+        let item.col = diagnostic.start.col
+      endif
+      let item.text = diagnostic.text
+      let item.type = 'E'
+      call add(quickfix_list, item)
+    endfor
+  endif
+
+  call setqflist(quickfix_list, 'r')
+  if len(quickfix_list) > 0
+    cwindow
+  else
+
+  endif
+endfunction
+" #### Geterr }}}
+
+function! tsuquyomi#reloadAndGeterr()
+  return tsuquyomi#reload() && tsuquyomi#geterr()
 endfunction
 
 " ### Public functions }}}

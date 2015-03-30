@@ -83,10 +83,10 @@ endfunction
 
 "
 "Write to stdin of tsserver proc, and return stdout.
-function! tsuquyomi#tsClient#sendTssStd(line)
+function! tsuquyomi#tsClient#sendTssStd(line, delay)
   call tsuquyomi#tsClient#startTss()
   call s:P.writeln(s:tsq, a:line)
-  let [out, err, type] = s:P.read(s:tsq, ['Content-Length: \d\+'])
+  let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
   echom err
   "echo type
   if type == 'timedout'
@@ -108,8 +108,16 @@ endfunction
 " PARAM: {Dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
 " RETURNS: {List<Dictionary>}
 function! tsuquyomi#tsClient#sendCommand(cmd, args)
+  return tsuquyomi#tsClient#sendCommandWithDelay(a:cmd, a:args, 0.01)
+endfunction
+"
+" Send a command to tsserver and wait.
+" PARAM: {String} cmd Command type. e.g. 'open', 'completion', etc...
+" PARAM: {Dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
+" RETURNS: {List<Dictionary>}
+function! tsuquyomi#tsClient#sendCommandWithDelay(cmd, args, delay)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args})
-  let l:stdout_list = tsuquyomi#tsClient#sendTssStd(l:input)
+  let l:stdout_list = tsuquyomi#tsClient#sendTssStd(l:input, a:delay)
   let l:length = len(l:stdout_list)
   if l:length > 0
     "echo 'stdout length: '.l:length
@@ -161,7 +169,7 @@ endfunction
 " PARAM: {string} line The line number of location to complete.
 " PARAM: {string} offset The col number of location to complete.
 " PARAM: {string} prefix Prefix to filter result set.
-" RETURN: {list} A List of completion info Dictionary.
+" RETURNS: {list} A List of completion info Dictionary.
 "   e.g. :
 "     [
 "       {'name': 'close', 'kindModifiers': 'declare', 'kind': 'function'},
@@ -183,6 +191,12 @@ function! tsuquyomi#tsClient#tsCompletions(file, line, offset, prefix)
 endfunction
 
 " Emmit to change file to TSServer.
+" Param: {string} file File name to change.
+" Param: {int} line The line number of starting point of range to change.
+" Param: {int} offset The col number of starting point of range to change.
+" Param: {int} endLine The line number of end point of range to change.
+" Param: {int} endOffset The col number of end point of range to change.
+" Param: {string} insertString String after replacing 
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsChange(file, line, offset, endLine, endOffset, insertString)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'endLine': a:endLine, 'endOffset': a:endOffset, 'insertString': a:insertString}
@@ -201,8 +215,8 @@ endfunction
 
 " Fetch location where the symbol at cursor(line, offset) in file is defined.
 " PARAM: {string} file File name.
-" PARAM: {string} line The line number of location to complete.
-" PARAM: {string} offset The col number of location to complete.
+" PARAM: {int} line The line number of location to complete.
+" PARAM: {int} offset The col number of location to complete.
 " RETURNS: {list} A list of dictionaries of definition location.
 " e.g. : 
 " [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
@@ -234,8 +248,22 @@ function! tsuquyomi#tsClient#tsFormationkey(file, line, offset, key)
 endfunction
 
 " Geterr = "geterr";
+" PARAM: {int} delay Delay time [msec].
 function! tsuquyomi#tsClient#tsGeterr(files, delay)
-  call s:error('not implemented!')
+  let l:args = {'files': a:files, 'delay': a:delay}
+  let l:delaySec = a:delay * 1.0 / 1000.0
+  let l:result = tsuquyomi#tsClient#sendCommandWithDelay('geterr', l:args, l:delaySec)
+  if(len(l:result) > 0)
+    let l:bodies = {}
+    for res in l:result
+      if(has_key(res, 'body') && has_key(res, 'event'))
+        let l:bodies[res.event] = res.body
+      endif
+    endfor
+    return l:bodies
+  else
+    return {}
+  endif
 endfunction
 
 " NavBar = "navbar";
@@ -253,7 +281,27 @@ function! tsuquyomi#tsClient#tsQuickinfo(file, line, offset)
   call s:error('not implemented!')
 endfunction
 
-" References = "references";
+" Fetch a list of references.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of the symbol's position.
+" PARAM: {int} offset The col number of the symbol's position.
+" RETURNS: {dictionary} Reference information.
+" e.g:
+" {
+"   'symbolName': 'SomeClass',
+"   'symbolDisplayString': 'SomeModule.SomeClass',
+"   'refs': [
+"     {
+"       'file': 'SomeClass.ts', 'isWriteAccess': 1, 
+"       'start': {'line': 3', 'offset': 2}, 'end': {'line': 3, 'offset': 20},
+"       'lineText': 'export class SomeClass {'
+"     }, {
+"       'file': 'OtherClass.ts', 'isWriteAccess': 0, 
+"       'start': {'line': 5', 'offset': 2}, 'end': {'line': 5, 'offset': 20},
+"       'lineText': 'export class OtherClass extends SomeClass{'
+"     }
+"   ]
+" }
 function! tsuquyomi#tsClient#tsReferences(file, line, offset)
   let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
   let l:result = tsuquyomi#tsClient#sendCommand('references', l:arg)
@@ -265,7 +313,7 @@ function! tsuquyomi#tsClient#tsReferences(file, line, offset)
       return {}
     endif
   else
-    "TODO
+    return {}
   endif
 endfunction
 
@@ -273,7 +321,7 @@ endfunction
 " It can be used for telling change of buffer to TSServer.
 " PARAM: {string} file File name 
 " PARAM: {string} tmpfile
-" Reload = "reload";
+" RETURNS: {0|1} 
 function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
   let l:result = tsuquyomi#tsClient#sendCommand('reload', l:arg)
@@ -293,10 +341,10 @@ function! tsuquyomi#tsClient#tsRename(file, line, offset, findInComments, findIn
   call s:error('not implemented!')
 endfunction
 
-" Brace = "brace";
+" Find brace matching pair.
+" Vim has brace matching natively, so I don't implement this method.
 function! tsuquyomi#tsClient#tsBrace(file, line, offset)
-  let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  return tsuquyomi#tsClient#sendCommand('brace', l:arg)
+  call s:error('not implemented!')
 endfunction
 
 " ### TSServer command wrappers }}}

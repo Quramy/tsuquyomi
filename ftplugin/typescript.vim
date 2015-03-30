@@ -21,11 +21,13 @@ command! -buffer TsuquyomiDumpCurrent : call tsuquyomi#dumpCurrent()
 
 command! -buffer TsuquyomiDefinition : call tsuquyomi#definition()
 command! -buffer TsuquyomiReferences : call tsuquyomi#references()
+command! -buffer TsuquyomiGeterr : call tsuquyomi#geterr()
 
 augroup tsuquyomi_defaults
   autocmd!
   autocmd BufNewFile,BufRead *.ts setlocal omnifunc=tsuquyomi#complete
-  autocmd BufWritePost *.ts silent! call tsuquyomi#reload()
+  "autocmd BufWritePost *.ts silent! call tsuquyomi#reload()
+  autocmd BufWritePost *.ts silent! call tsuquyomi#reloadAndGeterr()
   autocmd TextChanged,TextChangedI *.ts silent! call tsuquyomi#letDirty()
 augroup END
 
