@@ -8,6 +8,7 @@ This is a Vim plugin for TypeScript coding.
 
 + Completion (omni-completion)
 + Navigate to the location where some symbol is defined
++ Show location(s) where the symbol you selected is referenced
 
 ## Requirements
 
