@@ -35,7 +35,7 @@ function! s:test2()
   call tsuquyomi#tsClient#tsOpen(l:file)
   let res_list = tsuquyomi#tsClient#tsCompletionEntryDetails(l:file, 17, 1, ['DOMError'])
   Assert len(res_list) == 1
-  "echo res_list
+  echo res_list
   let display_texts = []
   for result in res_list
     Assert has_key(result, 'displayParts')

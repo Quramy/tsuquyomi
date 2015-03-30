@@ -21,6 +21,8 @@ set cpo&vim
 " Preprocessing }}}
 
 " Global options defintion. {{{
+let g:tsuquyomi_auto_open =
+      \ get(g:, 'tsuquyomi_auto_open', 1)
 let g:tsuquyomi_use_dev_node_module =
       \ get(g:, 'tsuquyomi_use_dev_node_module', 0)
 let g:tsuquyomi_tsserver_path =
@@ -30,7 +32,7 @@ let g:tsuquyomi_tsserver_debug =
 let g:tsuquyomi_nodejs_path = 
       \ get(g:, 'tsuquyomi_nodejs_path', 'node')
 let g:tsuquyomi_waittime_after_open= 
-      \ get(g:, 'tsuquyomi_waittime_after_open', 0.01)
+      \ get(g:, 'tsuquyomi_waittime_after_open', 0.05)
 let g:tsuquyomi_completion_chank_size = 
       \ get(g:, 'tsuquyomi_completion_chank_size', 15)
 " Global options defintion. }}}

@@ -4,36 +4,39 @@ Tsuquyomi is a Vim plugin for TypeScript developers.
 
 ## Features
 
+Tsuquyomi works as a client for **TSServer**(which is an editor service bundled TypeScript).
+So, installing Tsuquyomi your vim gets the following features provided by TSServer:
+
 + Completion (omni-completion)
 + Navigate to the location where a symbol is defined.
 + Show location(s) where a symbol is referenced.
 + Display a list of syntax and seamantics errors to Vim quickfix window.
 
-## Requirements
+## How to install
+Tsuquyomi requires the followings:
 
 + [Vim](http://www.vim.org/) (v7.4.0 or later)
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
 + [Node.js](https://nodejs.org/)
-+ [TypeScript](https://github.com/Microsoft/TypeScript) (**1.5.0 or later**)
++ [TypeScript](https://github.com/Microsoft/TypeScript) (**v1.5.0 or later**)
 
 ### Remarks
 **TypeScript v1.5.0 is not released. If you install TypeScript with `npm -g install typescript`, the installed version is not v1.5.0 but v1.4.x.**
 
-**So, until v1.5.0 will be rerelased, please setup with the following procedure:**
-
-1. Get latest version TypeScript from github repo.
+**So, until v1.5.0 is rerelased, setup with the following procedure:**
 
 ```bash
-cd ~/someDirectory
-git clone https://github.com/Microsoft/TypeScript
+npm -g install git://github.com/Microsoft/TypeScript.git
 ```
 
-1. Edit your .vimrc and append the following: 
+If you use [NeoBundle](https://github.com/Shougo/neobundle.vim), append the following to your `.vimrc`:
 
 ```vim
-let g:tsuquyomi_use_dev_node_module = 2
-let g:tsuquyomi_tsserver_path = "~/someDirectory/TypeScript/bin/tsserver.js"
+NeoBundle 'Shougo/vimproc'
+NeoBundle 'Quramy/tsuquyomi'
 ```
+
+And exec `:NeoBundleInstall`.
 
 ## Usage
 
@@ -56,6 +59,7 @@ Alternatively, call the Ex comand `:TsuquyomiReferences`.
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi show them to Vim quickfix window.
 
+If you want more details, please see [doc](blob/master/doc/tsuquyomi.txt).
 
 ## Future works
 

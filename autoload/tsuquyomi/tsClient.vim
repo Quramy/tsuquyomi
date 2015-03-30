@@ -26,9 +26,7 @@ let g:tsuquyomi_is_available = 1
 
 let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
-
 let s:tsq = 'tsuquyomiTSServer'
-
 
 " ### Utilites {{{
 function! s:error(msg)
@@ -143,6 +141,30 @@ function! tsuquyomi#tsClient#sendCommandWithDelay(cmd, args, delay)
   endif
 endfunction
 
+function! tsuquyomi#tsClient#getResponseBodyAsList(responses)
+  if len(a:responses) != 1
+    return []
+  endif
+  let response = a:responses[0]
+  if has_key(response, 'success') && response.success && has_key(response, 'body')
+    return response.body
+  else
+    return []
+  endif
+endfunction
+
+function! tsuquyomi#tsClient#getResponseBodyAsDict(responses)
+  if len(a:responses) != 1
+    return {}
+  endif
+  let response = a:responses[0]
+  if has_key(response, 'success') && response.success && has_key(response, 'body')
+    return response.body
+  else
+    return {}
+  endif
+endfunction
+
 "
 " ### Core Functions }}}
 
@@ -190,16 +212,7 @@ endfunction
 function! tsuquyomi#tsClient#tsCompletions(file, line, offset, prefix)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'prefix': a:prefix}
   let l:result = tsuquyomi#tsClient#sendCommand('completions', l:args)
-  if(len(l:result) == 1)
-    let l:info = l:result[0]
-    if(has_key(l:info, 'body'))
-      return l:info.body
-    else
-      return []
-    endif
-  else
-    "TODO
-  endif
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Emmit to change file to TSServer.
@@ -215,25 +228,29 @@ function! tsuquyomi#tsClient#tsChange(file, line, offset, endLine, endOffset, in
   return tsuquyomi#tsClient#sendCommand('change', l:args)
 endfunction
 
-" CompletionDetails = "completionEntryDetails";
-" Param: {string} file File name to change.
-" Param: {int} line The line number of starting point of range to change.
-" Param: {int} offset The col number of starting point of range to change.
-" PARAM: {List<string>} entryNames 
+" Fetch details of completion from TSServer.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of location to complete.
+" PARAM: {int} offset The col number of location to complete.
+" PARAM: {list<string>} entryNames A list of names. These names may be fetched by tsuquyomi#tsClient#tsCompletions function.
+" RETURNS: {list} A list of details.
+"   e.g. :
+"     [{
+"       'name': 'DOMError',
+"       'kind': 'var',
+"       'kindModifier': 'declare',
+"       'displayParts': [
+"         {'kind': 'keyword', 'text': 'interface'},
+"         {'kind': 'space', 'text': ' '},
+"         ...
+"         {'kind': 'lineBreak', 'text': '\n'},
+"         ...
+"       ]
+"     }, ...]
 function! tsuquyomi#tsClient#tsCompletionEntryDetails(file, line, offset, entryNames)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'entryNames': a:entryNames}
   let l:result = tsuquyomi#tsClient#sendCommand('completionEntryDetails', l:args)
-
-  if(len(l:result) == 1)
-    let l:info = l:result[0]
-    if(has_key(l:info, 'body'))
-      return l:info.body
-    else
-      return []
-    endif
-  else
-    "TODO
-  endif
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Configure = "configure";
@@ -246,23 +263,12 @@ endfunction
 " PARAM: {int} line The line number of location to complete.
 " PARAM: {int} offset The col number of location to complete.
 " RETURNS: {list} A list of dictionaries of definition location.
-" e.g. : 
-" [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
-"   
+"   e.g. : 
+"     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
 function! tsuquyomi#tsClient#tsDefinition(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
   let l:result = tsuquyomi#tsClient#sendCommand('definition', l:args)
-  if(len(l:result) == 1)
-    let l:info = l:result[0]
-    if(has_key(l:info, 'body'))
-      return l:info.body
-    else
-      return []
-    endif
-  else
-    "TODO
-  endif
-  return l:result
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Format = "format";
@@ -314,35 +320,26 @@ endfunction
 " PARAM: {int} line The line number of the symbol's position.
 " PARAM: {int} offset The col number of the symbol's position.
 " RETURNS: {dictionary} Reference information.
-" e.g:
-" {
-"   'symbolName': 'SomeClass',
-"   'symbolDisplayString': 'SomeModule.SomeClass',
-"   'refs': [
+"   e.g. :
 "     {
-"       'file': 'SomeClass.ts', 'isWriteAccess': 1, 
-"       'start': {'line': 3', 'offset': 2}, 'end': {'line': 3, 'offset': 20},
-"       'lineText': 'export class SomeClass {'
-"     }, {
-"       'file': 'OtherClass.ts', 'isWriteAccess': 0, 
-"       'start': {'line': 5', 'offset': 2}, 'end': {'line': 5, 'offset': 20},
-"       'lineText': 'export class OtherClass extends SomeClass{'
+"       'symbolName': 'SomeClass',
+"       'symbolDisplayString': 'SomeModule.SomeClass',
+"       'refs': [
+"         {
+"           'file': 'SomeClass.ts', 'isWriteAccess': 1, 
+"           'start': {'line': 3', 'offset': 2}, 'end': {'line': 3, 'offset': 20},
+"           'lineText': 'export class SomeClass {'
+"         }, {
+"           'file': 'OtherClass.ts', 'isWriteAccess': 0, 
+"           'start': {'line': 5', 'offset': 2}, 'end': {'line': 5, 'offset': 20},
+"           'lineText': 'export class OtherClass extends SomeClass{'
+"         }
+"       ]
 "     }
-"   ]
-" }
 function! tsuquyomi#tsClient#tsReferences(file, line, offset)
   let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
   let l:result = tsuquyomi#tsClient#sendCommand('references', l:arg)
-  if(len(l:result) == 1)
-    let l:info = l:result[0]
-    if(has_key(l:info, 'body'))
-      return l:info.body
-    else
-      return {}
-    endif
-  else
-    return {}
-  endif
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
 " Reload an opend file.
@@ -370,7 +367,7 @@ function! tsuquyomi#tsClient#tsRename(file, line, offset, findInComments, findIn
 endfunction
 
 " Find brace matching pair.
-" Vim has brace matching natively, so I don't implement this method.
+" Vim has brace matching natively, so Tsuquyomi does not support this method.
 function! tsuquyomi#tsClient#tsBrace(file, line, offset)
   call s:error('not implemented!')
 endfunction

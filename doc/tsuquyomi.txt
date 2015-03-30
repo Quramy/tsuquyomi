@@ -26,6 +26,7 @@ CONTENTS 					*tsuquyomi-contents*
 
 Introduction		|tsuquyomi-introduction|
 Install			|tsuquyomi-install|
+Interface		|tsuquyomi-interface|
   Commands		  |tsuqutomi-commands|
   Variables		  |tsuquyomi-variables|
   Key Mappings		  |tsuquyomi-key-mappings|
@@ -52,8 +53,16 @@ Seconde, install the latest version TypeScript.
 
 Prompt:
 >
-    	$ npm -g install typescript/git://github.com/Microsoft/TypeScript.git
+    	$ npm -g install git://github.com/Microsoft/TypeScript.git
 <
+Third locate Tsuquyomi to your Vim plugin directory.
+
+If you use |NeoBundle| , append the following to your `.vimrc` .
+>
+	NeoBundle 'Shougo/vimproc'
+	NeoBundle 'Quramy/tsuquyomi'
+>
+And exec |:NeoBundleInstall| .
 
 ==============================================================================
 INTERFACE					*tsuquyomi-interface*
@@ -63,58 +72,90 @@ INTERFACE					*tsuquyomi-interface*
 COMMANDS					*tsuquyomi-commands*
 
 :TsuquyomiStartTss				*:TsuquyomiStartTss*
-			Start TSServer process using |vimproc|.
-			If already TSServer process is running, this command
-			does not anything.
+		Start TSServer process using |vimproc|.
+		If already TSServer process is running, this command does not
+		anything.
 
 :TsuquyomiStopTss 				*:TsuquyomiStopTss*
-			Stop TSServer process if it exists.
+		Stop TSServer process if it exists.
 
 :TsuquyomiStatusTss				*:TsuquyomiStatusTss*
-			Show TSServer status.
+		Show TSServer status.
+		When TSServer is running, the message that 'reading' will be
+		displayed.
 
 :TsuquyomiOpen					*:TsuquyomiOpen*
-			Notfy opening a file to TSServer.
+		Notfy to TSServer opening a file related to the current buffer.
+		By the default, |g:tsuquyomi_auto_open| is enable.
+		So, user don't need exec this command manually.
 
 :TsuquyomiClose					*:TsuquyomiClose*
-			Let TSServer releace a file.
+		Let TSServer releace a file raleted to the current buffer.
 
 
 :TsuquyomiDumpCurrent				*:TsuquyomiDumpCurrent*
-			Dump TSServer's buffer of file.
-			Note: Dump filename is `originalFileName` + `'.dump'` .
+		Dump TSServer's buffer of file.
+		This command can be executec for only debug purpose.
+		Note: Dumped filename is `originalFileName` + `'.dump'` .
+
 ------------------------------------------------------------------------------
 VARIABLES					*tsuquyomi-variables*
 
-						*g:tsuquyomi_use_dev_node_module*
-g:tsuquyomi_use_dev_node_module	(default 0)
-		Todo
+						*g:tsuquyomi_auto_open*
+g:tsuquyomi_auto_open		(default 1)
+		Whether automatically TSServer start editing a buffer
+		when it is opend.
 
+					*g:tsuquyomi_use_dev_node_module*
+g:tsuquyomi_use_dev_node_module	(default 0)
+		Whether to use `tsserver.js` that was installed manually.
+		* 0: Tsuquyomi uses `tsserver` command(default).
+		* 1: Tsuquyomi uses
+		     `${PLUGIN_DIR}/node_modules/typescript/bin/tsserver.js` .
+		* 2: Tsuquyomi uses `tsserver.js` whose path is 
+		     |g:tsuquyomi_tsserver_path| .
 
 						*g:tsuquyomi_tsserver_path*
-g:tsuquyomi_tsserver_path	(default )
-		Todo
-
+g:tsuquyomi_tsserver_path	(default `''`)
+		If |g:tsuquyomi_use_dev_node_module| equals `2`,
+		user should set path of `tsserver.js` to this variable.
 
 						*g:tsuquyomi_nodejs_path*
-g:tsuquyomi_nodejs_path
-		Todo
+g:tsuquyomi_nodejs_path		(default 'node')
+		Node.js's path that Tsuquyomi exec.
 
-
-						*g:tsuquyomi_waittime_after_open*
-g:tsuquyomi_waittime_after_open	
-		Todo
+					*g:tsuquyomi_waittime_after_open*
+g:tsuquyomi_waittime_after_open	(default 0.05)
+		Wait time (sec) after |:TsuquyomiOpen|.
+		TSServer opens a file asynchronously.
+		So, Immediately after TSServer opens the file, your other
+		commands(i.e. |:TququyomiDefinition|, |:TsuquyomiDefinition|)
+		may be executed in the wrong order.
+		Other commands can be excuted after waiting a time that is
+		specified in this variable.
 	
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
 
+Normal mode key mappings.
+
 						*<Plug>(TsuquyomiDefinition)*
 <Plug>(TsuquyomiDefinition)
-		Navigates to the location where the symbol on the cursor is defined.
+		Navigates to the location where the symbol on the cursor is
+		defined.
 
 						*<Plug>(TsuquyomiReferences)*
 <Plug>(TsuquyomiReferences)
-		Shows a list of location where the symbol on the cursor is referenced.
+		Shows a list of locations where the symbol on the cursor is
+		referenced. The result is showen to location list.
+
+Following keymappings are default keymappings.
+
+Normal mode default mappings.
+{lhs}			{rhs}
+--------		-----------------------------
+<C-]>			<Plug>(TsuquyomiDefinition)
+<C-^>			<Plug>(TsuquyomiReferences)
 
 ------------------------------------------------------------------------------
 FUNCTIONS					*tsuquyomi-functions*

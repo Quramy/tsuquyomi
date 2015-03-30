@@ -58,4 +58,6 @@ endif
 
 setlocal omnifunc=tsuquyomi#complete
 
-silent! call tsuquyomi#open()
+if g:tsuquyomi_auto_open
+  silent! call tsuquyomi#open()
+endif
