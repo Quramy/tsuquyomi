@@ -53,7 +53,7 @@ if !hasmapto('<Plug>(TsuquyomiDefinition)')
   map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
 endif
 if !hasmapto('<Plug>(TsuquyomiReferences)')
-  map <buffer> <C-[> <Plug>(TsuquyomiReferences)
+  map <buffer> <C-^> <Plug>(TsuquyomiReferences)
 endif
 
 setlocal omnifunc=tsuquyomi#complete

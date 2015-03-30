@@ -216,8 +216,24 @@ function! tsuquyomi#tsClient#tsChange(file, line, offset, endLine, endOffset, in
 endfunction
 
 " CompletionDetails = "completionEntryDetails";
+" Param: {string} file File name to change.
+" Param: {int} line The line number of starting point of range to change.
+" Param: {int} offset The col number of starting point of range to change.
+" PARAM: {List<string>} entryNames 
 function! tsuquyomi#tsClient#tsCompletionEntryDetails(file, line, offset, entryNames)
-  call s:error('not implemented!')
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'entryNames': a:entryNames}
+  let l:result = tsuquyomi#tsClient#sendCommand('completionEntryDetails', l:args)
+
+  if(len(l:result) == 1)
+    let l:info = l:result[0]
+    if(has_key(l:info, 'body'))
+      return l:info.body
+    else
+      return []
+    endif
+  else
+    "TODO
+  endif
 endfunction
 
 " Configure = "configure";

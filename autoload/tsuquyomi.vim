@@ -145,6 +145,24 @@ endfunction
 " #### File operations }}}
 
 " #### Complete {{{
+"
+function! tsuquyomi#makeCompleteMenu(file, line, offset, entryNames)
+  let res_list = tsuquyomi#tsClient#tsCompletionEntryDetails(a:file, a:line, a:offset, a:entryNames)
+  let display_texts = []
+  for result in res_list
+    let l:display = ''
+    for part in result.displayParts
+      if part.kind == 'lineBreak'
+        let l:display = l:display.'{...}'
+        break
+      endif
+      let l:display = l:display.part.text
+    endfor
+    call add(display_texts, l:display)
+  endfor
+  return display_texts
+endfunction
+
 function! tsuquyomi#complete(findstart, base)
 
   if s:checkOpenAndMessage() == 0
@@ -165,13 +183,42 @@ function! tsuquyomi#complete(findstart, base)
     call s:flash()
     return l:start - 1
   else
+    let l:file = expand('%')
     let l:res_dict = {'words': []}
-    let l:res_list = tsuquyomi#tsClient#tsCompletions(expand('%'), l:line, l:start, a:base)
-    echom len(l:res_list)
-    for info in l:res_list
-      call add(l:res_dict.words, info.name)
-    endfor
-    return l:res_dict
+    let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
+
+    let length = strlen(a:base)
+    let size = g:tsuquyomi_completion_chank_size
+    let j = 0
+
+    while j * size < len(l:res_list)
+      let entries = []
+      let items = []
+      let upper = min([(j + 1) * size, len(l:res_list)])
+      for i in range(j * size, upper - 1)
+        let info = l:res_list[i]
+        if !length || info.name[0:length - 1] == a:base
+          let l:item = {'word': info.name}
+          call add(entries, info.name)
+          call add(items, l:item)
+        endif
+      endfor
+
+      let menus = tsuquyomi#makeCompleteMenu(l:file, l:line, l:start, entries)
+      let idx = 0
+      for menu in menus
+        let items[idx].menu = menu
+        call complete_add(items[idx])
+        let idx = idx + 1
+      endfor
+      if complete_check()
+        break
+      endif
+      let j = j + 1
+    endwhile
+
+    return []
+
   endif
 endfunction
 " ### Complete }}}
@@ -254,7 +301,7 @@ function! tsuquyomi#geterr()
 
   let l:files = [expand('%')]
   let l:delayMsec = 50 "TODO export global option
-  
+
   " 1. Fetch error information from TSServer.
   let result = tsuquyomi#tsClient#tsGeterr(l:files, l:delayMsec)
 
