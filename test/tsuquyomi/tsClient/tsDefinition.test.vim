@@ -3,7 +3,7 @@ scriptencoding utf-8
 UTSuite [tsuquyomi#tsClient#tsDefinition] tsDefinition
 
 let g:tsuquyomi_use_dev_node_module=1
-let g:tsuquyomi_waittime_after_open=0.1
+let g:tsuquyomi_waittime_after_open=0.001
 
 let g:tsuquyomi_nodejs_path = 'node'
 

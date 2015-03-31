@@ -312,8 +312,8 @@ function! tsuquyomi#geterr()
       let item = {}
       let item.filename = result.semanticDiag.file
       let item.lnum = diagnostic.start.line
-      if(has_key(diagnostic.start, 'col'))
-        let item.col = diagnostic.start.col
+      if(has_key(diagnostic.start, 'offset'))
+        let item.col = diagnostic.start.offset
       endif
       let item.text = diagnostic.text
       let item.type = 'E'
@@ -326,8 +326,8 @@ function! tsuquyomi#geterr()
       let item = {}
       let item.filename = result.syntaxDiag.file
       let item.lnum = diagnostic.start.line
-      if(has_key(diagnostic.start, 'col'))
-        let item.col = diagnostic.start.col
+      if(has_key(diagnostic.start, 'offset'))
+        let item.col = diagnostic.start.offset
       endif
       let item.text = diagnostic.text
       let item.type = 'E'

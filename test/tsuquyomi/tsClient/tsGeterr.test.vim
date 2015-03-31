@@ -3,7 +3,7 @@ scriptencoding utf-8
 UTSuite [tsuquyomi#tsClient#tsGeterr] tsGeterr
 
 let g:tsuquyomi_use_dev_node_module=1
-let g:tsuquyomi_waittime_after_open=0.2
+let g:tsuquyomi_waittime_after_open=0.001
 
 let s:V = vital#of('tsuquyomi')
 let s:Filepath = s:V.import('System.Filepath')
@@ -18,7 +18,7 @@ function! s:test1()
   call tsuquyomi#tsClient#tsOpen(l:file)
   let files = [l:file]
   let result = tsuquyomi#tsClient#tsGeterr(files, 50)
-  echo result
+  "echo result
   Assert has_key(result, 'syntaxDiag')
   Assert has_key(result, 'semanticDiag')
   Assert has_key(result.semanticDiag, 'diagnostics')
@@ -27,8 +27,10 @@ function! s:test1()
   Assert has_key(result.semanticDiag.diagnostics[0], 'text')
   Assert has_key(result.semanticDiag.diagnostics[0], 'start')
   Assert has_key(result.semanticDiag.diagnostics[0].start, 'line')
-  Assert has_key(result.semanticDiag.diagnostics[0].start, 'col')
+  Assert has_key(result.semanticDiag.diagnostics[0].start, 'offset')
   Assert has_key(result.semanticDiag.diagnostics[0], 'end')
   Assert has_key(result.semanticDiag.diagnostics[0].end, 'line')
-  Assert has_key(result.semanticDiag.diagnostics[0].end, 'col')
+  Assert has_key(result.semanticDiag.diagnostics[0].end, 'offset')
+  call tsuquyomi#tsClient#stopTss()
 endfunction
+

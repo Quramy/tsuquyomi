@@ -15,7 +15,7 @@ let s:P = s:V.import('ProcessManager')
 
 if(!exists(g:tsuquyomi_is_available) && !s:P.is_available())
   let g:tsuquyomi_is_available = 0
-  echom '[tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
+  echom '[Tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
   finish
 endif
 if(!g:tsuquyomi_is_available)
@@ -28,6 +28,8 @@ let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
 let s:tsq = 'tsuquyomiTSServer'
 
+let s:request_seq = 0
+
 " ### Utilites {{{
 function! s:error(msg)
   echoerr (a:msg)
@@ -39,6 +41,7 @@ endfunction
 
 function! s:createTssPath()
   if g:tsuquyomi_use_dev_node_module == 0
+    " TODO how to command exiting check ?
     let l:cmd = 'tsserver'
   else
     if g:tsuquyomi_use_dev_node_module == 1
@@ -83,63 +86,161 @@ endfunction
 "
 "Terminate TSServer process if it exsits.
 function! tsuquyomi#tsClient#stopTss()
-  let l:res = s:P.term(s:tsq)
-  return l:res
+  if tsuquyomi#tsClient#statusTss() != 'undefined'
+    let l:res = s:P.term(s:tsq)
+    return l:res
+  endif
 endfunction
 
 function! tsuquyomi#tsClient#statusTss()
   return s:P.state(s:tsq)
 endfunction
 
+"   "
+"   "Write to stdin of tsserver proc, and return stdout.
+"   function! tsuquyomi#tsClient#sendTssStd(line, delay)
+"     call tsuquyomi#tsClient#startTss()
+"     call s:P.writeln(s:tsq, a:line)
+"     let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
+"     echom err
+"     "echo type
+"     if type == 'timedout'
+"       "echom 'timedout'
+"       return []
+"     elseif type == 'matched'
+"       let l:tmp1 = substitute(out, 'Content-Length: \d\+', '', 'g')
+"       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
+"       let l:res_list = split(l:tmp2, '\n\+')
+"       "echo l:res_list
+"       return l:res_list
+"     else
+"       return 'inactive'
+"     endif
+"   endfunction
+
+"   "
+"   " Send a command to tsserver.
+"   " PARAM: {String} cmd Command type. e.g. 'open', 'completion', etc...
+"   " PARAM: {Dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
+"   " RETURNS: {List<Dictionary>}
+"   function! tsuquyomi#tsClient#sendCommand(cmd, args)
+"     return tsuquyomi#tsClient#sendCommandWithDelay(a:cmd, a:args, 0.01)
+"   endfunction
+
+
 "
 "Write to stdin of tsserver proc, and return stdout.
-function! tsuquyomi#tsClient#sendTssStd(line, delay)
+function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
   call tsuquyomi#tsClient#startTss()
   call s:P.writeln(s:tsq, a:line)
   let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
-  echom err
-  "echo type
-  if type == 'timedout'
-    return []
-  elseif type == 'matched'
-    let l:tmp1 = substitute(out, 'Content-Length: \d\+', '', 'g')
-    let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
-    let l:res_list = split(l:tmp2, '\n\+')
-    "echo l:res_list
-    return l:res_list
-  else
-    return 'inactive'
-  endif
+
+  let l:retry = 0
+  let response_list = []
+
+  while len(response_list) < a:response_length
+    "echom err
+    if type == 'timedout'
+      "echom 'timedout!!!'
+      let retry_delay = 0.05
+      while l:retry < a:retry_count
+        let [out, err, type] = s:P.read_wait(s:tsq, retry_delay, ['Content-Length: \d\+'])
+        if type == 'matched'
+          break
+        endif
+        let l:retry = l:retry + 1
+      endwhile
+    endif
+
+    if type == 'matched'
+      let l:tmp1 = substitute(out, 'Content-Length: \d\+', '', 'g')
+      let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
+      let l:res_list = split(l:tmp2, '\n\+')
+      for res_item in l:res_list
+        call add(response_list, res_item)
+      endfor
+    else
+      echom '[Tsuquyomi] TSServer request was timeout:'.a:line
+      return response_list
+    endif
+
+  endwhile
+
+  return response_list
+
 endfunction
 
 "
-" Send a command to tsserver.
-" PARAM: {String} cmd Command type. e.g. 'open', 'completion', etc...
-" PARAM: {Dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
-" RETURNS: {List<Dictionary>}
-function! tsuquyomi#tsClient#sendCommand(cmd, args)
-  return tsuquyomi#tsClient#sendCommandWithDelay(a:cmd, a:args, 0.01)
-endfunction
-"
-" Send a command to tsserver and wait.
-" PARAM: {String} cmd Command type. e.g. 'open', 'completion', etc...
-" PARAM: {Dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
-" RETURNS: {List<Dictionary>}
-function! tsuquyomi#tsClient#sendCommandWithDelay(cmd, args, delay)
-  let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args})
-  let l:stdout_list = tsuquyomi#tsClient#sendTssStd(l:input, a:delay)
+" Send a command to TSServer.
+" This function is called pseudo synchronously.
+" PARAM: {string} cmd Command type. e.g. 'completion', etc...
+" PARAM: {dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
+" RETURNS: {list<dictionary>}
+function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
+  let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.01, 10, 1)
   let l:length = len(l:stdout_list)
-  if l:length > 0
-    "echo 'stdout length: '.l:length
-    let l:res_list = []
-    for e in l:stdout_list
-      call add(l:res_list, s:JSON.decode(e))
-    endfor
-    return l:res_list
+  if l:length == 1
+    let res = s:JSON.decode(l:stdout_list[0])
+    "if res.success == 0
+    "  echom '[Tsuquyomi] TSServer command fail. command: '.res.command.', message: '.res.message
+    "endif
+    let s:request_seq = s:request_seq + 1
+    return [res]
   else
     return []
   endif
 endfunction
+
+function! tsuquyomi#tsClient#sendCommandSyncEvents(cmd, args, delay, length)
+  let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, a:delay, 200, a:length)
+  echo l:stdout_list
+  let l:length = len(l:stdout_list)
+  let l:result_list = []
+  if l:length > 0
+    for out_str in l:stdout_list
+      let res = s:JSON.decode(out_str)
+      if res.type != 'event'
+        "echom '[Tsuquyomi] TSServer return invalid response: '.out_str
+      else
+        call add(l:result_list, res)
+      endif
+    endfor
+    let s:request_seq = s:request_seq + 1
+    return l:result_list
+  else
+    return []
+  endif
+
+endfunction
+
+function! tsuquyomi#tsClient#sendCommandOneWay(cmd, args)
+  let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
+  call tsuquyomi#tsClient#sendRequest(l:input, 0.01, 0, 0)
+  return []
+endfunction
+
+"   "
+"   " Send a command to tsserver and wait.
+"   " PARAM: {string} cmd Command type. e.g. 'open', 'completion', etc...
+"   " PARAM: {dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
+"   " RETURNS: {list<dictionary>}
+"   function! tsuquyomi#tsClient#sendCommandWithDelay(cmd, args, delay)
+"     let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
+"     let l:stdout_list = tsuquyomi#tsClient#sendTssStd(l:input, a:delay)
+"     let l:length = len(l:stdout_list)
+"     if l:length > 0
+"       "echo 'stdout length: '.l:length
+"       let l:res_list = []
+"       for e in l:stdout_list
+"         call add(l:res_list, s:JSON.decode(e))
+"       endfor
+"       return l:res_list
+"     else
+"       return []
+"     endif
+"   endfunction
 
 function! tsuquyomi#tsClient#getResponseBodyAsList(responses)
   if len(a:responses) != 1
@@ -178,7 +279,7 @@ endfunction
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsOpen(file)
   let l:args = {'file': a:file}
-  let l:res = tsuquyomi#tsClient#sendCommand('open', l:args)
+  let l:res = tsuquyomi#tsClient#sendCommandOneWay('open', l:args)
   call s:waitTss(g:tsuquyomi_waittime_after_open)
   return l:res
 endfunction
@@ -187,7 +288,7 @@ endfunction
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsClose(file)
   let l:args = {'file': a:file}
-  return tsuquyomi#tsClient#sendCommand('close', l:args)
+  return tsuquyomi#tsClient#sendCommandOneWay('close', l:args)
 endfunction
 
 " Save an opened file to tmpfile.
@@ -195,7 +296,7 @@ endfunction
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsSaveto(file, tmpfile)
   let l:args = {'file': a:file, 'tmpfile': a:tmpfile}
-  return tsuquyomi#tsClient#sendCommand('saveto', l:args)
+  return tsuquyomi#tsClient#sendCommandOneWay('saveto', l:args)
 endfunction
 
 " Fetch keywards to complete from TSServer.
@@ -211,7 +312,7 @@ endfunction
 "     ]
 function! tsuquyomi#tsClient#tsCompletions(file, line, offset, prefix)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'prefix': a:prefix}
-  let l:result = tsuquyomi#tsClient#sendCommand('completions', l:args)
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('completions', l:args)
   return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
@@ -225,7 +326,7 @@ endfunction
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsChange(file, line, offset, endLine, endOffset, insertString)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'endLine': a:endLine, 'endOffset': a:endOffset, 'insertString': a:insertString}
-  return tsuquyomi#tsClient#sendCommand('change', l:args)
+  return tsuquyomi#tsClient#sendCommandOneWay('change', l:args)
 endfunction
 
 " Fetch details of completion from TSServer.
@@ -249,7 +350,7 @@ endfunction
 "     }, ...]
 function! tsuquyomi#tsClient#tsCompletionEntryDetails(file, line, offset, entryNames)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'entryNames': a:entryNames}
-  let l:result = tsuquyomi#tsClient#sendCommand('completionEntryDetails', l:args)
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('completionEntryDetails', l:args)
   return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
@@ -267,7 +368,7 @@ endfunction
 "     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
 function! tsuquyomi#tsClient#tsDefinition(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  let l:result = tsuquyomi#tsClient#sendCommand('definition', l:args)
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('definition', l:args)
   return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
@@ -286,7 +387,7 @@ endfunction
 function! tsuquyomi#tsClient#tsGeterr(files, delay)
   let l:args = {'files': a:files, 'delay': a:delay}
   let l:delaySec = a:delay * 1.0 / 1000.0
-  let l:result = tsuquyomi#tsClient#sendCommandWithDelay('geterr', l:args, l:delaySec)
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', l:args, l:delaySec, 2)
   if(len(l:result) > 0)
     let l:bodies = {}
     for res in l:result
@@ -313,7 +414,7 @@ endfunction
 " Quickinfo = "quickinfo";
 function! tsuquyomi#tsClient#tsQuickinfo(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  let l:result = tsuquyomi#tsClient#sendCommand('quickinfo', l:args)
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('quickinfo', l:args)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
@@ -340,7 +441,7 @@ endfunction
 "     }
 function! tsuquyomi#tsClient#tsReferences(file, line, offset)
   let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  let l:result = tsuquyomi#tsClient#sendCommand('references', l:arg)
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('references', l:arg)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
@@ -351,7 +452,8 @@ endfunction
 " RETURNS: {0|1} 
 function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
-  let l:result = tsuquyomi#tsClient#sendCommand('reload', l:arg)
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('reload', l:arg)
+  "echo l:result
   if(len(l:result) == 1)
     if(has_key(l:result[0], 'success'))
       return l:result[0].success
