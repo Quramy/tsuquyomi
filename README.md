@@ -38,7 +38,7 @@ make
 ### Remarks
 **TypeScript v1.5.0 is not released. If you install TypeScript with `npm -g install typescript`, the installed version is not v1.5.0 but v1.4.x.**
 
-**So, until v1.5.0 is rerelased, setup with the following procedure:**
+**So, until v1.5.0 is rerelased, setup with the following command:**
 
 ```bash
 npm -g install git://github.com/Microsoft/TypeScript.git
@@ -65,7 +65,7 @@ Alternatively, call the Ex comand `:TsuquyomiReferences`.
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi show them to Vim quickfix window.
 
-If you want more details, please see [doc](blob/master/doc/tsuquyomi.txt).
+If you want more details, please see [doc](doc/tsuquyomi.txt).
 
 ## Future works
 

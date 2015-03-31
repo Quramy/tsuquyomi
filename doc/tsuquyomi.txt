@@ -1,6 +1,6 @@
 *tsuquyomi.txt*	TypeScript editing plugin for Vim
 
-Version: 0.1.0
+Version: 0.2.0
 Author : Quramy <yosuke.kurami at gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -85,7 +85,8 @@ COMMANDS					*tsuquyomi-commands*
 		displayed.
 
 :TsuquyomiOpen					*:TsuquyomiOpen*
-		Notfy to TSServer opening a file related to the current buffer.
+		Notfy to TSServer opening a file related to
+		the current buffer.
 		By the default, |g:tsuquyomi_auto_open| is enable.
 		So, user don't need exec this command manually.
 
@@ -103,7 +104,7 @@ VARIABLES					*tsuquyomi-variables*
 
 						*g:tsuquyomi_auto_open*
 g:tsuquyomi_auto_open		(default 1)
-		Whether automatically TSServer start editing a buffer
+		Whether automatically TSServer starts editing a buffer
 		when it is opend.
 
 					*g:tsuquyomi_use_dev_node_module*
