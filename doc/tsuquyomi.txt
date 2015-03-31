@@ -130,7 +130,7 @@ g:tsuquyomi_waittime_after_open	(default 0.05)
 		Wait time (sec) after |:TsuquyomiOpen|.
 		TSServer opens a file asynchronously.
 		So, Immediately after TSServer opens the file, your other
-		commands(i.e. |:TququyomiDefinition|, |:TsuquyomiDefinition|)
+		commands(e.g. |:TsuquyomiDefinition|, |:TsuquyomiReferences|)
 		may be executed in the wrong order.
 		Other commands can be excuted after waiting a time that is
 		specified in this variable.
@@ -161,6 +161,16 @@ Normal mode default mappings.
 ------------------------------------------------------------------------------
 FUNCTIONS					*tsuquyomi-functions*
 
+tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
+		Returns informations about symbol under mouse pointer for
+		tooltip popover window.
+		This is used as rhs for |balloon-expr| .
+		For example,
+>
+		set ballooneval
+		autocmd BufNewFile,BufRead *.ts
+		\ setlocal ballonexpr=tsuquyomi#ballonexpr()
+<
 Todo
 
 ==============================================================================

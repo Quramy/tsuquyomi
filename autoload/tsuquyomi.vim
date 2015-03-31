@@ -343,6 +343,15 @@ function! tsuquyomi#geterr()
   endif
 endfunction
 " #### Geterr }}}
+"
+function! tsuquyomi#balloonexpr()
+  let l:filename = buffer_name(v:beval_bufnr)
+  let res = tsuquyomi#tsClient#tsQuickinfo(l:filename, v:beval_lnum, v:beval_col)
+  if has_key(res, 'displayString')
+    return res.displayString
+  endif
+endfunction
+
 
 function! tsuquyomi#reloadAndGeterr()
   return tsuquyomi#reload() && tsuquyomi#geterr()

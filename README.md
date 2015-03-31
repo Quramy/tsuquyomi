@@ -11,6 +11,7 @@ So, installing Tsuquyomi your vim gets the following features provided by TSServ
 + Navigate to the location where a symbol is defined.
 + Show location(s) where a symbol is referenced.
 + Display a list of syntax and seamantics errors to Vim quickfix window.
++ and so on,,,
 
 ## How to install
 Tsuquyomi requires the followings:
@@ -38,11 +39,28 @@ make
 ### Remarks
 **TypeScript v1.5.0 is not released. If you install TypeScript with `npm -g install typescript`, the installed version is not v1.5.0 but v1.4.x.**
 
-**So, until v1.5.0 is rerelased, setup with the following command:**
+**So, until v1.5.0 is rerelased, setup with the following procedures (select a. or b.):**
+
+* a. Global install
 
 ```bash
 npm -g install git://github.com/Microsoft/TypeScript.git
 ```
+
+* b. Local install
+
+```bash
+cd ${TSUQUYOMI_INSTALL_DIR}
+npm install
+```
+
+And append the following to your `.vimrc':
+
+```vim
+" If this value equals 1, Tsuquyomi use tsserver.js at ${TSUQUYOMI_INSTALL_DIR}/node_modules/typescript/bin
+let g:tsuquyomi_use_dev_node_module = 1
+```
+
 
 ## Usage
 
@@ -65,12 +83,22 @@ Alternatively, call the Ex comand `:TsuquyomiReferences`.
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi show them to Vim quickfix window.
 
+### Show tooltip(balloon)
+Tsuquyomi can display tooltip window about symbol under the mouse cursor.
+If you want to use this feature, configure `.vimrc`.
+
+```vim
+set ballooneval
+autocmd BufNewFile,BufRead *.ts setlocal ballonexpr=tsuquyomi#ballonexpr()
+```
+
+
 If you want more details, please see [doc](doc/tsuquyomi.txt).
 
 ## Future works
 
 + rename
-+ formatting
++ outline 
 + syntax highright
 + etc ...
 
