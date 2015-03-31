@@ -312,7 +312,9 @@ endfunction
 
 " Quickinfo = "quickinfo";
 function! tsuquyomi#tsClient#tsQuickinfo(file, line, offset)
-  call s:error('not implemented!')
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommand('quickinfo', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
 " Fetch a list of references.
