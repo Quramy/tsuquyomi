@@ -30,7 +30,7 @@ NeoBundle 'Quramy/tsuquyomi'
 And exec `:NeoBundleInstall`, make vimproc runtime.
 
 ```bash
-cd ~/${VIM_PLUGIN_DIR}/bundle/vimproc
+cd ~/.vim/bundle/vimproc
 make
 ```
 
@@ -39,25 +39,24 @@ make
 ### Remarks
 **TypeScript v1.5.0 is not released. If you install TypeScript with `npm -g install typescript`, the installed version is not v1.5.0 but v1.4.x.**
 
-**So, until v1.5.0 is rerelased, setup with the following procedures (select a. or b.):**
+**So, until v1.5.0 is rerelased, setup with the following procedures (select A. or B.):**
 
-* a. Global install
+#### A. Global install
 
 ```bash
 npm -g install git://github.com/Microsoft/TypeScript.git
 ```
 
-* b. Local install
+#### B. Local install
 
 ```bash
-cd ${TSUQUYOMI_INSTALL_DIR}
+cd ~/.vim/bundle/tsuquyomi
 npm install
 ```
 
-And append the following to your `.vimrc':
+For using `~/.vim/bundle/tsuquyomi/node_modules/typescript/bin/tsserver.js` installed above, append the following to your `.vimrc`:
 
 ```vim
-" If this value equals 1, Tsuquyomi use tsserver.js at ${TSUQUYOMI_INSTALL_DIR}/node_modules/typescript/bin
 let g:tsuquyomi_use_dev_node_module = 1
 ```
 
