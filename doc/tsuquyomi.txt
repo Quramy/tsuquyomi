@@ -84,20 +84,47 @@ COMMANDS					*tsuquyomi-commands*
 		displayed.
 
 :TsuquyomiOpen [{file} ...]			*:TsuquyomiOpen*
-		Let TSServer open the file of the current buffer.
+		Let TSServer open {file}s.
+		Once TSServer opens files, you can start a variety of
+		operations on them.
+		If you omit the argument {file}, TSServer opens the current
+		buffer.
 		By the default, |g:tsuquyomi_auto_open| is enable.
 		So, usually user don't need to exec this command manually.
 
 :TsuquyomiClose [{file} ...]			*:TsuquyomiClose*
-		Let TSServer releace the opend file of the current buffer.
+		Let TSServer releace opened {file}s.
+		If you omit the argument {file}, TSServer closes the file
+		related to the current buffer.
 
 :TsuquyomiReload [{file} ...]			*:TsuquyomiReload*
 		Let TSServer reload files.
+		If you omit the argument {file}, TSServer reloads the current
+		buffer.
 
 :TsuquyomiDump [{file} ...]			*:TsuquyomiDump*
-		Dump TSServer's buffer of file.
+		Save TSServer's buffer to files.
 		This command can be execute for only debug purpose.
+		If you omit the argument {file}, TSServer saves the file
+		related to the current buffer.
 		Note: Dumped filename is `originalFileName` + `'.dump'` .
+
+:TsuquyomiDefinition				*:TsuquyomiDefinition*
+		Navigate to the location where the symbol is defined.
+		If the location of definition is in the current buffer,
+		move the cursor.
+		Otherwise, |split| the current window and open the file which
+		contains the definition.
+
+:TsuquyomiReferences				*:TsuquyomiReferences*
+		Navigate to the locations where the symbol is referenced.
+		The result is showen to |location-list| .
+
+:TsuquyomiRenameSymbol				*:TsuquyomiRenameSymbol*
+		Rename the identifier under the cursor to a new name.
+		If the identifier is refferenced by other .ts files,
+		you should open them before executing this command.
+		
 
 Todo
 
@@ -151,19 +178,17 @@ Normal mode key mappings.
 						*<Plug>(TsuquyomiDefinition)*
 <Plug>(TsuquyomiDefinition)
 		Navigates to the location where the symbol on the cursor is
-		defined.
+		defined. See |:TsuquyomiDefinition|.
 
 						*<Plug>(TsuquyomiReferences)*
 <Plug>(TsuquyomiReferences)
 		Shows a list of locations where the symbol on the cursor is
-		referenced. The result is showen to location list.
+		referenced. See |:TsuquyomiReferences|.
 
 					*<Plug>(TsuquyomiRenameSymbol)*
 <Plug>(TsuquyomiRenameSymbol)
 		Rename the identifier under the cursor to a new name.
-		Note: Tsuquyomi can't rename a symbol which is occurres
-		      across multiple files.
-		      It's a future work to fix this.
+		Please see |:TsuquyomiRenameSymbol|.
 
 Following keymappings are default keymappings.
 
@@ -179,7 +204,7 @@ FUNCTIONS					*tsuquyomi-functions*
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		Returns informations about symbol under mouse pointer for
 		tooltip popover window.
-		This is used as rhs for |balloon-expr| .
+		This is used as rhs for |balloon-expr|.
 		For example,
 >
 		set ballooneval
