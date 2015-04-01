@@ -5,6 +5,10 @@
 
 scriptencoding utf-8
 
+if !tsuquyomi#config#preconfig()
+  finish
+endif
+
 let s:V = vital#of('tsuquyomi')
 let s:P = s:V.import('ProcessManager')
 

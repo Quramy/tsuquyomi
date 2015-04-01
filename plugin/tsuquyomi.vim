@@ -14,7 +14,6 @@ elseif v:version < 704
 endif
 
 let g:loaded_tsuquyomi = 1
-let g:tsuquyomi_is_available = 1
 
 let s:save_cpo = &cpo
 set cpo&vim

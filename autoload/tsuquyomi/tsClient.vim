@@ -8,22 +8,14 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+if !tsuquyomi#config#preconfig()
+  finish
+endif
+
 let s:script_dir = expand('<sfile>:p:h')
 
 let s:V = vital#of('tsuquyomi')
 let s:P = s:V.import('ProcessManager')
-
-if(!exists(g:tsuquyomi_is_available) && !s:P.is_available())
-  let g:tsuquyomi_is_available = 0
-  echom '[Tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
-  finish
-endif
-if(!g:tsuquyomi_is_available)
-  finish
-endif
-
-let g:tsuquyomi_is_available = 1
-
 let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
 let s:tsq = 'tsuquyomiTSServer'
@@ -38,29 +30,6 @@ endfunction
 function! s:waitTss(sec)
   call s:P.read_wait(s:tsq, a:sec, [])
 endfunction
-
-function! s:createTssPath()
-  if g:tsuquyomi_use_dev_node_module == 0
-    let l:cmd = 'tsserver'
-    if !executable(l:cmd)
-      call s:error('tsserver is not installed. Try "npm -g install typescript".')
-    endif
-  else
-    if g:tsuquyomi_use_dev_node_module == 1
-      let l:path = s:Filepath.join(s:script_dir, '../../node_modules/typescript/bin/tsserver.js')
-    elseif g:tsuquyomi_use_dev_node_module == 2
-      let l:path = g:tsuquyomi_tsserver_path
-    else
-      call s:error('Invalid option value "g:tsuquyomi_use_dev_node_module".')
-    endif
-    if filereadable(l:path) != 1
-      call s:error('tsserver.js does not exist. Try "npm install"., '.l:path)
-    endif
-    let l:cmd = g:tsuquyomi_nodejs_path.' "'.l:path.'"'
-  endif
-  return l:cmd
-endfunction
-
 " ### Utilites }}}
 
 " ### Core Functions {{{
@@ -70,8 +39,7 @@ function! tsuquyomi#tsClient#startTss()
   if s:P.state(s:tsq) == 'existing'
     return 'existing'
   endif
-  let l:cmd = substitute(s:createTssPath(), '\\', '\\\\', 'g')
-  "echo l:cmd
+  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g')
   let l:is_new = s:P.touch(s:tsq, l:cmd)
   if l:is_new == 'new'
     let [out, err, type] = s:P.read_wait(s:tsq, 0.1, [])
