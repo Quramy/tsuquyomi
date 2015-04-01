@@ -35,7 +35,7 @@ Interface		|tsuquyomi-interface|
 ==============================================================================
 INTRODUCTION					*tsuquyomi-introduction*
 
-*tsuquyomi* supports you to edit TypeScript source files using TSServer.
+Tsuquyomi supports you to edit TypeScript source files using TSServer.
 
 
 ==============================================================================
@@ -55,14 +55,13 @@ Prompt:
 >
     	$ npm -g install git://github.com/Microsoft/TypeScript.git
 <
-Third locate Tsuquyomi to your Vim plugin directory.
-
-If you use |NeoBundle| , append the following to your `.vimrc` .
+Third, locate Tsuquyomi to your Vim plugin directory.
+If you use |NeoBundle| for plugin management, append the following to `.vimrc` .
 >
 	NeoBundle 'Shougo/vimproc'
 	NeoBundle 'Quramy/tsuquyomi'
 >
-And exec |:NeoBundleInstall| .
+And execute the Ex command |:NeoBundleInstall| .
 
 ==============================================================================
 INTERFACE					*tsuquyomi-interface*
@@ -73,7 +72,7 @@ COMMANDS					*tsuquyomi-commands*
 
 :TsuquyomiStartTss				*:TsuquyomiStartTss*
 		Start TSServer process using |vimproc|.
-		If already TSServer process is running, this command does not
+		If already the process is running, this command does not
 		anything.
 
 :TsuquyomiStopTss 				*:TsuquyomiStopTss*
@@ -81,38 +80,39 @@ COMMANDS					*tsuquyomi-commands*
 
 :TsuquyomiStatusTss				*:TsuquyomiStatusTss*
 		Show TSServer status.
-		When TSServer is running, the message that 'reading' will be
+		When TSServer is running, the message 'reading' will be
 		displayed.
 
 :TsuquyomiOpen					*:TsuquyomiOpen*
-		Notfy to TSServer opening a file related to
-		the current buffer.
+		Let TSServer open the file of the current buffer.
 		By the default, |g:tsuquyomi_auto_open| is enable.
-		So, user don't need exec this command manually.
+		So, usually user don't need to exec this command manually.
 
 :TsuquyomiClose					*:TsuquyomiClose*
-		Let TSServer releace a file raleted to the current buffer.
+		Let TSServer releace the opend file of the current buffer.
 
 
 :TsuquyomiDumpCurrent				*:TsuquyomiDumpCurrent*
 		Dump TSServer's buffer of file.
-		This command can be executec for only debug purpose.
+		This command can be execute for only debug purpose.
 		Note: Dumped filename is `originalFileName` + `'.dump'` .
+
+Todo
 
 ------------------------------------------------------------------------------
 VARIABLES					*tsuquyomi-variables*
 
 						*g:tsuquyomi_auto_open*
 g:tsuquyomi_auto_open		(default 1)
-		Whether automatically TSServer starts editing a buffer
-		when it is opend.
+		Whether automatically TSServer opens the file of the current
+		buffer, when the buffer is opend in Vim
 
 					*g:tsuquyomi_use_dev_node_module*
 g:tsuquyomi_use_dev_node_module	(default 0)
 		Whether to use `tsserver.js` that was installed manually.
 		* 0: Tsuquyomi uses `tsserver` command(default).
 		* 1: Tsuquyomi uses
-		     `${PLUGIN_DIR}/node_modules/typescript/bin/tsserver.js` .
+		     `tsuquyomi/node_modules/typescript/bin/tsserver.js` .
 		* 2: Tsuquyomi uses `tsserver.js` whose path is 
 		     |g:tsuquyomi_tsserver_path| .
 
@@ -120,6 +120,12 @@ g:tsuquyomi_use_dev_node_module	(default 0)
 g:tsuquyomi_tsserver_path	(default `''`)
 		If |g:tsuquyomi_use_dev_node_module| equals `2`,
 		user should set path of `tsserver.js` to this variable.
+		For example,
+>
+		let g:tsuquyomi_use_dev_node_module = 2
+		let g:tsuquyomi_tsserver_path = 
+		\ '~/typescript/built/local/tsserver.js'
+<
 
 						*g:tsuquyomi_nodejs_path*
 g:tsuquyomi_nodejs_path		(default 'node')
@@ -149,6 +155,13 @@ Normal mode key mappings.
 <Plug>(TsuquyomiReferences)
 		Shows a list of locations where the symbol on the cursor is
 		referenced. The result is showen to location list.
+
+					*<Plug>(TsuquyomiRenameSymbol)*
+<Plug>(TsuquyomiRenameSymbol)
+		Rename the identifier under the cursor to a new name.
+		Note: Tsuquyomi can't rename a symbol which is occurres
+		      across multiple files.
+		      It's a future work to fix this.
 
 Following keymappings are default keymappings.
 

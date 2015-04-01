@@ -36,9 +36,11 @@ command! -buffer TsuquyomiDumpCurrent   :call tsuquyomi#dumpCurrent()
 command! -buffer TsuquyomiDefinition    :call tsuquyomi#definition()
 command! -buffer TsuquyomiReferences    :call tsuquyomi#references()
 command! -buffer TsuquyomiGeterr        :call tsuquyomi#geterr()
+command! -buffer TsuquyomiRenameSymbol  :call tsuquyomi#renameSymbol()
 
 noremap <silent> <buffer> <Plug>(TsuquyomiDefinition) :TsuquyomiDefinition <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiReferences) :TsuquyomiReferences <CR>
+noremap <buffer> <Plug>(TsuquyomiRenameSymbol) :TsuquyomiRenameSymbol <CR>
 
 augroup tsuquyomi_defaults
   autocmd!

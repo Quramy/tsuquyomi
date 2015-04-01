@@ -342,20 +342,119 @@ function! tsuquyomi#geterr()
 
   endif
 endfunction
+
+function! tsuquyomi#reloadAndGeterr()
+  return tsuquyomi#reload() && tsuquyomi#geterr()
+endfunction
+
 " #### Geterr }}}
-"
+
+" #### Balloon {{{
 function! tsuquyomi#balloonexpr()
+
+  call s:flash()
   let l:filename = buffer_name(v:beval_bufnr)
   let res = tsuquyomi#tsClient#tsQuickinfo(l:filename, v:beval_lnum, v:beval_col)
   if has_key(res, 'displayString')
     return res.displayString
   endif
 endfunction
+" #### Balloon }}}
+
+" #### Rename {{{
+function! tsuquyomi#renameSymbol()
+
+  if s:checkOpenAndMessage() == 0
+    return
+  endif
+
+  call s:flash()
+
+  let l:filename = expand('%')
+  let l:line = line('.')
+  let l:offset = col('.')
+
+  " * Make a list of locations of symbols to be replaced.
+  let l:res_dict = tsuquyomi#tsClient#tsRename(l:filename, l:line, l:offset, 0, 0)
+
+  " * Check the symbol is renameable
+  if !has_key(l:res_dict, 'info') 
+    "TODO message
+    echom '[Tsuquyomi] No symbol to be rename'
+    return
+  elseif !l:res_dict.info.canRename
+    echom '[Tsuquyomi] '.l:res_dict.info.localizedErrorMessage
+    return
+  endif
+
+  " TODO to be able to change multiple buffer.
+  "
+  " * Check affection only current buffer.
+  if len(l:res_dict.locs) != 1 || s:normalizePath(expand('%')) != l:res_dict.locs[0].file
+    echom '[Tsuquyomi] Tsuquyomi can not rename a symbol which is occurred across multiple files.'
+    return
+  endif
 
 
-function! tsuquyomi#reloadAndGeterr()
-  return tsuquyomi#reload() && tsuquyomi#geterr()
+  let l:location_list = []
+
+  " for file_hit in l:res_dict.locs
+  "   for reference in file_hit.locs
+  "     let l:location_info = {
+  "           \ 'filename': file_hit.file,
+  "           \ 'lnum': reference.start.line,
+  "           \ 'col': reference.start.offset,
+  "           \ 'text': l:res_dict.info.displayName
+  "           \ }
+  "     call add(l:location_list, l:location_info)
+  "   endfor
+  " endfor
+
+  " if !len(l:location_list)
+  "   echom '[Tsuquyomi] No symbol to be rename...'
+  " endif
+
+  " call setloclist(0, l:location_list, 'r')
+  " lwindow
+  "
+
+  " * Question user what new symbol name.
+  echohl String
+  let renameTo = input('[Tsuquyomi] New symbol name : ')
+  echohl none 
+
+  " * Execute to replace symbols by location, by buffer
+  "let l:buflist = getbufline('%', 1, '$')
+  let locations_in_buf = l:res_dict.locs[0].locs " TODO by buffer
+  let changed_count = 0
+  for span in locations_in_buf
+    if span.start.line != span.end.line
+      echom '[Tsuquyomi] this span is across multiple lines. '
+      return
+    endif
+
+    let lineidx = span.start.line
+    let linestr = getline(lineidx)
+
+    if span.start.offset - 1
+      let pre = linestr[:(span.start.offset - 2)]
+      let post = linestr[(span.end.offset - 1):]
+      let linestr = pre.renameTo.post
+    else
+      let post = linestr[(span.end.offset - 1):]
+      let linestr = renameTo.post
+    endif
+    call setline(lineidx, linestr)
+    let changed_count = changed_count + 1
+  endfor
+
+  echohl String
+  echo ' '
+  echo 'Changed '.changed_count.' locations.'
+  echohl none 
+
 endfunction
+" #### Rename }}}
 
 " ### Public functions }}}
 

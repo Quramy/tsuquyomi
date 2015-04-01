@@ -41,8 +41,10 @@ endfunction
 
 function! s:createTssPath()
   if g:tsuquyomi_use_dev_node_module == 0
-    " TODO how to command exiting check ?
     let l:cmd = 'tsserver'
+    if !executable(l:cmd)
+      call s:error('tsserver is not installed. Try "npm -g install typescript".')
+    endif
   else
     if g:tsuquyomi_use_dev_node_module == 1
       let l:path = s:Filepath.join(s:script_dir, '../../node_modules/typescript/bin/tsserver.js')
@@ -52,7 +54,7 @@ function! s:createTssPath()
       call s:error('Invalid option value "g:tsuquyomi_use_dev_node_module".')
     endif
     if filereadable(l:path) != 1
-      call s:error('TSServer script does not exist. Try "npm install"., '.l:path)
+      call s:error('tsserver.js does not exist. Try "npm install"., '.l:path)
     endif
     let l:cmd = g:tsuquyomi_nodejs_path.' "'.l:path.'"'
   endif
@@ -96,40 +98,14 @@ function! tsuquyomi#tsClient#statusTss()
   return s:P.state(s:tsq)
 endfunction
 
-"   "
-"   "Write to stdin of tsserver proc, and return stdout.
-"   function! tsuquyomi#tsClient#sendTssStd(line, delay)
-"     call tsuquyomi#tsClient#startTss()
-"     call s:P.writeln(s:tsq, a:line)
-"     let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
-"     echom err
-"     "echo type
-"     if type == 'timedout'
-"       "echom 'timedout'
-"       return []
-"     elseif type == 'matched'
-"       let l:tmp1 = substitute(out, 'Content-Length: \d\+', '', 'g')
-"       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
-"       let l:res_list = split(l:tmp2, '\n\+')
-"       "echo l:res_list
-"       return l:res_list
-"     else
-"       return 'inactive'
-"     endif
-"   endfunction
-
-"   "
-"   " Send a command to tsserver.
-"   " PARAM: {String} cmd Command type. e.g. 'open', 'completion', etc...
-"   " PARAM: {Dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
-"   " RETURNS: {List<Dictionary>}
-"   function! tsuquyomi#tsClient#sendCommand(cmd, args)
-"     return tsuquyomi#tsClient#sendCommandWithDelay(a:cmd, a:args, 0.01)
-"   endfunction
-
-
 "
 "Write to stdin of tsserver proc, and return stdout.
+"
+" PARAM: {string} line Stdin input.
+" PARAM: {float} delay Wait time(sec) after request, until response.
+" PARAM: {int} retry_count Retry count.
+" PARAM: {int} response_length The number of JSONs contained by this response.
+" RETURNS: {list<string>} A list of response string (content-type=json).
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
   call tsuquyomi#tsClient#startTss()
   call s:P.writeln(s:tsq, a:line)
@@ -220,27 +196,6 @@ function! tsuquyomi#tsClient#sendCommandOneWay(cmd, args)
   call tsuquyomi#tsClient#sendRequest(l:input, 0.01, 0, 0)
   return []
 endfunction
-
-"   "
-"   " Send a command to tsserver and wait.
-"   " PARAM: {string} cmd Command type. e.g. 'open', 'completion', etc...
-"   " PARAM: {dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
-"   " RETURNS: {list<dictionary>}
-"   function! tsuquyomi#tsClient#sendCommandWithDelay(cmd, args, delay)
-"     let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
-"     let l:stdout_list = tsuquyomi#tsClient#sendTssStd(l:input, a:delay)
-"     let l:length = len(l:stdout_list)
-"     if l:length > 0
-"       "echo 'stdout length: '.l:length
-"       let l:res_list = []
-"       for e in l:stdout_list
-"         call add(l:res_list, s:JSON.decode(e))
-"       endfor
-"       return l:res_list
-"     else
-"       return []
-"     endif
-"   endfunction
 
 function! tsuquyomi#tsClient#getResponseBodyAsList(responses)
   if len(a:responses) != 1
@@ -411,7 +366,19 @@ function! tsuquyomi#tsClient#tsNavto(file, searchValue, maxResultCount)
   call s:error('not implemented!')
 endfunction
 
-" Quickinfo = "quickinfo";
+" Fetch quickinfo from TSServer.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of the symbol's position.
+" PARAM: {int} offset The col number of the symbol's position.
+" RETURNS:  {dict}  
+"   e.g. :
+"     {
+"       'kind': 'method',
+"       'kindModifiers': '',
+"       'displayString': '(method) SimpleModule.MyClass.say(): string',
+"       'start': {'line': 2, 'offset': 2},
+"       'start': {'line': 2, 'offset': 9}
+"     }
 function! tsuquyomi#tsClient#tsQuickinfo(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
   let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('quickinfo', l:args)
@@ -465,9 +432,41 @@ function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   endif
 endfunction
 
-" Rename = "rename";
+" Fetch locatoins of symbols to be replaced from TSServer.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of the symbol's position.
+" PARAM: {int} offset The col number of the symbol's position.
+" PARAM: {0|1} findInComments Whether result contains word in comments.
+" PARAM: {0|1} findInComments Whether result contains word in String literals.
+" RETURNS: {dict} Rename information dictionary.
+"   e.g.:
+"     {
+"       'info': {
+"         'canRename': 1,
+"         'displayName': 'myApp',
+"         'fullDisplayName': 'myApp',
+"         'kind': 'class',
+"         'kindModifiers': '',
+"         'triggerSpan': {
+"           'start': 44,
+"           'length': 5
+"         },
+"       },
+"       'locs': [{
+"         'file': 'hoge.ts'', 
+"         'locs': [
+"           {'start':{'line': 3, 'offset': 4}, 'end':{'line': 3, 'offset': 12}},
+"           ...
+"         ]
+"       },
+"       ...,
+"       ]
+"     }
 function! tsuquyomi#tsClient#tsRename(file, line, offset, findInComments, findInString)
-  call s:error('not implemented!')
+  let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset,
+        \ 'findInComments': a:findInComments, 'findInString': a:findInString}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('rename', l:arg)
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
 " Find brace matching pair.

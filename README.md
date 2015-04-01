@@ -4,8 +4,8 @@ Tsuquyomi is a Vim plugin for TypeScript developers.
 
 ## Features
 
-Tsuquyomi works as a client for **TSServer**(which is an editor service bundled TypeScript).
-So, installing Tsuquyomi your vim gets the following features provided by TSServer:
+Tsuquyomi works as a client for **TSServer**(which is an editor service bundled into TypeScript).
+So, installing Tsuquyomi, your vim gets the following features provided by TSServer:
 
 + Completion (omni-completion)
 + Navigate to the location where a symbol is defined.
@@ -14,7 +14,7 @@ So, installing Tsuquyomi your vim gets the following features provided by TSServ
 + and so on,,,
 
 ## How to install
-Tsuquyomi requires the followings:
+Tsuquyomi requires the following:
 
 + [Vim](http://www.vim.org/) (v7.4.0 or later)
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
@@ -69,12 +69,12 @@ Tsuquyomi supports Omni-Completion.
 By the default, type `<C-x> <C-o>` in insert mode, Tsuquyomi shows completions.
 
 ### Nav to definition
-Type `<C-]>` in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol on the cursor is defined.
+Type `<C-]>` in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol under the cursor is defined.
 
 Alternatively, call the Ex comand `:TququyomiDefinition`.
 
 ### Show references
-Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol on the cursor is referenced.
+Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol under the cursor is referenced.
 
 Alternatively, call the Ex comand `:TsuquyomiReferences`.
 
@@ -82,13 +82,24 @@ Alternatively, call the Ex comand `:TsuquyomiReferences`.
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi show them to Vim quickfix window.
 
+### Rename symbols
+
+Using the command `:TsuquyomiRenameSymbol`, you can rename the identifiler under the cursor to a new name.
+
+This feature does not have the default key mapping.
+If you need, configure your `.vimrc` . For example: 
+
+```vim
+autocmd FileType typescript nmap <Leader>e <Plug>(TsuquyomiRenameSymbol)
+```
+
 ### Show tooltip(balloon)
 Tsuquyomi can display tooltip window about symbol under the mouse cursor.
-If you want to use this feature, configure `.vimrc`.
+If you want to use this feature, configure `.vimrc` as follows:
 
 ```vim
 set ballooneval
-autocmd BufNewFile,BufRead *.ts setlocal ballonexpr=tsuquyomi#ballonexpr()
+autocmd FileType typescript setlocal ballonexpr=tsuquyomi#ballonexpr()
 ```
 
 
@@ -96,7 +107,6 @@ If you want more details, please see [doc](doc/tsuquyomi.txt).
 
 ## Future works
 
-+ rename
 + outline 
 + syntax highright
 + etc ...
