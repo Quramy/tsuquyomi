@@ -90,7 +90,7 @@ This feature does not have the default key mapping.
 If you need, configure your `.vimrc` . For example: 
 
 ```vim
-autocmd FileType typescript nmap <Leader>e <Plug>(TsuquyomiRenameSymbol)
+autocmd FileType typescript nmap <buffer> <Leader>e <Plug>(TsuquyomiRenameSymbol)
 ```
 
 ### Show tooltip(balloon)

@@ -14,60 +14,47 @@ let s:script_dir = expand('<sfile>:p:h')
 let s:root_dir = s:Filepath.join(s:script_dir, '../')
 
 "
-" ### Buffer local functions {{{
-function! s:bGetTempfilename()
-  if(b:tmpfilename)
-    return b:tmpfilename
-  else
-    let b:tmpfilename = tempname()
-    return b:tmpfilename
-  endif
-endfunction
-
-function! s:bOpen()
-  call tsuquyomi#tsClient#tsOpen(expand('%'))
-  let b:is_opened = 1
-endfunction
-
-" ### Buffer local functions }}}
-
 " ### Utilites {{{
 function! s:error(msg)
   echom (a:msg)
   throw 'tsuquyomi: '.a:msg
 endfunction
 
-function! s:bufferToTmp()
-  let l:bufname = expand('%')
-  let l:fname = s:bGetTempfilename()
-  let l:buflist = getbufline('%', 1, '$')
-  call writefile(l:buflist, l:fname)
-  return l:fname
-endfunction
-
 function! s:normalizePath(path)
   return substitute(a:path, '\\', '/', 'g')
 endfunction
 
-" Check whether the current buffer is opened.
-" If not, show message to user.
-function! s:checkOpenAndMessage()
-  if b:is_opened
-    return 1
-  else
-    echom '[tsuquyomi] This buffer is not opened by TSServer. Please exec command ":TsuquyomiOpen" and retry.'
-    return 0
+" Check whether files are opened.
+" Found not opend file, show message.
+function! s:checkOpenAndMessage(filelist)
+  let opened = []
+  let not_opend = []
+  for file in a:filelist
+    if tsuquyomi#bufManager#isOpened(file)
+      call add(opened, file)
+    else
+      call add(not_opend, file)
+    endif
+  endfor
+  if len(not_opend)
+    echom '[Tsuquyomi] Buffers ['.join(not_opend, ', ').'] are not opened by TSServer. Please exec command ":TsuquyomiOpen '.join(not_opend).'" and retry.'
   endif
+  return [opened, not_opend]
 endfunction
 
 " Save current buffer to a temp file, and emit to reload TSServer.
 " This function may be called for conversation with TSServer after user's change buffer.
 function! s:flash()
-  if b:is_dirty
-    let l:fname = s:bufferToTmp()
-    call tsuquyomi#tsClient#tsReload(expand('%'), l:fname)
-    let b:is_dirty = 0
+  if tsuquyomi#bufManager#isDirty(expand('%'))
+    let file_name = expand('%')
+    call tsuquyomi#bufManager#saveTmp(file_name)
+    call tsuquyomi#tsClient#tsReload(file_name, tsuquyomi#bufManager#tmpfile(file_name))
+    call tsuquyomi#bufManager#setDirty(file_name, 0)
   endif
+endfunction
+
+function! s:is_valid_identifier(symbol_str)
+  return a:symbol_str =~ '[A-Za-z_\$][A-Za-z_\$0-9]*'
 endfunction
 
 " ### Utilites }}}
@@ -78,69 +65,65 @@ function! tsuquyomi#rootDir()
   return s:root_dir
 endfunction
 
-function! tsuquyomi#isDirty()
-  return b:is_dirty
-endfunction
-
+" #### Notify changed {{{
 function! tsuquyomi#letDirty()
-  let b:is_dirty = 1
+  return tsuquyomi#bufManager#setDirty(expand('%'), 1)
 endfunction
+" #### Notify changed }}}
 
 " #### File operations {{{
-function! tsuquyomi#open()
-  let l:fileName = expand('%')
-  if l:fileName == ''
-    " TODO
-    return 0
-  endif
-  call s:bOpen()
+function! tsuquyomi#open(...)
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  for file in filelist
+    if file == ''
+      continue
+    endif
+    call tsuquyomi#tsClient#tsOpen(file)
+    call tsuquyomi#bufManager#open(file)
+  endfor
   return 1
 endfunction
 
-function! tsuquyomi#close()
-
-  if s:checkOpenAndMessage() == 0
-    return
-  endif
-
-  let l:fileName = expand('%')
-  if l:fileName == ''
-    "TODO
-    return 0
-  endif
-  call tsuquyomi#tsClient#tsClose(l:fileName)
-  let b:is_opened = 0
-  return 1
+function! tsuquyomi#close(...)
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  let file_count = 0
+  for file in filelist
+    if tsuquyomi#bufManager#isOpened(file)
+      call tsuquyomi#tsClient#tsClose(file)
+      call tsuquyomi#bufManager#close(file)
+      let file_count = file_count + 1
+    endif
+  endfor
+  return file_count
 endfunction
 
-function! tsuquyomi#reload()
-  let l:fileName = expand('%')
-  if l:fileName == ''
-    " TODO
-    return 0
-  endif
-  if b:is_opened
-    call tsuquyomi#tsClient#tsReload(l:fileName, l:fileName)
-  else
-    call s:bOpen()
-  endif
-  let b:is_dirty = 0
-  return 1
+function! s:reloadFromList(filelist)
+  let file_count = 0
+  for file in a:filelist
+    if tsuquyomi#bufManager#isOpened(file)
+      call tsuquyomi#tsClient#tsReload(file, file)
+    else
+      call tsuquyomi#tsClient#tsOpen(file)
+      call tsuquyomi#bufManager#open(file)
+    endif
+    call tsuquyomi#bufManager#setDirty(file, 0)
+    let file_count = file_count + 1
+  endfor
+  return file_count
 endfunction
 
-function! tsuquyomi#dumpCurrent()
+function! tsuquyomi#reload(...)
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  return s:reloadFromList(filelist)
+endfunction
 
-  if s:checkOpenAndMessage() == 0
-    return
-  endif
+function! tsuquyomi#dump(...)
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  let [opend, not_opend] = s:checkOpenAndMessage(filelist)
 
-  let l:fileName = expand('%')
-  if l:fileName == ''
-    " TODO
-    return 0
-  endif
-  call tsuquyomi#tsClient#tsSaveto(l:fileName, l:fileName.'.dump')
-  return 1
+  for file in opend
+    call tsuquyomi#tsClient#tsSaveto(file, file.'.dump')
+  endfor
 endfunction
 " #### File operations }}}
 
@@ -165,7 +148,7 @@ endfunction
 
 function! tsuquyomi#complete(findstart, base)
 
-  if s:checkOpenAndMessage() == 0
+  if len(s:checkOpenAndMessage([expand('%')])[1])
     return
   endif
 
@@ -226,7 +209,7 @@ endfunction
 " #### Definition {{{
 function! tsuquyomi#definition()
 
-  if s:checkOpenAndMessage() == 0
+  if len(s:checkOpenAndMessage([expand('%')])[1])
     return
   endif
 
@@ -257,7 +240,7 @@ endfunction
 " Show reference on a location window.
 function! tsuquyomi#references()
 
-  if s:checkOpenAndMessage() == 0
+  if len(s:checkOpenAndMessage([expand('%')])[1])
     return
   endif
 
@@ -295,7 +278,7 @@ endfunction
 
 " #### Geterr {{{
 function! tsuquyomi#geterr()
-  if s:checkOpenAndMessage() == 0
+  if len(s:checkOpenAndMessage([expand('%')])[1])
     return
   endif
 
@@ -339,7 +322,7 @@ function! tsuquyomi#geterr()
   if len(quickfix_list) > 0
     cwindow
   else
-
+    cclose
   endif
 endfunction
 
@@ -364,7 +347,7 @@ endfunction
 " #### Rename {{{
 function! tsuquyomi#renameSymbol()
 
-  if s:checkOpenAndMessage() == 0
+  if len(s:checkOpenAndMessage([expand('%')])[1])
     return
   endif
 
@@ -391,8 +374,18 @@ function! tsuquyomi#renameSymbol()
   "
   " * Check affection only current buffer.
   if len(l:res_dict.locs) != 1 || s:normalizePath(expand('%')) != l:res_dict.locs[0].file
-    echom '[Tsuquyomi] Tsuquyomi can not rename a symbol which is occurred across multiple files.'
-    return
+    let file_list = map(copy(l:res_dict.locs), 'v:val.file')
+    let dirty_file_list = tsuquyomi#bufManager#whichDirty(file_list)
+
+    " if len(dirty_file_list)
+    "   echom '[Tsuquyomi] This action will be affect to other buffers. Please save the following files and retry.'
+    "   echohl string
+    "   echom join(dirty_file_list, ', ')
+    "   echohl none
+    "   return
+    " endif
+    call s:reloadFromList(dirty_file_list)
+
   endif
 
 
@@ -422,11 +415,47 @@ function! tsuquyomi#renameSymbol()
   echohl String
   let renameTo = input('[Tsuquyomi] New symbol name : ')
   echohl none 
+  if !s:is_valid_identifier(renameTo)
+    echo ' '
+    echom '[Tsuquyomi] It is a not valid identifer.'
+    return
+  endif
+
+  let s:locs_dict = {}
+  let s:rename_to = renameTo
+  let other_buf_list = []
 
   " * Execute to replace symbols by location, by buffer
-  "let l:buflist = getbufline('%', 1, '$')
-  let locations_in_buf = l:res_dict.locs[0].locs " TODO by buffer
+  for fileLoc in l:res_dict.locs
+    let buffer_name = tsuquyomi#bufManager#bufName(fileLoc.file)
+    let s:locs_dict[buffer_name] = fileLoc.locs
+    let changed_count = 0
+    if buffer_name != expand('%')
+      call add(other_buf_list, buffer_name)
+      continue
+    endif
+    let changed_count = s:renameLocal()
+  endfor
+
+  echohl String
+  echo ' '
+  echo 'Changed '.changed_count.' locations.'
+  echohl none 
+
+  for otherbuf in other_buf_list
+    " * If target buffer is opened in some window?
+    "  * opened: change current window?
+    "  * not opened: open current window to buffer.
+    execute('silent split +call\ s:renameLocal() '.otherbuf)
+  endfor
+
+endfunction
+
+function! s:renameLocal()
   let changed_count = 0
+  let filename = expand('%')
+  let locations_in_buf = s:locs_dict[expand('%')]
+  let renameTo = s:rename_to
   for span in locations_in_buf
     if span.start.line != span.end.line
       echom '[Tsuquyomi] this span is across multiple lines. '
@@ -435,7 +464,6 @@ function! tsuquyomi#renameSymbol()
 
     let lineidx = span.start.line
     let linestr = getline(lineidx)
-
     if span.start.offset - 1
       let pre = linestr[:(span.start.offset - 2)]
       let post = linestr[(span.end.offset - 1):]
@@ -447,11 +475,9 @@ function! tsuquyomi#renameSymbol()
     call setline(lineidx, linestr)
     let changed_count = changed_count + 1
   endfor
-
-  echohl String
-  echo ' '
-  echo 'Changed '.changed_count.' locations.'
-  echohl none 
+  call tsuquyomi#reload()
+  return changed_count
+endfor
 
 endfunction
 " #### Rename }}}

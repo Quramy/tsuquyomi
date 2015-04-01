@@ -1,7 +1,7 @@
-*tsuquyomi.txt*	TypeScript editing plugin for Vim
+*tsuquyomi.txt* TypeScript editing plugin for Vim
 
 Version: 0.2.0
-Author : Quramy <yosuke.kurami at gmail.com>
+Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -43,11 +43,11 @@ INSTALL						*tsuquyomi-install*
 
 Tsuquyomi requires the following:
 * Vim (v.7.4.0 or later)
-* Shougo/vimproc.vim ( *https://github.com/Shougo/vimproc.vim* )
+* Shougo/vimproc.vim (https://github.com/Shougo/vimproc.vim)
 * Node.js and TypeScript (v.1.5.0 or later)
 
 In first, If you haven't installed |vimproc|, please install this.
-(Please see *https://github.com/Shougo/vimproc.vim* )
+(Please see https://github.com/Shougo/vimproc.vim)
 
 Seconde, install the latest version TypeScript.
 
@@ -83,16 +83,18 @@ COMMANDS					*tsuquyomi-commands*
 		When TSServer is running, the message 'reading' will be
 		displayed.
 
-:TsuquyomiOpen					*:TsuquyomiOpen*
+:TsuquyomiOpen [{file} ...]			*:TsuquyomiOpen*
 		Let TSServer open the file of the current buffer.
 		By the default, |g:tsuquyomi_auto_open| is enable.
 		So, usually user don't need to exec this command manually.
 
-:TsuquyomiClose					*:TsuquyomiClose*
+:TsuquyomiClose [{file} ...]			*:TsuquyomiClose*
 		Let TSServer releace the opend file of the current buffer.
 
+:TsuquyomiReload [{file} ...]			*:TsuquyomiReload*
+		Let TSServer reload files.
 
-:TsuquyomiDumpCurrent				*:TsuquyomiDumpCurrent*
+:TsuquyomiDump [{file} ...]			*:TsuquyomiDump*
 		Dump TSServer's buffer of file.
 		This command can be execute for only debug purpose.
 		Note: Dumped filename is `originalFileName` + `'.dump'` .

@@ -10,7 +10,7 @@ let s:P = s:V.import('ProcessManager')
 
 if(!exists(g:tsuquyomi_is_available) && !s:P.is_available())
   let g:tsuquyomi_is_available = 0
-  echom '[tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
+  echom '[Tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
   finish
 endif
 if(!g:tsuquyomi_is_available)
@@ -19,28 +19,19 @@ endif
 
 let g:tsuquyomi_is_available = 1
 
-" ### Buffer local variables {{{
-" These variables can be read by autoload/tsuquyomi.vim.
-"
-let b:tmpfilename = 0   " Where this buffer is flashed.
-let b:is_opened = 0     " Whether TSServer opens this buffer.
-let b:is_dirty = 0      " Whether the user has changed the buffer's text.
-
-" ### Buffer local variables }}}
-
-command! -buffer TsuquyomiOpen          :call tsuquyomi#open()
-command! -buffer TsuquyomiClose         :call tsuquyomi#close()
-command! -buffer TsuquyomiReload        :call tsuquyomi#reload()
-command! -buffer TsuquyomiDumpCurrent   :call tsuquyomi#dumpCurrent()
+command! -buffer -nargs=* -complete=buffer TsuquyomiOpen    :call tsuquyomi#open(<f-args>)
+command! -buffer -nargs=* -complete=buffer TsuquyomiClose   :call tsuquyomi#close(<f-args>)
+command! -buffer -nargs=* -complete=buffer TsuquyomiReload  :call tsuquyomi#reload(<f-args>)
+command! -buffer -nargs=* -complete=buffer TsuquyomiDump    :call tsuquyomi#dump(<f-args>)
 
 command! -buffer TsuquyomiDefinition    :call tsuquyomi#definition()
 command! -buffer TsuquyomiReferences    :call tsuquyomi#references()
 command! -buffer TsuquyomiGeterr        :call tsuquyomi#geterr()
 command! -buffer TsuquyomiRenameSymbol  :call tsuquyomi#renameSymbol()
 
-noremap <silent> <buffer> <Plug>(TsuquyomiDefinition) :TsuquyomiDefinition <CR>
-noremap <silent> <buffer> <Plug>(TsuquyomiReferences) :TsuquyomiReferences <CR>
-noremap <buffer> <Plug>(TsuquyomiRenameSymbol) :TsuquyomiRenameSymbol <CR>
+noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)     :TsuquyomiDefinition <CR>
+noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
+noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
 
 augroup tsuquyomi_defaults
   autocmd!
