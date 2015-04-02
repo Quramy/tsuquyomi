@@ -1,6 +1,6 @@
 # Tsuquyomi
 
-Tsuquyomi is a Vim plugin for TypeScript developers.
+Tsuquyomi is a Vim plugin for TypeScript.
 
 ## Features
 

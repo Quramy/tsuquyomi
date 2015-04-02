@@ -41,9 +41,9 @@ let g:tsuquyomi_completion_chank_size =
 " augroup END
 
 " Define commands to operate TSServer
-command! TsuquyomiStartTss : call tsuquyomi#tsClient#startTss()
-command! TsuquyomiStatusTss : echom tsuquyomi#tsClient#statusTss()
-command! TsuquyomiStopTss : call tsuquyomi#tsClient#stopTss()
+command! TsuquyomiStartServer : call tsuquyomi#startServer()
+command! TsuquyomiStatusServer : echom tsuquyomi#statusServer()
+command! TsuquyomiStopServer : call tsuquyomi#stopServer()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

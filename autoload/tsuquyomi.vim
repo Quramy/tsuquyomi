@@ -45,8 +45,8 @@ endfunction
 " Save current buffer to a temp file, and emit to reload TSServer.
 " This function may be called for conversation with TSServer after user's change buffer.
 function! s:flash()
-  if tsuquyomi#bufManager#isDirty(expand('%'))
-    let file_name = expand('%')
+  if tsuquyomi#bufManager#isDirty(expand('%:p'))
+    let file_name = expand('%:p')
     call tsuquyomi#bufManager#saveTmp(file_name)
     call tsuquyomi#tsClient#tsReload(file_name, tsuquyomi#bufManager#tmpfile(file_name))
     call tsuquyomi#bufManager#setDirty(file_name, 0)
@@ -65,15 +65,31 @@ function! tsuquyomi#rootDir()
   return s:root_dir
 endfunction
 
+" #### Server operations {{{
+function! tsuquyomi#startServer()
+  return tsuquyomi#tsClient#startTss()
+endfunction
+
+function! tsuquyomi#stopServer()
+  call tsuquyomi#bufManager#clearMap()
+  return tsuquyomi#tsClient#stopTss()
+endfunction
+
+function! tsuquyomi#statusServer()
+  return tsuquyomi#tsClient#statusTss()
+endfunction
+
+" #### Server operations }}}
+
 " #### Notify changed {{{
 function! tsuquyomi#letDirty()
-  return tsuquyomi#bufManager#setDirty(expand('%'), 1)
+  return tsuquyomi#bufManager#setDirty(expand('%:p'), 1)
 endfunction
 " #### Notify changed }}}
 
 " #### File operations {{{
 function! tsuquyomi#open(...)
-  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
   for file in filelist
     if file == ''
       continue
@@ -85,7 +101,7 @@ function! tsuquyomi#open(...)
 endfunction
 
 function! tsuquyomi#close(...)
-  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
   let file_count = 0
   for file in filelist
     if tsuquyomi#bufManager#isOpened(file)
@@ -113,12 +129,12 @@ function! s:reloadFromList(filelist)
 endfunction
 
 function! tsuquyomi#reload(...)
-  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
   return s:reloadFromList(filelist)
 endfunction
 
 function! tsuquyomi#dump(...)
-  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%')]
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
   let [opend, not_opend] = s:checkOpenAndMessage(filelist)
 
   for file in opend
@@ -148,7 +164,7 @@ endfunction
 
 function! tsuquyomi#complete(findstart, base)
 
-  if len(s:checkOpenAndMessage([expand('%')])[1])
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
 
@@ -166,7 +182,7 @@ function! tsuquyomi#complete(findstart, base)
     call s:flash()
     return l:start - 1
   else
-    let l:file = expand('%')
+    let l:file = expand('%:p')
     let l:res_dict = {'words': []}
     let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
 
@@ -209,13 +225,13 @@ endfunction
 " #### Definition {{{
 function! tsuquyomi#definition()
 
-  if len(s:checkOpenAndMessage([expand('%')])[1])
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
 
   call s:flash()
 
-  let l:file = s:normalizePath(expand('%'))
+  let l:file = s:normalizePath(expand('%:p'))
   let l:line = line('.')
   let l:offset = col('.')
   let l:res_list = tsuquyomi#tsClient#tsDefinition(l:file, l:line, l:offset)
@@ -240,13 +256,13 @@ endfunction
 " Show reference on a location window.
 function! tsuquyomi#references()
 
-  if len(s:checkOpenAndMessage([expand('%')])[1])
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
 
   call s:flash()
 
-  let l:file = expand('%')
+  let l:file = expand('%:p')
   let l:line = line('.')
   let l:offset = col('.')
 
@@ -278,11 +294,13 @@ endfunction
 
 " #### Geterr {{{
 function! tsuquyomi#geterr()
-  if len(s:checkOpenAndMessage([expand('%')])[1])
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
 
-  let l:files = [expand('%')]
+  call s:flash()
+
+  let l:files = [expand('%:p')]
   let l:delayMsec = 50 "TODO export global option
 
   " 1. Fetch error information from TSServer.
@@ -327,7 +345,10 @@ function! tsuquyomi#geterr()
 endfunction
 
 function! tsuquyomi#reloadAndGeterr()
-  return tsuquyomi#reload() && tsuquyomi#geterr()
+  if tsuquyomi#tsClient#statusTss() != 'undefined'
+    return tsuquyomi#geterr()
+    "return tsuquyomi#reload() && tsuquyomi#geterr()
+  endif
 endfunction
 
 " #### Geterr }}}
@@ -335,11 +356,13 @@ endfunction
 " #### Balloon {{{
 function! tsuquyomi#balloonexpr()
 
-  call s:flash()
-  let l:filename = buffer_name(v:beval_bufnr)
-  let res = tsuquyomi#tsClient#tsQuickinfo(l:filename, v:beval_lnum, v:beval_col)
-  if has_key(res, 'displayString')
-    return res.displayString
+  if tsuquyomi#tsClient#tsReload() != 'undefined'
+    call s:flash()
+    let l:filename = buffer_name(v:beval_bufnr)
+    let res = tsuquyomi#tsClient#tsQuickinfo(l:filename, v:beval_lnum, v:beval_col)
+    if has_key(res, 'displayString')
+      return res.displayString
+    endif
   endif
 endfunction
 " #### Balloon }}}
@@ -347,13 +370,13 @@ endfunction
 " #### Rename {{{
 function! tsuquyomi#renameSymbol()
 
-  if len(s:checkOpenAndMessage([expand('%')])[1])
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
 
   call s:flash()
 
-  let l:filename = expand('%')
+  let l:filename = expand('%:p')
   let l:line = line('.')
   let l:offset = col('.')
 
@@ -373,7 +396,7 @@ function! tsuquyomi#renameSymbol()
   " TODO to be able to change multiple buffer.
   "
   " * Check affection only current buffer.
-  if len(l:res_dict.locs) != 1 || s:normalizePath(expand('%')) != l:res_dict.locs[0].file
+  if len(l:res_dict.locs) != 1 || s:normalizePath(expand('%:p')) != l:res_dict.locs[0].file
     let file_list = map(copy(l:res_dict.locs), 'v:val.file')
     let dirty_file_list = tsuquyomi#bufManager#whichDirty(file_list)
 
@@ -430,7 +453,7 @@ function! tsuquyomi#renameSymbol()
     let buffer_name = tsuquyomi#bufManager#bufName(fileLoc.file)
     let s:locs_dict[buffer_name] = fileLoc.locs
     let changed_count = 0
-    if buffer_name != expand('%')
+    if buffer_name != expand('%:p')
       call add(other_buf_list, buffer_name)
       continue
     endif
@@ -453,8 +476,8 @@ endfunction
 
 function! s:renameLocal()
   let changed_count = 0
-  let filename = expand('%')
-  let locations_in_buf = s:locs_dict[expand('%')]
+  let filename = expand('%:p')
+  let locations_in_buf = s:locs_dict[expand('%:p')]
   let renameTo = s:rename_to
   for span in locations_in_buf
     if span.start.line != span.end.line

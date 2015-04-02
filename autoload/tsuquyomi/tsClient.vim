@@ -139,7 +139,7 @@ endfunction
 function! tsuquyomi#tsClient#sendCommandSyncEvents(cmd, args, delay, length)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
   let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, a:delay, 200, a:length)
-  echo l:stdout_list
+  "echo l:stdout_list
   let l:length = len(l:stdout_list)
   let l:result_list = []
   if l:length > 0

@@ -39,8 +39,6 @@ noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol
 
 augroup tsuquyomi_defaults
   autocmd!
-  autocmd BufNewFile,BufRead *.ts setlocal omnifunc=tsuquyomi#complete
-  "autocmd BufWritePost *.ts silent! call tsuquyomi#reload()
   autocmd BufWritePost *.ts silent! call tsuquyomi#reloadAndGeterr()
   autocmd TextChanged,TextChangedI *.ts silent! call tsuquyomi#letDirty()
 augroup END

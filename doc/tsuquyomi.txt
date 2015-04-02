@@ -1,4 +1,4 @@
-*tsuquyomi.txt* TypeScript editing plugin for Vim
+*tsuquyomi* is a Vim plugin for TypeScript.
 
 Version: 0.2.0
 Author : Quramy <yosuke.kurami@gmail.com>
@@ -35,7 +35,14 @@ Interface		|tsuquyomi-interface|
 ==============================================================================
 INTRODUCTION					*tsuquyomi-introduction*
 
-Tsuquyomi supports you to edit TypeScript source files using TSServer.
+Tsuquyomi works as a client for TSServer(which is an editor service bundled into TypeScript).
+
+This plugin provides the following functions:
+
++ Functions to fetch information of your source codes from TSServer.
+  (compeletions, locations of definition or references, error, etc...)
+
++ Functions to start or stop the TSServer process.
 
 
 ==============================================================================
@@ -70,15 +77,15 @@ INTERFACE					*tsuquyomi-interface*
 ------------------------------------------------------------------------------
 COMMANDS					*tsuquyomi-commands*
 
-:TsuquyomiStartTss				*:TsuquyomiStartTss*
+:TsuquyomiStartServer				*:TsuquyomiStartServer*
 		Start TSServer process using |vimproc|.
 		If already the process is running, this command does not
 		anything.
 
-:TsuquyomiStopTss 				*:TsuquyomiStopTss*
+:TsuquyomiStopServer 				*:TsuquyomiStopServer*
 		Stop TSServer process if it exists.
 
-:TsuquyomiStatusTss				*:TsuquyomiStatusTss*
+:TsuquyomiStatusServer				*:TsuquyomiStatusServer*
 		Show TSServer status.
 		When TSServer is running, the message 'reading' will be
 		displayed.
@@ -139,9 +146,14 @@ g:tsuquyomi_auto_open		(default 1)
 					*g:tsuquyomi_use_dev_node_module*
 g:tsuquyomi_use_dev_node_module	(default 0)
 		Whether to use `tsserver.js` that was installed manually.
-		* 0: Tsuquyomi uses `tsserver` command(default).
+		* 0: Tsuquyomi uses global installed `tsserver` command(default).
 		* 1: Tsuquyomi uses
 		     `tsuquyomi/node_modules/typescript/bin/tsserver.js` .
+		     If you use this mode, exec the following:
+>
+		     :cd ~/.vim/bundle/tsuquyomi
+		     :!npm install
+<
 		* 2: Tsuquyomi uses `tsserver.js` whose path is 
 		     |g:tsuquyomi_tsserver_path| .
 
@@ -158,7 +170,7 @@ g:tsuquyomi_tsserver_path	(default `''`)
 
 						*g:tsuquyomi_nodejs_path*
 g:tsuquyomi_nodejs_path		(default 'node')
-		Node.js's path that Tsuquyomi exec.
+		A path to Node.js.
 
 					*g:tsuquyomi_waittime_after_open*
 g:tsuquyomi_waittime_after_open	(default 0.05)
@@ -177,12 +189,12 @@ Normal mode key mappings.
 
 						*<Plug>(TsuquyomiDefinition)*
 <Plug>(TsuquyomiDefinition)
-		Navigates to the location where the symbol on the cursor is
+		Navigate to the location where the symbol on the cursor is
 		defined. See |:TsuquyomiDefinition|.
 
 						*<Plug>(TsuquyomiReferences)*
 <Plug>(TsuquyomiReferences)
-		Shows a list of locations where the symbol on the cursor is
+		Show a list of locations where the symbol on the cursor is
 		referenced. See |:TsuquyomiReferences|.
 
 					*<Plug>(TsuquyomiRenameSymbol)*
@@ -202,9 +214,9 @@ Normal mode default mappings.
 FUNCTIONS					*tsuquyomi-functions*
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
-		Returns informations about symbol under mouse pointer for
+		Returns information about symbol under then mouse cursor for
 		tooltip popover window.
-		This is used as rhs for |balloon-expr|.
+		This is used as the rhs for |balloon-expr|.
 		For example,
 >
 		set ballooneval

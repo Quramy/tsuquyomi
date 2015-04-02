@@ -2,7 +2,7 @@ scriptencoding utf-8
 
 UTSuite [tsuquyomi#tsClient#tsGeterr] tsGeterr
 
-let g:tsuquyomi_use_dev_node_module=1
+"let g:tsuquyomi_use_dev_node_module=1
 let g:tsuquyomi_waittime_after_open=0.001
 
 let s:V = vital#of('tsuquyomi')

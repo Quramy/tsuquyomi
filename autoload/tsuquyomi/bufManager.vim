@@ -18,6 +18,9 @@ endfunction
 
 
 function! tsuquyomi#bufManager#open(file_name)
+  if bufnr(a:file_name) == -1
+    return 0
+  endif
   let info = {
         \'is_opened': 1,
         \'is_dirty': 0,
@@ -25,6 +28,15 @@ function! tsuquyomi#bufManager#open(file_name)
         \}
   let s:buf_info_map[s:normalize(a:file_name)] = info
   return info
+endfunction
+
+function! tsuquyomi#bufManager#opendFiles()
+  return copy(s:buf_info_map)
+endfunction
+
+function! tsuquyomi#bufManager#clearMap()
+  let s:buf_info_map = {}
+  return 1
 endfunction
 
 function! tsuquyomi#bufManager#bufName(file_name)
