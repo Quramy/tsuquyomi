@@ -13,6 +13,8 @@ So, installing Tsuquyomi, your vim gets the following features provided by TSSer
 + Display a list of syntax and seamantics errors to Vim quickfix window.
 + and so on,,,
 
+![capture](capt_comp.png)
+
 ## How to install
 Tsuquyomi requires the following:
 
