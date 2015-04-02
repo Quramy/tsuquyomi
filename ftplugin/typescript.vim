@@ -51,8 +51,10 @@ if !hasmapto('<Plug>(TsuquyomiReferences)')
   map <buffer> <C-^> <Plug>(TsuquyomiReferences)
 endif
 
-setlocal bexpr=tsuquyomi#balloonexpr()
 setlocal omnifunc=tsuquyomi#complete
+if exists('bexpr')
+  setlocal bexpr=tsuquyomi#balloonexpr()
+endif
 
 if g:tsuquyomi_auto_open
   silent! call tsuquyomi#open()
