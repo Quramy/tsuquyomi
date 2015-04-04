@@ -1,6 +1,6 @@
 *tsuquyomi* is a Vim plugin for TypeScript.
 
-Version: 0.2.1
+Version: 0.2.2
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -60,7 +60,7 @@ Seconde, install the latest version TypeScript.
 
 Prompt:
 >
-    	$ npm -g install git://github.com/Microsoft/TypeScript.git
+    	$ npm -g install typescript
 <
 Third, locate Tsuquyomi to your Vim plugin directory.
 If you use |NeoBundle| for plugin management, append the following to `.vimrc` .
