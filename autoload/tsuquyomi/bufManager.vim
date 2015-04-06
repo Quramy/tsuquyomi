@@ -16,6 +16,10 @@ function! s:normalize(buf_name)
   return substitute(a:buf_name, '\\', '/', 'g')
 endfunction
 
+function! tsuquyomi#bufManager#normalizePath(buf_name)
+  return s:normalize(a:buf_name)
+endfunction
+
 
 function! tsuquyomi#bufManager#open(file_name)
   if bufnr(a:file_name) == -1

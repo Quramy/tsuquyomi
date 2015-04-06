@@ -70,6 +70,10 @@ If you use |NeoBundle| for plugin management, append the following to `.vimrc` .
 >
 And execute the Ex command |:NeoBundleInstall| .
 
+Also, Tsuquyomi is an extension of |unite-outline|.
+If you have installed |unite| and |unite-outline| , you can get the outline of
+the current buffer calling ':Unite outline'.
+
 ==============================================================================
 INTERFACE					*tsuquyomi-interface*
 

@@ -516,6 +516,27 @@ endfor
 endfunction
 " #### Rename }}}
 
+" #### NavBar {{{
+function! tsuquyomi#navBar()
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return [[], 0]
+  endif
+
+  call s:flash()
+
+  let l:filename = expand('%:p')
+
+  let result_list = tsuquyomi#tsClient#tsNavBar(tsuquyomi#bufManager#normalizePath(l:filename))
+
+  if len(result_list)
+    return [result_list, 1]
+  else
+    return [[], 0]
+  endif
+
+endfunction
+" #### NavBar }}}
+
 " ### Public functions }}}
 
 let &cpo = s:save_cpo
