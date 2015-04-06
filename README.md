@@ -100,6 +100,7 @@ If you have installed these plugins, calling the following Ex command, the outli
 :Unite outline
 ```
 
+### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
 
 ## Future works
