@@ -48,7 +48,7 @@ function! tsuquyomi#config#tsscmd()
   if g:tsuquyomi_use_dev_node_module == 0
     let l:cmd = 'tsserver'
     if !executable(l:cmd)
-      echom '[Tsuquyomi] tsserver is not installed. Try "npm -g install git://Microsoft/typescript".'
+      echom '[Tsuquyomi] tsserver is not installed. Try "npm -g install typescript".'
       return ''
     endif
   else
