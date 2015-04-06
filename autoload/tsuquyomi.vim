@@ -11,8 +11,8 @@ set cpo&vim
 let s:V = vital#of('tsuquyomi')
 let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
-let s:root_dir = s:Filepath.join(s:script_dir, '../')
-
+"let s:root_dir = s:Filepath.join(s:script_dir, '../')
+let s:root_dir = s:Filepath.dirname(s:Filepath.dirname(s:Filepath.remove_last_separator(s:Filepath.join(s:script_dir, '../'))))
 "
 " ### Utilites {{{
 function! s:error(msg)

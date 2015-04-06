@@ -324,9 +324,26 @@ function! tsuquyomi#tsClient#tsGeterr(files, delay)
   endif
 endfunction
 
-" NavBar = "navbar";
+" Fetch navigation list from TSServer.
+" PARAM: {string} file File name.
+" RETURNS: {list<dict>} Navigation info
+"   e.g. :
+"     [{
+"       'text': 'ModName',
+"       'kind': 'module',
+"       'kindModifiers: '',
+"       'spans': [{
+"         'start': {'line': 1, 'offset': 5},
+"         'end': {'line': 1, 'offset': 12},
+"       }],
+"       childItems: [
+"         ...   " REMAKS: childItems contains a recursive structure.
+"       ]
+"     }]
 function! tsuquyomi#tsClient#tsNavBar(file)
-  call s:error('not implemented!')
+  let l:args = {'file': a:file}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('navbar', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Navto = "navto";
@@ -444,7 +461,6 @@ function! tsuquyomi#tsClient#tsBrace(file, line, offset)
 endfunction
 
 " ### TSServer command wrappers }}}
-
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
