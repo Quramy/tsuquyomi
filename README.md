@@ -82,6 +82,12 @@ autocmd FileType typescript nmap <buffer> <Leader>e <Plug>(TsuquyomiRenameSymbol
 Tsuquyomi can display tooltip window about symbol under the mouse cursor.
 If you want to use this feature, configure `.vimrc` as follows:
 
+```vim
+set ballooneval
+autocmd FileType typescript setlocal ballonexpr=tsuquyomi#ballonexpr()
+```
+
+
 ### Show outline(an extension of unite-outline)
 This feature requires Vim plugins:
 
@@ -93,12 +99,6 @@ If you have installed these plugins, calling the following Ex command, the outli
 ```vim
 :Unite outline
 ```
-
-```vim
-set ballooneval
-autocmd FileType typescript setlocal ballonexpr=tsuquyomi#ballonexpr()
-```
-
 
 If you want more details, please see [doc](doc/tsuquyomi.txt).
 
