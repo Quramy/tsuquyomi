@@ -1,6 +1,6 @@
 *tsuquyomi* is a Vim plugin for TypeScript.
 
-Version: 0.3.0
+Version: 0.3.1
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -139,7 +139,13 @@ COMMANDS					*tsuquyomi-commands*
 		Rename the identifier under the cursor to a new name.
 		If the identifier is refferenced by other .ts files,
 		you should open them before executing this command.
-		
+
+:TsuquyomiReloadProject				*:TsuquyomiReloadProject*
+		Let close and re-open all files opened by |:TsuquyomiOpen|.
+		When you change `tsconfig.json` after open some `*.ts` files,
+		you should execute this command.
+		So, the changes of `tsconfig.json` are reflected in the
+		TSServer
 
 Todo
 
@@ -150,6 +156,8 @@ VARIABLES					*tsuquyomi-variables*
 g:tsuquyomi_auto_open		(default 1)
 		Whether automatically TSServer opens the file of the current
 		buffer, when the buffer is opend in Vim
+		If you set this option to 0, you should manually exec the 
+		|:TsuquyomiOpen| command after opening buffers.
 
 					*g:tsuquyomi_use_dev_node_module*
 g:tsuquyomi_use_dev_node_module	(default 0)
@@ -180,16 +188,6 @@ g:tsuquyomi_tsserver_path	(default `''`)
 g:tsuquyomi_nodejs_path		(default 'node')
 		A path to Node.js.
 
-					*g:tsuquyomi_waittime_after_open*
-g:tsuquyomi_waittime_after_open	(default 0.05)
-		Wait time (sec) after |:TsuquyomiOpen|.
-		TSServer opens a file asynchronously.
-		So, Immediately after TSServer opens the file, your other
-		commands(e.g. |:TsuquyomiDefinition|, |:TsuquyomiReferences|)
-		may be executed in the wrong order.
-		Other commands can be excuted after waiting a time that is
-		specified in this variable.
-	
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
 

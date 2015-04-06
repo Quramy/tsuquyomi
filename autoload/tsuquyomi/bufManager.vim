@@ -35,8 +35,8 @@ function! tsuquyomi#bufManager#open(file_name)
   return info
 endfunction
 
-function! tsuquyomi#bufManager#opendFiles()
-  return copy(s:buf_info_map)
+function! tsuquyomi#bufManager#openedFiles()
+  return filter(copy(s:buf_info_map), 'v:val.is_opened')
 endfunction
 
 function! tsuquyomi#bufManager#clearMap()

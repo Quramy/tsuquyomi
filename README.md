@@ -67,6 +67,24 @@ Alternatively, call the Ex comand `:TsuquyomiReferences`.
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi show them to Vim quickfix window.
 
+### Configure compile options
+Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
+
+For example:
+
+```json
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "target": "es5",
+    "module": "commonjs"
+  }
+}
+```
+
+When you change tsconfig.json after opening `*.ts` files, you should exec `:TsuquyomiReloadProject` command.
+So, the changes of tsconfig.json are reflected in the TSServer.
+
 ### Rename symbols
 
 Using the command `:TsuquyomiRenameSymbol`, you can rename the identifiler under the cursor to a new name.

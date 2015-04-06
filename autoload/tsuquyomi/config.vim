@@ -42,6 +42,7 @@ function! s:deleteCommand()
   delc TsuquyomiStartTss
   delc TsuquyomiStopTss
   delc TsuquyomiStatusTss
+  delc TsuquyomiReloadProject
 endfunction
 
 function! tsuquyomi#config#tsscmd()

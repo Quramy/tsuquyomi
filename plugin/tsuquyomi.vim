@@ -31,7 +31,7 @@ let g:tsuquyomi_tsserver_debug =
 let g:tsuquyomi_nodejs_path = 
       \ get(g:, 'tsuquyomi_nodejs_path', 'node')
 let g:tsuquyomi_waittime_after_open= 
-      \ get(g:, 'tsuquyomi_waittime_after_open', 0.05)
+      \ get(g:, 'tsuquyomi_waittime_after_open', 0.01)
 let g:tsuquyomi_completion_chank_size = 
       \ get(g:, 'tsuquyomi_completion_chank_size', 15)
 " Global options defintion. }}}
@@ -44,6 +44,9 @@ let g:tsuquyomi_completion_chank_size =
 command! TsuquyomiStartServer : call tsuquyomi#startServer()
 command! TsuquyomiStatusServer : echom tsuquyomi#statusServer()
 command! TsuquyomiStopServer : call tsuquyomi#stopServer()
+
+" Close and re-open all buffers
+command! TsuquyomiReloadProject : call tsuquyomi#reloadProject()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

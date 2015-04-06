@@ -90,7 +90,11 @@ endfunction
 " #### File operations {{{
 function! tsuquyomi#open(...)
   let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
-  for file in filelist
+  return s:openFromList(filelist)
+endfunction
+
+function! s:openFromList(filelist)
+  for file in a:filelist
     if file == ''
       continue
     endif
@@ -102,8 +106,12 @@ endfunction
 
 function! tsuquyomi#close(...)
   let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
+  return s:closeFromList(filelist)
+endfunction
+
+function! s:closeFromList(filelist)
   let file_count = 0
-  for file in filelist
+  for file in a:filelist
     if tsuquyomi#bufManager#isOpened(file)
       call tsuquyomi#tsClient#tsClose(file)
       call tsuquyomi#bufManager#close(file)
@@ -131,6 +139,14 @@ endfunction
 function! tsuquyomi#reload(...)
   let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
   return s:reloadFromList(filelist)
+endfunction
+
+function! tsuquyomi#reloadProject()
+  let filelist = values(map(tsuquyomi#bufManager#openedFiles(), 'v:val.bufname'))
+  if len(filelist)
+    call s:closeFromList(filelist)
+    call s:openFromList(filelist)
+  endif
 endfunction
 
 function! tsuquyomi#dump(...)
