@@ -1,6 +1,6 @@
 *tsuquyomi* is a Vim plugin for TypeScript.
 
-Version: 0.2.2
+Version: 0.3.0
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -53,10 +53,10 @@ Tsuquyomi requires the following:
 * Shougo/vimproc.vim (https://github.com/Shougo/vimproc.vim)
 * Node.js and TypeScript (v.1.5.0 or later)
 
-In first, If you haven't installed |vimproc|, please install this.
+In the first, If you haven't installed |vimproc|, please install this.
 (Please see https://github.com/Shougo/vimproc.vim)
 
-Seconde, install the latest version TypeScript.
+Second, install the latest version TypeScript.
 
 Prompt:
 >
@@ -122,6 +122,10 @@ COMMANDS					*tsuquyomi-commands*
 		move the cursor.
 		Otherwise, |split| the current window and open the file which
 		contains the definition.
+
+:TsuquyomiGoBack				*:TsuquyomiGoBack*
+		Move the cursor position to the location where
+		the last |:TsuquyomiDefinition| was called.
 
 :TsuquyomiReferences				*:TsuquyomiReferences*
 		Navigate to the locations where the symbol is referenced.
@@ -192,6 +196,9 @@ Normal mode key mappings.
 		Navigate to the location where the symbol on the cursor is
 		defined. See |:TsuquyomiDefinition|.
 
+<Plug>(TsuquyomiGoBack)				*<Plug>(TsuquyomiGoBack)*
+		See |:TsuquyomiGoBack|.
+
 						*<Plug>(TsuquyomiReferences)*
 <Plug>(TsuquyomiReferences)
 		Show a list of locations where the symbol on the cursor is
@@ -208,6 +215,7 @@ Normal mode default mappings.
 {lhs}			{rhs}
 --------		-----------------------------
 <C-]>			<Plug>(TsuquyomiDefinition)
+<C-t>			<Plug>(TsuquyomiGoBack)
 <C-^>			<Plug>(TsuquyomiReferences)
 
 ------------------------------------------------------------------------------

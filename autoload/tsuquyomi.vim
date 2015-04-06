@@ -241,6 +241,7 @@ function! tsuquyomi#definition()
     let l:info = l:res_list[0]
     if l:file == l:info.file
       " Same file
+      call tsuquyomi#bufManager#pushNavDef(l:file, {'line': l:line, 'col': l:offset})
       call cursor(l:info.start.line, l:info.start.offset)
     else
       " If other file, split window
@@ -250,6 +251,16 @@ function! tsuquyomi#definition()
     " If don't get result, do nothing.
   endif
 endfunction
+
+function! tsuquyomi#goBack()
+  let loc = tsuquyomi#bufManager#popNavDef(expand('%:p'))
+  if has_key(loc, 'line')
+    call cursor(loc.line, loc.col)
+  else
+    echom '[Tsuquyomi] No items in navigation stack...'
+  endif
+endfunction
+
 " #### Definition }}}
 
 " #### References {{{

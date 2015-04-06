@@ -24,7 +24,8 @@ function! tsuquyomi#bufManager#open(file_name)
   let info = {
         \'is_opened': 1,
         \'is_dirty': 0,
-        \'bufname': a:file_name
+        \'bufname': a:file_name,
+        \'nav_def_stack': []
         \}
   let s:buf_info_map[s:normalize(a:file_name)] = info
   return info
@@ -109,6 +110,27 @@ function! tsuquyomi#bufManager#saveTmp(file_name)
   let tmpfile = tsuquyomi#bufManager#tmpfile(a:file_name)
   call writefile(getbufline(a:file_name, 1, '$'), tmpfile)
   return 1
+endfunction
+
+function! tsuquyomi#bufManager#pushNavDef(file_name, loc)
+  let name = s:normalize(a:file_name)
+  if !has_key(s:buf_info_map, name)
+    return 0
+  endif
+  call add(s:buf_info_map[name].nav_def_stack, a:loc)
+  return 1
+endfunction
+
+function! tsuquyomi#bufManager#popNavDef(file_name)
+  let name = s:normalize(a:file_name)
+  if !has_key(s:buf_info_map, name)
+    return {}
+  endif
+  if len(s:buf_info_map[name].nav_def_stack)
+    return remove(s:buf_info_map[name].nav_def_stack, -1)
+  else
+    return {}
+  endif
 endfunction
 
 let &cpo = s:save_cpo

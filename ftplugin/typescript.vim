@@ -29,11 +29,13 @@ command! -buffer -nargs=* -complete=buffer TsuquyomiReload  :call tsuquyomi#relo
 command! -buffer -nargs=* -complete=buffer TsuquyomiDump    :call tsuquyomi#dump(<f-args>)
 
 command! -buffer TsuquyomiDefinition    :call tsuquyomi#definition()
+command! -buffer TsuquyomiGoBack        :call tsuquyomi#goBack()
 command! -buffer TsuquyomiReferences    :call tsuquyomi#references()
 command! -buffer TsuquyomiGeterr        :call tsuquyomi#geterr()
 command! -buffer TsuquyomiRenameSymbol  :call tsuquyomi#renameSymbol()
 
 noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)     :TsuquyomiDefinition <CR>
+noremap <silent> <buffer> <Plug>(TsuquyomiGoBack)         :TsuquyomiGoBack <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
 
@@ -46,6 +48,9 @@ augroup END
 " Default mapping.
 if !hasmapto('<Plug>(TsuquyomiDefinition)')
   map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
+endif
+if !hasmapto('<Plug>(TsuquyomiGoBack)')
+  map <buffer> <C-t> <Plug>(TsuquyomiGoBack)
 endif
 if !hasmapto('<Plug>(TsuquyomiReferences)')
   map <buffer> <C-^> <Plug>(TsuquyomiReferences)

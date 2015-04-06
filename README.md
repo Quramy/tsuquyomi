@@ -56,6 +56,8 @@ Type `<C-]>` in normal mode or visual mode, Tsuquyomi navigates to the location 
 
 Alternatively, call the Ex comand `:TququyomiDefinition`.
 
+And type `<C-t>` , Tsuquyomi moves the cursor to the location where the last `<C-]>` was typed.
+
 ### Show references
 Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol under the cursor is referenced.
 
