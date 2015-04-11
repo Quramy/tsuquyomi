@@ -1,0 +1,245 @@
+*tsuquyomi* はTypeScript向けのVim plugin です.
+
+Version: 0.3.1
+Author : Quramy <yosuke.kurami@gmail.com>
+License: MIT license  {{{
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}}
+
+目次 					*tsuquyomi-contents*
+
+概要			|tsuquyomi-introduction|
+インストール		|tsuquyomi-install|
+インターフェイス	|tsuquyomi-interface|
+  コマンド 		|tsuqutomi-commands|
+  オプション 		|tsuquyomi-variables|
+  キーマッピング	|tsuquyomi-key-mappings|
+  関数			|tsuquyomi-functions|
+
+==============================================================================
+概要 						*tsuquyomi-introduction*
+
+tsuquyomi は TSServer のclient として動作します
+(TSServerはTypeScriptにバンドルされているエディタ向けツールです).
+
+tsuquyomi は以下の機能を提供します.
+
++ TSServer からソースコードが持つ情報を参照します.
+  (補完, 定義/参照箇所, エラー, etc...)
+
++ TSServerの起動や停止を行う機能 
+
+==============================================================================
+インストール 						*tsuquyomi-install*
+
+tsuquyomiのインストールには下記が必要です.
+* Vim (v.7.4.0 or later)
+* Shougo/vimproc.vim (https://github.com/Shougo/vimproc.vim)
+* Node.js and TypeScript (v.1.5.0 or later)
+
+最初に, |vimproc|が未インストールであれば, インストールしてください.
+(インストール方法は https://github.com/Shougo/vimproc.vim を参考にしてください)
+
+次に,  最新の TypeScript をインストールします.
+
+Prompt:
+>
+    	$ npm -g install typescript
+<
+最後に, tsuquyomiをVim plugin用のディレクトリに配置します.
+もし |NeoBundle| でプラグイン管理をしているのであれば, 
+`.vimrc` に以下を追記します
+>
+	NeoBundle 'Shougo/vimproc'
+	NeoBundle 'Quramy/tsuquyomi'
+>
+|:NeoBundleInstall| を実行し,  プラグインをインストールしてください.
+
+また, tsuquyomi は|unite-outline|の拡張機能を提供します.
+|unite| と |unite-outline| がインストールされていれば, |:Unite outline| を実行
+することでカレントバッファをOutline 表示できます.
+
+==============================================================================
+インターフェイス 				*tsuquyomi-interface*
+
+------------------------------------------------------------------------------
+コマンド 					*tsuquyomi-commands*
+
+:TsuquyomiStartServer				*:TsuquyomiStartServer*
+		|vimproc| を利用してTSServerのプロセスを起動します.
+		すでにプロセスが起動している場合は何もしません.
+
+:TsuquyomiStopServer 				*:TsuquyomiStopServer*
+		TSServerのプロセスが存在する場合, 停止させます.
+
+:TsuquyomiStatusServer				*:TsuquyomiStatusServer*
+		TSServerの起動状態を表示します.
+		TSServerが起動している場合, 'reading' のメッセージが
+		表示されます.
+
+:TsuquyomiOpen [{file} ...]			*:TsuquyomiOpen*
+		TSServerで{file}を開きます.
+		TSServerでファイルを開くと, ファイルに対する様々な処理が
+		行えるようになります.
+		引数{file}を省略すると, TSServerはカレントバッファのファイルを
+		開きます.
+		デフォルトでは, |g:tsuquyomi_auto_open| が有効化されています.
+		このため, 通常は明示的にこのコマンドを実行する必要は
+		ありません.
+
+:TsuquyomiClose [{file} ...]			*:TsuquyomiClose*
+		既に開いている{file}をTSServer上でクローズします.
+		引数{file}を省略すると, TSServerはカレントバッファに紐づいた
+		ファイルをクローズします.
+
+:TsuquyomiReload [{file} ...]			*:TsuquyomiReload*
+		TSServerに{file}をリロードさせます.
+		引数{file}を省略すると, TSServerにカレントバッファを
+		リロードさせます.
+
+:TsuquyomiDump [{file} ...]			*:TsuquyomiDump*
+		TSServerのバッファをファイルに保存します.
+		デバッグのために利用します.
+		引数{file}を省略すると, カレントバッファに紐づくファイルを
+		ダンプします.
+		Note: ダンプされるファイル名は下記となります:
+		      `オリジナルファイル名` + `'.dump'`.
+
+:TsuquyomiDefinition				*:TsuquyomiDefinition*
+		シンボルが定義された場所へ遷移させます.
+		定義箇所がカレントバッファに存在する場合はそこにカーソルを
+		移動させます.
+		そうでない場合, 定義箇所を含むファイルを|split|で開いてから
+		カーソルを移動します.
+
+:TsuquyomiGoBack				*:TsuquyomiGoBack*
+		カーソルを最後に|:TsuquyomiDefinition|を実行した箇所へ
+		移動させます.
+
+:TsuquyomiReferences				*:TsuquyomiReferences*
+		シンボルを参照している箇所へナビゲートします.
+		参照箇所の結果は|location-list|に表示されます.
+
+:TsuquyomiRenameSymbol				*:TsuquyomiRenameSymbol*
+		カーソル直下の識別子を別名に変更します.
+		対象の識別子が別の.tsファイルから参照されている場合,
+		このコマンドを実行するより前に対象ファイルをバッファに
+		開いておく必要があります.
+
+:TsuquyomiReloadProject				*:TsuquyomiReloadProject*
+		TSServerで開かれている全てのファイルを一度閉じ,
+		再度開きます.
+		`*.ts`をバッファに開いた後に, `tsconfig.json` を編集した場合,
+		このコマンドを実行する必要があります.
+		このコマンドを実行すると, `tsconfig.json` の変更が
+		TSServerに反映されます.
+
+Todo
+
+------------------------------------------------------------------------------
+オプション						*tsuquyomi-variables*
+
+						*g:tsuquyomi_auto_open*
+g:tsuquyomi_auto_open		(デフォルト値 1)
+		Vimでバッファを開く際にTSServerでそのファイルを開くかどうか.
+		この値を0とした場合, バッファを開いた後に|:TsuquyomiOpen|
+		コマンドを実行すると必要があります.
+
+					*g:tsuquyomi_use_dev_node_module*
+g:tsuquyomi_use_dev_node_module	(デフォルト値 0)
+		Whether to use `tsserver.js` that was installed manually.
+		手動でインストールした`tsserver.js` を利用するかどうか.
+		* 0: tsuquyomi はグローバルインストールされた
+		     `tsserver` コマンドを利用します(デフォルト).
+		* 1: tsuquyomiは
+		     `tsuquyomi/node_modules/typescript/bin/tsserver.js` .
+		     を利用します.
+		     このモードを利用する場合,  下記を実行してください:
+>
+		     :cd ~/.vim/bundle/tsuquyomi
+		     :!npm install
+<
+		* 2: tsuquyomiは|g:tsuquyomi_tsserver_path| で指定された 
+		     `tsserver.js` を利用します.
+
+						*g:tsuquyomi_tsserver_path*
+g:tsuquyomi_tsserver_path	(デフォルト値 `''`)
+		|g:tsuquyomi_use_dev_node_module|を`2`とした場合, 
+		このオプションで`tsserver.js`のパスを設定する必要があります.
+		設定例:
+>
+		let g:tsuquyomi_use_dev_node_module = 2
+		let g:tsuquyomi_tsserver_path = 
+		\ '~/typescript/built/local/tsserver.js'
+<
+
+						*g:tsuquyomi_nodejs_path*
+g:tsuquyomi_nodejs_path		(デフォルト値 'node')
+		Node.js の実行パス.
+
+------------------------------------------------------------------------------
+キーマッピング					*tsuquyomi-key-mappings*
+
+ノーマルモードのキーマッピング:
+
+						*<Plug>(TsuquyomiDefinition)*
+<Plug>(TsuquyomiDefinition)
+		カーソル直下のシンボルが定義された箇所へ遷移.
+		|:TsuquyomiDefinition|を参照のこと.
+
+						*<Plug>(TsuquyomiGoBack)*
+<Plug>(TsuquyomiGoBack)
+		|:TsuquyomiGoBack|を参照のこと.
+
+						*<Plug>(TsuquyomiReferences)*
+<Plug>(TsuquyomiReferences)
+		カーソル直下のシンボルが参照されている場所の一覧を表示.
+		|:TsuquyomiReferences| を参照のこと.
+
+					*<Plug>(TsuquyomiRenameSymbol)*
+<Plug>(TsuquyomiRenameSymbol)
+		カーソル直下のシンボルを別名に変更する.
+		|:TsuquyomiRenameSymbol|を参照のこと.
+
+デフォルトキーマップは下記の通り:
+
+ノーマルモード:
+{lhs}			{rhs}
+--------		-----------------------------
+<C-]>			<Plug>(TsuquyomiDefinition)
+<C-t>			<Plug>(TsuquyomiGoBack)
+<C-^>			<Plug>(TsuquyomiReferences)
+
+------------------------------------------------------------------------------
+関数 							*tsuquyomi-functions*
+
+tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
+		マウスカーソル直下のシンボルについて, ツールチップにシンボルの
+		情報を表示させる.  |ballon-expr|にセットして利用する.
+		設定例:
+>
+		set ballooneval
+		autocmd BufNewFile,BufRead *.ts
+		\ setlocal ballonexpr=tsuquyomi#ballonexpr()
+<
+
+Todo
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:
