@@ -25,16 +25,20 @@ Tsuquyomi requires the following:
 If you use [NeoBundle](https://github.com/Shougo/neobundle.vim) for Vim plugin management, append the following to your `.vimrc`:
 
 ```vim
-NeoBundle 'Shougo/vimproc'
+NeoBundle 'Shougo/vimproc.vim', {
+\ 'build' : {
+\     'windows' : 'tools\\update-dll-mingw',
+\     'cygwin' : 'make -f make_cygwin.mak',
+\     'mac' : 'make -f make_mac.mak',
+\     'linux' : 'make',
+\     'unix' : 'gmake',
+\    },
+\ }
+
 NeoBundle 'Quramy/tsuquyomi'
 ```
 
-And exec `:NeoBundleInstall`, make vimproc runtime.
-
-```bash
-cd ~/.vim/bundle/vimproc
-make
-```
+And exec `:NeoBundleInstall`.
 
 (About vimproc installation, please see [the original install guide](https://github.com/Shougo/vimproc.vim#install).)
 

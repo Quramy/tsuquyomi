@@ -66,7 +66,16 @@ Prompt:
 もし |NeoBundle| でプラグイン管理をしているのであれば, 
 `.vimrc` に以下を追記します
 >
-	NeoBundle 'Shougo/vimproc'
+	NeoBundle 'Shougo/vimproc.vim', {
+	\ 'build' : {
+	\     'windows' : 'tools\\update-dll-mingw',
+	\     'cygwin' : 'make -f make_cygwin.mak',
+	\     'mac' : 'make -f make_mac.mak',
+	\     'linux' : 'make',
+	\     'unix' : 'gmake',
+	\    },
+	\ }
+	
 	NeoBundle 'Quramy/tsuquyomi'
 >
 |:NeoBundleInstall| を実行し,  プラグインをインストールしてください.
