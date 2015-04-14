@@ -452,6 +452,22 @@ endfunction
 
 " #### Rename {{{
 function! tsuquyomi#renameSymbol()
+  return s:renameSymbolWithOptions(0, 0)
+endfunction
+
+function! tsuquyomi#renameSymbolWithComments()
+  return s:renameSymbolWithOptions(1, 0)
+endfunction
+
+function! tsuquyomi#renameSymbolWithStrings()
+  return s:renameSymbolWithOptions(0, 1)
+endfunction
+
+function! tsuquyomi#renameSymbolWithCommentsStrings()
+  return s:renameSymbolWithOptions(1, 1)
+endfunction
+
+function! s:renameSymbolWithOptions(findInComments, findInString)
 
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
@@ -464,11 +480,10 @@ function! tsuquyomi#renameSymbol()
   let l:offset = col('.')
 
   " * Make a list of locations of symbols to be replaced.
-  let l:res_dict = tsuquyomi#tsClient#tsRename(l:filename, l:line, l:offset, 0, 0)
+  let l:res_dict = tsuquyomi#tsClient#tsRename(l:filename, l:line, l:offset, a:findInComments, a:findInString)
 
   " * Check the symbol is renameable
   if !has_key(l:res_dict, 'info') 
-    "TODO message
     echom '[Tsuquyomi] No symbol to be rename'
     return
   elseif !l:res_dict.info.canRename
@@ -476,8 +491,6 @@ function! tsuquyomi#renameSymbol()
     return
   endif
 
-  " TODO to be able to change multiple buffer.
-  "
   " * Check affection only current buffer.
   if len(l:res_dict.locs) != 1 || s:normalizePath(expand('%:p')) != l:res_dict.locs[0].file
     let file_list = map(copy(l:res_dict.locs), 'v:val.file')

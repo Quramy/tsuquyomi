@@ -28,16 +28,26 @@ command! -buffer -nargs=* -complete=buffer TsuquyomiClose   :call tsuquyomi#clos
 command! -buffer -nargs=* -complete=buffer TsuquyomiReload  :call tsuquyomi#reload(<f-args>)
 command! -buffer -nargs=* -complete=buffer TsuquyomiDump    :call tsuquyomi#dump(<f-args>)
 
-command! -buffer TsuquyomiDefinition    :call tsuquyomi#definition()
-command! -buffer TsuquyomiGoBack        :call tsuquyomi#goBack()
-command! -buffer TsuquyomiReferences    :call tsuquyomi#references()
-command! -buffer TsuquyomiGeterr        :call tsuquyomi#geterr()
-command! -buffer TsuquyomiRenameSymbol  :call tsuquyomi#renameSymbol()
+command! -buffer TsuquyomiDefinition     :call tsuquyomi#definition()
+command! -buffer TsuquyomiGoBack         :call tsuquyomi#goBack()
+command! -buffer TsuquyomiReferences     :call tsuquyomi#references()
+command! -buffer TsuquyomiGeterr         :call tsuquyomi#geterr()
+command! -buffer TsuquyomiRenameSymbol   :call tsuquyomi#renameSymbol()
+
+" TODO These commands don't work correctly. [#7]
+command! -buffer TsuquyomiRenameSymbolC  :call tsuquyomi#renameSymbolWithComments()
+command! -buffer TsuquyomiRenameSymbolS  :call tsuquyomi#renameSymbolWithStrings()
+command! -buffer TsuquyomiRenameSymbolCS :call tsuquyomi#renameSymbolWithCommentsStrings()
 
 noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)     :TsuquyomiDefinition <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiGoBack)         :TsuquyomiGoBack <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
+
+" TODO These commands don't work correctly. [#7]
+noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)  :TsuquyomiRenameSymbolC <CR>
+noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolS)  :TsuquyomiRenameSymbolS <CR>
+noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolCS) :TsuquyomiRenameSymbolCS <CR>
 
 augroup tsuquyomi_defaults
   autocmd!
@@ -58,6 +68,7 @@ if !hasmapto('<Plug>(TsuquyomiReferences)')
 endif
 
 setlocal omnifunc=tsuquyomi#complete
+
 if exists('+bexpr')
   setlocal bexpr=tsuquyomi#balloonexpr()
 endif

@@ -455,8 +455,11 @@ endfunction
 "       ]
 "     }
 function! tsuquyomi#tsClient#tsRename(file, line, offset, findInComments, findInString)
+  " TODO findInComments and findInString parameters don't work... why?
   let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset,
-        \ 'findInComments': a:findInComments, 'findInString': a:findInString}
+        \ 'findInComments': a:findInComments ? s:JSON.true : s:JSON.false,
+        \ 'findInString'  : a:findInString  ? s:JSON.true : s:JSON.false
+        \ }
   let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('rename', l:arg)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
