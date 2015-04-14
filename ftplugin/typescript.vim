@@ -42,6 +42,7 @@ noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol
 augroup tsuquyomi_defaults
   autocmd!
   autocmd BufWritePost *.ts silent! call tsuquyomi#reloadAndGeterr()
+  autocmd BufWinEnter * silent! call tsuquyomi#setPreviewOption()
   autocmd TextChanged,TextChangedI *.ts silent! call tsuquyomi#letDirty()
 augroup END
 
@@ -57,7 +58,7 @@ if !hasmapto('<Plug>(TsuquyomiReferences)')
 endif
 
 setlocal omnifunc=tsuquyomi#complete
-if exists('bexpr')
+if exists('+bexpr')
   setlocal bexpr=tsuquyomi#balloonexpr()
 endif
 

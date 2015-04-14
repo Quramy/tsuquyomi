@@ -24,6 +24,22 @@ function! s:normalizePath(path)
   return substitute(a:path, '\\', '/', 'g')
 endfunction
 
+function! s:joinParts(displayParts)
+  return join(map(a:displayParts, 'v:val.text'), '')
+endfunction
+
+function! s:joinPartsIgnoreBreak(displayParts, replaceString)
+  let l:display = ''
+  for part in a:displayParts
+    if part.kind == 'lineBreak'
+      let l:display = l:display.a:replaceString
+      break
+    endif
+    let l:display = l:display.part.text
+  endfor
+  return l:display
+endfunction
+
 " Check whether files are opened.
 " Found not opend file, show message.
 function! s:checkOpenAndMessage(filelist)
@@ -161,21 +177,57 @@ endfunction
 
 " #### Complete {{{
 "
+function! tsuquyomi#setPreviewOption()
+  if &previewwindow
+    setlocal ft=typescript
+  endif
+endfunction
+
 function! tsuquyomi#makeCompleteMenu(file, line, offset, entryNames)
   let res_list = tsuquyomi#tsClient#tsCompletionEntryDetails(a:file, a:line, a:offset, a:entryNames)
   let display_texts = []
   for result in res_list
-    let l:display = ''
-    for part in result.displayParts
-      if part.kind == 'lineBreak'
-        let l:display = l:display.'{...}'
-        break
-      endif
-      let l:display = l:display.part.text
-    endfor
-    call add(display_texts, l:display)
+    call add(display_texts, s:joinPartsIgnoreBreak(result.displayParts, '{...}'))
   endfor
   return display_texts
+endfunction
+
+" Make complete information for preview window.
+function! tsuquyomi#makeCompleteInfo(file, line, offset)
+
+  if stridx(&completeopt, 'preview') == -1
+    return [0, '']
+  endif
+
+  let l:sig_dict = tsuquyomi#tsClient#tsSignatureHelp(a:file, a:line, a:offset)
+  let has_info = 0
+  if has_key(l:sig_dict, 'items') && len(l:sig_dict.items) 
+    let has_info = 1
+    let info_lines = []
+
+    for sigitem in l:sig_dict.items
+      let siginfo_list = []
+      let dispText = s:joinParts(sigitem.prefixDisplayParts)
+      let params_list = []
+      for paramInfo in sigitem.parameters
+        let param_text =  s:joinParts(paramInfo.displayParts)
+        if len(paramInfo.documentation)
+          let param_text = param_text.'/* '.s:joinPartsIgnoreBreak(paramInfo.documentation, ' ...').' */'
+        endif
+        call add(params_list, param_text)
+      endfor
+      let dispText = dispText.join(params_list, ', ').s:joinParts(sigitem.suffixDisplayParts)
+      if len(sigitem.documentation)
+        let dispText = dispText.'/* '.s:joinPartsIgnoreBreak(sigitem.documentation, ' ...').' */'
+      endif
+      call add(info_lines, dispText)
+    endfor
+
+    let sigitem = l:sig_dict.items[0]
+    return [has_info, join(info_lines, "\n")]
+  endif
+
+  return [has_info, '']
 endfunction
 
 function! tsuquyomi#complete(findstart, base)
@@ -201,6 +253,7 @@ function! tsuquyomi#complete(findstart, base)
     let l:file = expand('%:p')
     let l:res_dict = {'words': []}
     let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
+    let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
 
     let length = strlen(a:base)
     let size = g:tsuquyomi_completion_chank_size
@@ -223,6 +276,9 @@ function! tsuquyomi#complete(findstart, base)
       let idx = 0
       for menu in menus
         let items[idx].menu = menu
+        if has_info
+          let items[idx].info = siginfo
+        endif
         call complete_add(items[idx])
         let idx = idx + 1
       endfor
