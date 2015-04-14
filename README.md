@@ -55,6 +55,21 @@ Tsuquyomi supports Omni-Completion.
 
 By the default, type `<C-x> <C-o>` in insert mode, Tsuquyomi shows completions.
 
+#### Customize completion
+You can configure completion with the `completeopt` option.
+
+If you don't want the popup menu:
+
+```vim
+autocmd FileType typescript setlocal completeopt-=menu
+```
+
+If you want to show a method's signature in the preview window when completion:
+
+```vim
+autocmd FileType typescript setlocal completeopt+=menu,preview
+```
+
 ### Nav to definition
 Type `<C-]>` in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol under the cursor is defined.
 
@@ -124,11 +139,6 @@ If you have installed these plugins, calling the following Ex command, the outli
 
 ### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
-
-## Future works
-
-+ syntax highright
-+ etc ...
 
 ## License
 MIT
