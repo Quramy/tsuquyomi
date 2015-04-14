@@ -253,42 +253,46 @@ function! tsuquyomi#complete(findstart, base)
     let l:file = expand('%:p')
     let l:res_dict = {'words': []}
     let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
-    let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
+    let enable_menu = stridx(&completeopt, 'menu') != -1
 
     let length = strlen(a:base)
-    let size = g:tsuquyomi_completion_chank_size
-    let j = 0
 
-    while j * size < len(l:res_list)
-      let entries = []
-      let items = []
-      let upper = min([(j + 1) * size, len(l:res_list)])
-      for i in range(j * size, upper - 1)
-        let info = l:res_list[i]
-        if !length || info.name[0:length - 1] == a:base
-          let l:item = {'word': info.name}
-          call add(entries, info.name)
-          call add(items, l:item)
+    if enable_menu
+      let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
+      let size = g:tsuquyomi_completion_chank_size
+      let j = 0
+      while j * size < len(l:res_list)
+        let entries = []
+        let items = []
+        let upper = min([(j + 1) * size, len(l:res_list)])
+        for i in range(j * size, upper - 1)
+          let info = l:res_list[i]
+          if !length || info.name[0:length - 1] == a:base
+            let l:item = {'word': info.name}
+            call add(entries, info.name)
+            call add(items, l:item)
+          endif
+        endfor
+
+        let menus = tsuquyomi#makeCompleteMenu(l:file, l:line, l:start, entries)
+        let idx = 0
+        for menu in menus
+          let items[idx].menu = menu
+          if has_info
+            let items[idx].info = siginfo
+          endif
+          call complete_add(items[idx])
+          let idx = idx + 1
+        endfor
+        if complete_check()
+          break
         endif
-      endfor
-
-      let menus = tsuquyomi#makeCompleteMenu(l:file, l:line, l:start, entries)
-      let idx = 0
-      for menu in menus
-        let items[idx].menu = menu
-        if has_info
-          let items[idx].info = siginfo
-        endif
-        call complete_add(items[idx])
-        let idx = idx + 1
-      endfor
-      if complete_check()
-        break
-      endif
-      let j = j + 1
-    endwhile
-
-    return []
+        let j = j + 1
+      endwhile
+      return []
+    else
+      return map(l:res_list, 'v:val.name')
+    endif
 
   endif
 endfunction
