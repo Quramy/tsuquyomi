@@ -54,7 +54,8 @@ function! tsuquyomi#config#tsscmd()
     endif
   else
     if g:tsuquyomi_use_dev_node_module == 1
-      let l:path = s:Filepath.join(s:script_dir, '../../../node_modules/typescript/bin/tsserver.js')
+      "let l:path = s:Filepath.join(s:script_dir, '../../../node_modules/typescript/bin/tsserver.js')
+      let l:path = s:Filepath.join(s:script_dir, '../../node_modules/typescript/bin/tsserver.js')
     elseif g:tsuquyomi_use_dev_node_module == 2
       let l:path = g:tsuquyomi_tsserver_path
     else
