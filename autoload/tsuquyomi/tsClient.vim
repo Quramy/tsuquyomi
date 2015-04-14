@@ -277,6 +277,13 @@ function! tsuquyomi#tsClient#tsCompletionEntryDetails(file, line, offset, entryN
   return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
+"Fetch method signature information from TSServer.
+function! tsuquyomi#tsClient#tsSignatureHelp(file, line, offset)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('signatureHelp', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
+endfunction
+
 " Configure = "configure";
 function! tsuquyomi#tsClient#tsConfigure(file, tabSize, indentSize, hostInfo)
   call s:error('not implemented!')
