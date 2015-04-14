@@ -1,6 +1,6 @@
 *tsuquyomi* はTypeScript向けのVim plugin です.
 
-Version: 0.3.1
+Version: 0.4.0
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
