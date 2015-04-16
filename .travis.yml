@@ -1,0 +1,13 @@
+env:
+  global:
+  - GIT_COMMITTER_NAME=y-kurami
+  - GIT_COMMITTER_EMAIL=yosuke.kurami@gmail.com
+  - GIT_AUTHOR_NAME=Quramy
+  - GIT_AUTHOR_EMAIL=yosuke.kurami@gmail.com
+language: node_js
+node_js:
+- '0.10'
+before_install:
+- npm install
+script:
+- sh runtest.sh
