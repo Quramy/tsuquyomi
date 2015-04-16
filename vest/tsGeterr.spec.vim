@@ -11,20 +11,19 @@ Context Vesting.run()
     call tsuquyomi#tsClient#tsOpen(file)
     let files = [file]
     let result_dict = tsuquyomi#tsClient#tsGeterr(files, 10)
-    " TODO geterr command response after some delay, so it's difficult to
-    "      get diagnostics correctly...
-    " Should has_key(result_dict, 'syntaxDiag')
-    " Should has_key(result_dict, 'semanticDiag')
-    " Should has_key(result_dict.semanticDiag, 'diagnostics')
-    " Should has_key(result_dict.semanticDiag, 'file')
-    " Should len(result_dict.semanticDiag.diagnostics) > 0
-    " Should has_key(result_dict.semanticDiag.diagnostics[0], 'text')
-    " Should has_key(result_dict.semanticDiag.diagnostics[0], 'start')
-    " Should has_key(result_dict.semanticDiag.diagnostics[0].start, 'line')
-    " Should has_key(result_dict.semanticDiag.diagnostics[0].start, 'offset')
-    " Should has_key(result_dict.semanticDiag.diagnostics[0], 'end')
-    " Should has_key(result_dict.semanticDiag.diagnostics[0].end, 'line')
-    " Should has_key(result_dict.semanticDiag.diagnostics[0].end, 'offset')
+    "echo result_dict
+    Should has_key(result_dict, 'syntaxDiag')
+    Should has_key(result_dict, 'semanticDiag')
+    Should has_key(result_dict.semanticDiag, 'diagnostics')
+    Should has_key(result_dict.semanticDiag, 'file')
+    Should len(result_dict.semanticDiag.diagnostics) > 0
+    Should has_key(result_dict.semanticDiag.diagnostics[0], 'text')
+    Should has_key(result_dict.semanticDiag.diagnostics[0], 'start')
+    Should has_key(result_dict.semanticDiag.diagnostics[0].start, 'line')
+    Should has_key(result_dict.semanticDiag.diagnostics[0].start, 'offset')
+    Should has_key(result_dict.semanticDiag.diagnostics[0], 'end')
+    Should has_key(result_dict.semanticDiag.diagnostics[0].end, 'line')
+    Should has_key(result_dict.semanticDiag.diagnostics[0].end, 'offset')
     call tsuquyomi#tsClient#stopTss()
   End
 End

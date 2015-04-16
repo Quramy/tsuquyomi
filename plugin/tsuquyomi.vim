@@ -26,6 +26,8 @@ let g:tsuquyomi_use_dev_node_module =
       \ get(g:, 'tsuquyomi_use_dev_node_module', 0)
 let g:tsuquyomi_tsserver_path =
       \ get(g:, 'tsuquyomi_tsserver_path', '')
+let g:tsuquyomi_debug = 
+      \ get(g:, 'tsuquyomi_debug', 0)
 let g:tsuquyomi_tsserver_debug = 
       \ get(g:, 'tsuquyomi_tsserver_debug', 0)
 let g:tsuquyomi_nodejs_path = 

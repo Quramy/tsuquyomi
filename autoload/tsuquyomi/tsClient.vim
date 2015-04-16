@@ -30,6 +30,13 @@ endfunction
 function! s:waitTss(sec)
   call s:P.read_wait(s:tsq, a:sec, [])
 endfunction
+
+function! s:debugLog(msg)
+  if g:tsuquyomi_debug
+    echom a:msg
+  endif
+endfunction
+
 " ### Utilites }}}
 
 " ### Core Functions {{{
@@ -75,21 +82,22 @@ endfunction
 " PARAM: {int} response_length The number of JSONs contained by this response.
 " RETURNS: {list<string>} A list of response string (content-type=json).
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
+  "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
   call s:P.writeln(s:tsq, a:line)
-  let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
 
   let l:retry = 0
   let response_list = []
 
   while len(response_list) < a:response_length
-    "echom err
+    let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
+    call s:debugLog('out: '.out.', type:'.type)
     if type == 'timedout'
-      "echom 'timedout!!!'
       let retry_delay = 0.05
       while l:retry < a:retry_count
         let [out, err, type] = s:P.read_wait(s:tsq, retry_delay, ['Content-Length: \d\+'])
         if type == 'matched'
+          "call s:debugLog('retry: '.l:retry.', length: '.len(response_list))
           break
         endif
         let l:retry = l:retry + 1
@@ -109,9 +117,8 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
     endif
 
   endwhile
-
+  "call s:debugLog(a:response_length.', '.len(response_list))
   return response_list
-
 endfunction
 
 "
@@ -138,7 +145,7 @@ endfunction
 
 function! tsuquyomi#tsClient#sendCommandSyncEvents(cmd, args, delay, length)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
-  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, a:delay, 200, a:length)
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, a:delay, 2000, a:length)
   "echo l:stdout_list
   let l:length = len(l:stdout_list)
   let l:result_list = []
