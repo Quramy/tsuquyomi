@@ -1,4 +1,4 @@
-# Tsuquyomi
+# Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi)
 
 Tsuquyomi is a Vim plugin for TypeScript.
 
