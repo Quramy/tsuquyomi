@@ -319,6 +319,8 @@ function! tsuquyomi#definition()
       " Same file
       call tsuquyomi#bufManager#pushNavDef(l:file, {'line': l:line, 'col': l:offset})
       call cursor(l:info.start.line, l:info.start.offset)
+    elseif g:tsuquyomi_definition_split == 0
+      execute 'edit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
     else
       " If other file, split window
       execute 'split +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
