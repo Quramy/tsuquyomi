@@ -291,7 +291,7 @@ function! tsuquyomi#complete(findstart, base)
       endwhile
       return []
     else
-      return map(l:res_list, 'v:val.name')
+      return filter(map(l:res_list, 'v:val.name'), 'stridx(v:val, a:base) == 0')
     endif
 
   endif
