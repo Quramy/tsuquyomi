@@ -198,6 +198,12 @@ g:tsuquyomi_tsserver_path	(default `''`)
 g:tsuquyomi_nodejs_path		(default 'node')
 		A path to Node.js.
 
+
+						g:tsuquyomi_definition_split
+g:tsuquyomi_definition_split	(default 1)
+		Whether to open a new split when navigating to definition in
+		another file. See :TsuquyomiDefinition.
+
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
 
