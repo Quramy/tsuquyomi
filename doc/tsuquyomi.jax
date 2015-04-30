@@ -203,6 +203,11 @@ g:tsuquyomi_tsserver_path	(デフォルト値 `''`)
 g:tsuquyomi_nodejs_path		(デフォルト値 'node')
 		Node.js の実行パス.
 
+						*g:tsuquyomi_definition_split*
+g:tsuquyomi_definition_split	(デフォルト値 1)
+		別ファイル定義への遷移時, ウィンドウを分割するかどうか.
+		|:TsuquyomiDefinition| も参考のこと.
+
 ------------------------------------------------------------------------------
 キーマッピング					*tsuquyomi-key-mappings*
 
