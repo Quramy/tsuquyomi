@@ -1,6 +1,6 @@
 *tsuquyomi* is a Vim plugin for TypeScript.
 
-Version: 0.4.1
+Version: 0.4.2
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -132,10 +132,6 @@ COMMANDS					*tsuquyomi-commands*
 
 :TsuquyomiDefinition				*:TsuquyomiDefinition*
 		Navigate to the location where the symbol is defined.
-		If the location of definition is in the current buffer,
-		move the cursor.
-		Otherwise, |split| the current window and open the file which
-		contains the definition.
 
 :TsuquyomiGoBack				*:TsuquyomiGoBack*
 		Move the cursor position to the location where
@@ -200,9 +196,12 @@ g:tsuquyomi_nodejs_path		(default 'node')
 
 
 						*g:tsuquyomi_definition_split*
-g:tsuquyomi_definition_split	(default 1)
+g:tsuquyomi_definition_split	(default 0)
 		Whether to open a new split when navigating to definition in
-		another file. See |:TsuquyomiDefinition|.
+		another file when calling |:TsuquyomiDefinition|.
+		* 0: |:edit|
+		* 1: |:split|
+		* 2: |:vplit|
 
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*

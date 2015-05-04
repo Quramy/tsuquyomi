@@ -37,7 +37,7 @@ let g:tsuquyomi_waittime_after_open=
 let g:tsuquyomi_completion_chank_size = 
       \ get(g:, 'tsuquyomi_completion_chank_size', 15)
 let g:tsuquyomi_definition_split =
-      \ get(g:, 'tsuquyomi_definition_split', 1)
+      \ get(g:, 'tsuquyomi_definition_split', 0)
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group

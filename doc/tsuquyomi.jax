@@ -1,6 +1,6 @@
 *tsuquyomi* はTypeScript向けのVim plugin です.
 
-Version: 0.4.1
+Version: 0.4.2
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -133,10 +133,6 @@ Prompt:
 
 :TsuquyomiDefinition				*:TsuquyomiDefinition*
 		シンボルが定義された場所へ遷移させます.
-		定義箇所がカレントバッファに存在する場合はそこにカーソルを
-		移動させます.
-		そうでない場合, 定義箇所を含むファイルを|split|で開いてから
-		カーソルを移動します.
 
 :TsuquyomiGoBack				*:TsuquyomiGoBack*
 		カーソルを最後に|:TsuquyomiDefinition|を実行した箇所へ
@@ -204,9 +200,12 @@ g:tsuquyomi_nodejs_path		(デフォルト値 'node')
 		Node.js の実行パス.
 
 						*g:tsuquyomi_definition_split*
-g:tsuquyomi_definition_split	(デフォルト値 1)
-		別ファイル定義への遷移時, ウィンドウを分割するかどうか.
-		|:TsuquyomiDefinition| も参考のこと.
+g:tsuquyomi_definition_split	(デフォルト値 0)
+		|:TsuquyomiDefinition| にて別ファイル定義への遷移時, 
+		ウィンドウを分割するかどうか.
+		* 0: |:edit|
+		* 1: |:split|
+		* 2: |:vsplit|
 
 ------------------------------------------------------------------------------
 キーマッピング					*tsuquyomi-key-mappings*

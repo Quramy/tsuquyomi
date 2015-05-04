@@ -137,5 +137,23 @@ function! tsuquyomi#bufManager#popNavDef(file_name)
   endif
 endfunction
 
+let s:win_nav_map = {}
+function! tsuquyomi#bufManager#winPushNavDef(winnm, file_name, loc)
+  if !has_key(s:win_nav_map, a:winnm)
+    let s:win_nav_map[a:winnm] = []
+  endif
+  call add(s:win_nav_map[a:winnm], {'file_name': a:file_name, 'loc': a:loc})
+endfunction
+
+function! tsuquyomi#bufManager#winPopNavDef(winnm)
+  if !has_key(s:win_nav_map, a:winnm)
+    return [0, {}]
+  endif
+  if !len(s:win_nav_map[a:winnm])
+    return [0, {}]
+  endif
+  return [1, remove(s:win_nav_map[a:winnm], -1)]
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
