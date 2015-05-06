@@ -258,6 +258,20 @@ tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		autocmd BufNewFile,BufRead *.ts
 		\ setlocal ballonexpr=tsuquyomi#ballonexpr()
 <
+		Note: この関数はVimが|+balloon_eval| オプション付きでコンパイル
+		      されている場合のみ利用可能である.
+
+tsuquyomi#hint					*tsuquyomi#hint*
+		カーソル上のシンボルの情報を返却する. |tsuquyomi#ballonexpr|
+		と似ているが, この関数はGVim, 端末上のVimのどちらでも動作する.
+		
+		設定例:
+>
+		autocmd FileType typescript nmap <buffer> <Leader>t :
+		\ <C-u>echo tsuquyomi#hint()<CR>
+<
+		Note: This function works in not only GVim but also 
+		      terminal Vim.
 
 Todo
 

@@ -115,7 +115,7 @@ If you need, configure your `.vimrc` . For example:
 autocmd FileType typescript nmap <buffer> <Leader>e <Plug>(TsuquyomiRenameSymbol)
 ```
 
-### Show tooltip(balloon)
+### Show balloon(tooltip)
 Tsuquyomi can display tooltip window about symbol under the mouse cursor.
 If you want to use this feature, configure `.vimrc` as follows:
 
@@ -123,6 +123,16 @@ If you want to use this feature, configure `.vimrc` as follows:
 set ballooneval
 autocmd FileType typescript setlocal ballonexpr=tsuquyomi#ballonexpr()
 ```
+
+The `ballonexpr` option is not available in terminal Vim. So, Tsuquyomi also provides a tooltip function `tsuquyomi#hint()`.
+
+For example:
+
+```vim
+autocmd FileType typescript nmap <buffer> <Leader>t : <C-u>echo tsuquyomi#hint()<CR>
+```
+
+The avobe example works in terminal Vim.
 
 
 ### Show outline(an extension of unite-outline)
@@ -139,6 +149,11 @@ If you have installed these plugins, calling the following Ex command, the outli
 
 ### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
+
+## Relivant plugins
+
+* [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
+* [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
 
 ## License
 MIT
