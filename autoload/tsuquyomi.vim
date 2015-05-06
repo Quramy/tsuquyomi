@@ -462,6 +462,17 @@ function! tsuquyomi#balloonexpr()
     endif
   endif
 endfunction
+
+function! tsuquyomi#hint()
+  call s:flash()
+  let res = tsuquyomi#tsClient#tsQuickinfo(expand('%:p'), line('.'), col('.'))
+  if has_key(res, 'displayString')
+    return res.displayString
+  else
+    return '[Tsuquyomi] There is no hint at the cursor.'
+  endif
+endfunction
+
 " #### Balloon }}}
 
 " #### Rename {{{
