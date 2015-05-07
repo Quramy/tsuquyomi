@@ -121,7 +121,7 @@ If you want to use this feature, configure `.vimrc` as follows:
 
 ```vim
 set ballooneval
-autocmd FileType typescript setlocal ballonexpr=tsuquyomi#ballonexpr()
+autocmd FileType typescript setlocal balloonexpr=tsuquyomi#ballonexpr()
 ```
 
 The `ballonexpr` option is not available in terminal Vim. So, Tsuquyomi also provides a tooltip function `tsuquyomi#hint()`.
