@@ -256,7 +256,7 @@ tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 >
 		set ballooneval
 		autocmd BufNewFile,BufRead *.ts
-		\ setlocal ballonexpr=tsuquyomi#ballonexpr()
+		\ setlocal ballonexpr=tsuquyomi#balloonexpr()
 <
 		Note: この関数はVimが|+balloon_eval| オプション付きでコンパイル
 		      されている場合のみ利用可能である.
