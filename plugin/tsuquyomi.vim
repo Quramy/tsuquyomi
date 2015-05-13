@@ -35,7 +35,9 @@ let g:tsuquyomi_nodejs_path =
 let g:tsuquyomi_waittime_after_open= 
       \ get(g:, 'tsuquyomi_waittime_after_open', 0.01)
 let g:tsuquyomi_completion_chank_size = 
-      \ get(g:, 'tsuquyomi_completion_chank_size', 15)
+      \ get(g:, 'tsuquyomi_completion_chank_size', 80)
+let g:tsuquyomi_completion_case_sensitive = 
+      \ get(g:, 'tsuquyomi_completion_case_sensitive', 0)
 let g:tsuquyomi_definition_split =
       \ get(g:, 'tsuquyomi_definition_split', 0)
 " Global options defintion. }}}

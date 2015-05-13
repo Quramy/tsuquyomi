@@ -73,6 +73,25 @@ function! s:is_valid_identifier(symbol_str)
   return a:symbol_str =~ '[A-Za-z_\$][A-Za-z_\$0-9]*'
 endfunction
 
+let s:complete_call_count = 0
+let s:start_time = reltime()
+let s:time_arr = []
+function! s:debug_time(name)
+  if 0
+    call add(s:time_arr, {'name': a:name, 'count': s:complete_call_count, 'elapse': reltime(s:start_time)})
+  endif
+endfunction
+function! tsuquyomi#getTime()
+  let num_row = len(s:time_arr)
+  let j = len(s:time_arr) - num_row + 1
+  while j < num_row
+    let t = s:time_arr[j]
+    let prev = s:time_arr[j - 1]
+    echo reltimestr(t.elapse) t.count t.name reltimestr(reltime(prev.elapse, t.elapse))
+    let j = j + 1
+  endwhile
+endfunction
+
 " ### Utilites }}}
 
 " ### Public functions {{{
@@ -184,7 +203,9 @@ function! tsuquyomi#setPreviewOption()
 endfunction
 
 function! tsuquyomi#makeCompleteMenu(file, line, offset, entryNames)
+  "call s:debug_time('tsCompletionEntryDetail')
   let res_list = tsuquyomi#tsClient#tsCompletionEntryDetails(a:file, a:line, a:offset, a:entryNames)
+  "call s:debug_time('tsCompletionEntryDetail_done')
   let display_texts = []
   for result in res_list
     call add(display_texts, s:joinPartsIgnoreBreak(result.displayParts, '{...}'))
@@ -232,6 +253,9 @@ endfunction
 
 function! tsuquyomi#complete(findstart, base)
 
+  let s:complete_call_count = s:complete_call_count + 1
+  let s:start_time = reltime()
+
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -247,17 +271,20 @@ function! tsuquyomi#complete(findstart, base)
   endwhile
 
   if(a:findstart)
+    "call s:debug_time('before_flash')
     call s:flash()
+    "call s:debug_time('after_flash')
     return l:start - 1
   else
     let l:file = expand('%:p')
     let l:res_dict = {'words': []}
+    "call s:debug_time('before_tsCompletions')
     let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
+    "call s:debug_time('after_tsCompletions')
     let enable_menu = stridx(&completeopt, 'menu') != -1
-
     let length = strlen(a:base)
-
     if enable_menu
+      call s:debug_time('start_menu')
       let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
       let size = g:tsuquyomi_completion_chank_size
       let j = 0
@@ -267,14 +294,17 @@ function! tsuquyomi#complete(findstart, base)
         let upper = min([(j + 1) * size, len(l:res_list)])
         for i in range(j * size, upper - 1)
           let info = l:res_list[i]
-          if !length || info.name[0:length - 1] == a:base
+          if !length 
+                \ || !g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] == a:base
+                \ || g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] ==# a:base
             let l:item = {'word': info.name}
             call add(entries, info.name)
             call add(items, l:item)
           endif
         endfor
-
+        "call s:debug_time('before_completeMenu'.j)
         let menus = tsuquyomi#makeCompleteMenu(l:file, l:line, l:start, entries)
+        "call s:debug_time('after_completeMenu'.j)
         let idx = 0
         for menu in menus
           let items[idx].menu = menu

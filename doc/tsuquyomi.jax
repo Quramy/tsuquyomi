@@ -207,6 +207,11 @@ g:tsuquyomi_definition_split	(デフォルト値 0)
 		* 1: |:split|
 		* 2: |:vsplit|
 
+					*g:tsuquyomi_completion_case_sensitive*
+g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)
+		|tsuquyomi#complete|実行時に補完候補をcase-sensitiveに
+		探索するかどうか.
+
 ------------------------------------------------------------------------------
 キーマッピング					*tsuquyomi-key-mappings*
 

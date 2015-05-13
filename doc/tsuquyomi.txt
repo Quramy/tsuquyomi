@@ -203,6 +203,11 @@ g:tsuquyomi_definition_split	(default 0)
 		* 1: |:split|
 		* 2: |:vplit|
 
+					*g:tsuquyomi_completion_case_sensitive*
+g:tsuquyomi_completion_case_sensitive	(default 0)
+		Whether to search completion case-sensitively when
+		|tsuquyomi#complete|.
+
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
 
