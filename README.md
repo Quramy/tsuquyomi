@@ -150,7 +150,7 @@ If you have installed these plugins, calling the following Ex command, the outli
 ### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
 
-## Relivant plugins
+## Relevant plugins
 
 * [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
 * [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
