@@ -22,6 +22,45 @@ Tsuquyomi requires the following:
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
 + [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (**v1.5.0 or later**)
 
+### vim v7.4+ and TypeScript
+
+This requires v7.4.0+, which means that you'll need to manually install.
+
+#### OS X
+
+```
+brew install vim
+```
+
+#### Ubuntu
+
+```
+sudo add-apt-repository ppa:fcwu-tw/ppa
+sudo apt-get update
+sudo apt-get install vim
+```
+
+### Pathogen
+
+See https://github.com/tpope/vim-pathogen for instructions to install pathogen iteslf
+(very simple one-line install, one-line config)
+
+```
+# create bundle folder if it doesn't exist
+mkdir -p ~/.vim/bundle
+
+# Install and compile procvim.vim
+git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle/vimproc.vim
+pushd ~/.vim/bundle/vimproc.vim
+make
+popd
+
+# Install tsuquyomi
+git clone https://github.com/Quramy/tsuquyomi.git ~/.vim/bundle/tsuquyomi
+```
+
+### NeoBundle
+
 If you use [NeoBundle](https://github.com/Shougo/neobundle.vim) for Vim plugin management, append the following to your `.vimrc`:
 
 ```vim
