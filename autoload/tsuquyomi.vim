@@ -601,8 +601,15 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
 
   " * Execute to replace symbols by location, by buffer
   for fileLoc in l:res_dict.locs
+    let is_open = tsuquyomi#bufManager#isOpened(fileLoc.file)
+    if !is_open 
+      let s:locs_dict[s:normalizePath(fileLoc.file)] = fileLoc.locs
+      call add(other_buf_list, s:normalizePath(fileLoc.file))
+      continue
+    endif
     let buffer_name = tsuquyomi#bufManager#bufName(fileLoc.file)
     let s:locs_dict[buffer_name] = fileLoc.locs
+    "echom 'fileLoc.file '.fileLoc.file.', '.buffer_name
     let changed_count = 0
     if buffer_name != expand('%:p')
       call add(other_buf_list, buffer_name)
@@ -617,6 +624,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   echohl none 
 
   for otherbuf in other_buf_list
+    "echom otherbuf
     " * If target buffer is opened in some window?
     "  * opened: change current window?
     "  * not opened: open current window to buffer.
