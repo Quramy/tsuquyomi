@@ -212,6 +212,11 @@ g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)
 		|tsuquyomi#complete|実行時に補完候補をcase-sensitiveに
 		探索するかどうか.
 
+						*g:tsuquyomi_disable_quickfix*
+g:tsuquyomi_disable_quickfix	(デフォルト値 0)
+		値をセットするとバッファ保存時に |:TsuquyomiGeterr| が
+		実行されなくなる.
+
 ------------------------------------------------------------------------------
 キーマッピング					*tsuquyomi-key-mappings*
 
