@@ -47,12 +47,16 @@ let g:tsuquyomi_definition_split =
 " augroup END
 
 " Define commands to operate TSServer
-command! TsuquyomiStartServer : call tsuquyomi#startServer()
+command! TsuquyomiStartServer  : call tsuquyomi#startServer()
+command! TsuStartServer        : call tsuquyomi#startServer()
 command! TsuquyomiStatusServer : echom tsuquyomi#statusServer()
-command! TsuquyomiStopServer : call tsuquyomi#stopServer()
+command! TsuStatusServer       : echom tsuquyomi#statusServer()
+command! TsuquyomiStopServer   : call tsuquyomi#stopServer()
+command! TsuStopServer         : call tsuquyomi#stopServer()
 
 " Close and re-open all buffers
 command! TsuquyomiReloadProject : call tsuquyomi#reloadProject()
+command! TsuReloadProject       : call tsuquyomi#reloadProject()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
