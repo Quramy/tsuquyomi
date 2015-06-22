@@ -40,6 +40,8 @@ let g:tsuquyomi_completion_case_sensitive =
       \ get(g:, 'tsuquyomi_completion_case_sensitive', 0)
 let g:tsuquyomi_definition_split =
       \ get(g:, 'tsuquyomi_definition_split', 0)
+let g:tsuquyomi_save_onrename =
+      \ get(g:, 'tsuquyomi_save_onrename', 0)
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group

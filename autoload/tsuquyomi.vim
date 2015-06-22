@@ -550,40 +550,8 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   if len(l:res_dict.locs) != 1 || s:normalizePath(expand('%:p')) != l:res_dict.locs[0].file
     let file_list = map(copy(l:res_dict.locs), 'v:val.file')
     let dirty_file_list = tsuquyomi#bufManager#whichDirty(file_list)
-
-    " if len(dirty_file_list)
-    "   echom '[Tsuquyomi] This action will be affect to other buffers. Please save the following files and retry.'
-    "   echohl string
-    "   echom join(dirty_file_list, ', ')
-    "   echohl none
-    "   return
-    " endif
     call s:reloadFromList(dirty_file_list)
-
   endif
-
-
-  let l:location_list = []
-
-  " for file_hit in l:res_dict.locs
-  "   for reference in file_hit.locs
-  "     let l:location_info = {
-  "           \ 'filename': file_hit.file,
-  "           \ 'lnum': reference.start.line,
-  "           \ 'col': reference.start.offset,
-  "           \ 'text': l:res_dict.info.displayName
-  "           \ }
-  "     call add(l:location_list, l:location_info)
-  "   endfor
-  " endfor
-
-  " if !len(l:location_list)
-  "   echom '[Tsuquyomi] No symbol to be rename...'
-  " endif
-
-  " call setloclist(0, l:location_list, 'r')
-  " lwindow
-  "
 
   " * Question user what new symbol name.
   echohl String
@@ -597,14 +565,14 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
 
   let s:locs_dict = {}
   let s:rename_to = renameTo
-  let other_buf_list = []
+  let s:other_buf_list = []
 
   " * Execute to replace symbols by location, by buffer
   for fileLoc in l:res_dict.locs
     let is_open = tsuquyomi#bufManager#isOpened(fileLoc.file)
     if !is_open 
       let s:locs_dict[s:normalizePath(fileLoc.file)] = fileLoc.locs
-      call add(other_buf_list, s:normalizePath(fileLoc.file))
+      call add(s:other_buf_list, s:normalizePath(fileLoc.file))
       continue
     endif
     let buffer_name = tsuquyomi#bufManager#bufName(fileLoc.file)
@@ -612,28 +580,31 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
     "echom 'fileLoc.file '.fileLoc.file.', '.buffer_name
     let changed_count = 0
     if buffer_name != expand('%:p')
-      call add(other_buf_list, buffer_name)
+      call add(s:other_buf_list, buffer_name)
       continue
     endif
-    let changed_count = s:renameLocal()
   endfor
 
-  echohl String
-  echo ' '
-  echo 'Changed '.changed_count.' locations.'
-  echohl none 
-
-  for otherbuf in other_buf_list
-    "echom otherbuf
-    " * If target buffer is opened in some window?
-    "  * opened: change current window?
-    "  * not opened: open current window to buffer.
-    execute('silent split +call\ s:renameLocal() '.otherbuf)
-  endfor
-
+  if !g:tsuquyomi_save_on_rename
+    let changed_count = s:renameLocal(0)
+    echohl String
+    echo ' '
+    echo 'Changed '.changed_count.' locations.'
+    echohl none 
+    for otherbuf in s:other_buf_list
+      execute('silent split +call\ s:renameLocal(0) '.otherbuf)
+    endfor
+  else
+    echohl String
+    let l:confirm = input('[Tsuquyomi] The symbol is located in '.(len(s:other_buf_list) + 1).' files. Really replace them? [Y/n]')
+    echohl none 
+    if l:confirm != 'n' && l:confirm != 'no'
+      call s:renameLocalSeq(-1)
+    endif
+  endif
 endfunction
 
-function! s:renameLocal()
+function! s:renameLocal(should_save)
   let changed_count = 0
   let filename = expand('%:p')
   let locations_in_buf = s:locs_dict[expand('%:p')]
@@ -658,9 +629,23 @@ function! s:renameLocal()
     let changed_count = changed_count + 1
   endfor
   call tsuquyomi#reload()
+  if a:should_save
+    write
+  endif
   return changed_count
-endfor
+endfunction
 
+function! s:renameLocalSeq(index)
+  call s:renameLocal(1)
+  if a:index + 1 < len(s:other_buf_list)
+    let l:next = s:other_buf_list[a:index + 1]
+    execute('silent edit +call\ s:renameLocalSeq('.(a:index + 1).') '.l:next)
+  else
+    echohl String
+    echo ' '
+    echo 'Changed '.(a:index + 2).' files successfuly.'
+    echohl none 
+  endif
 endfunction
 " #### Rename }}}
 
