@@ -91,19 +91,27 @@ Prompt:
 ------------------------------------------------------------------------------
 コマンド 					*tsuquyomi-commands*
 
-:TsuquyomiStartServer				*:TsuquyomiStartServer*
+						*:TsuquyomiStartServer*
+						*:TsuStartServer*
+:TsuquyomiStartServer
 		|vimproc| を利用してTSServerのプロセスを起動します.
 		すでにプロセスが起動している場合は何もしません.
 
-:TsuquyomiStopServer 				*:TsuquyomiStopServer*
+						*:TsuquyomiStopServer*
+						*:TsuStopServer*
+:TsuquyomiStopServer
 		TSServerのプロセスが存在する場合, 停止させます.
 
-:TsuquyomiStatusServer				*:TsuquyomiStatusServer*
+						*:TsuquyomiStatusServer*
+						*:TsuStatusServer*
+:TsuquyomiStatusServer
 		TSServerの起動状態を表示します.
 		TSServerが起動している場合, 'reading' のメッセージが
 		表示されます.
 
-:TsuquyomiOpen [{file} ...]			*:TsuquyomiOpen*
+						*:TsuquyomiOpen*
+						*:TsuOpen*
+:TsuquyomiOpen [{file} ...]
 		TSServerで{file}を開きます.
 		TSServerでファイルを開くと, ファイルに対する様々な処理が
 		行えるようになります.
@@ -113,17 +121,23 @@ Prompt:
 		このため, 通常は明示的にこのコマンドを実行する必要は
 		ありません.
 
-:TsuquyomiClose [{file} ...]			*:TsuquyomiClose*
+						*:TsuquyomiClose*
+						*:TsuClose*
+:TsuquyomiClose [{file} ...]
 		既に開いている{file}をTSServer上でクローズします.
 		引数{file}を省略すると, TSServerはカレントバッファに紐づいた
 		ファイルをクローズします.
 
-:TsuquyomiReload [{file} ...]			*:TsuquyomiReload*
+						*:TsuquyomiReload*
+						*:TsuReload*
+:TsuquyomiReload [{file} ...]
 		TSServerに{file}をリロードさせます.
 		引数{file}を省略すると, TSServerにカレントバッファを
 		リロードさせます.
 
-:TsuquyomiDump [{file} ...]			*:TsuquyomiDump*
+						*:TsuquyomiDump*
+						*:TsuDump*
+:TsuquyomiDump [{file} ...]
 		TSServerのバッファをファイルに保存します.
 		デバッグのために利用します.
 		引数{file}を省略すると, カレントバッファに紐づくファイルを
@@ -131,24 +145,34 @@ Prompt:
 		Note: ダンプされるファイル名は下記となります:
 		      `オリジナルファイル名` + `'.dump'`.
 
-:TsuquyomiDefinition				*:TsuquyomiDefinition*
+						*:TsuquyomiDefinition*
+						*:TsuDefinition*
+:TsuquyomiDefinition
 		シンボルが定義された場所へ遷移させます.
 
-:TsuquyomiGoBack				*:TsuquyomiGoBack*
+						*:TsuquyomiGoBack*
+						*:TsuGoBack*
+:TsuquyomiGoBack
 		カーソルを最後に|:TsuquyomiDefinition|を実行した箇所へ
 		移動させます.
 
-:TsuquyomiReferences				*:TsuquyomiReferences*
+						*:TsuquyomiReferences*
+						*:TsuReferences*
+:TsuquyomiReferences
 		シンボルを参照している箇所へナビゲートします.
 		参照箇所の結果は|location-list|に表示されます.
 
-:TsuquyomiRenameSymbol				*:TsuquyomiRenameSymbol*
+						*:TsuquyomiRenameSymbol*
+						*:TsuRenameSymbol*
+:TsuquyomiRenameSymbol
 		カーソル直下の識別子を別名に変更します.
 		対象の識別子が別の.tsファイルから参照されている場合,
 		このコマンドを実行するより前に対象ファイルをバッファに
 		開いておく必要があります.
 
-:TsuquyomiReloadProject				*:TsuquyomiReloadProject*
+						*:TsuquyomiReloadProject*
+						*:TsuReloadProject*
+:TsuquyomiReloadProject
 		TSServerで開かれている全てのファイルを一度閉じ,
 		再度開きます.
 		`*.ts`をバッファに開いた後に, `tsconfig.json` を編集した場合,

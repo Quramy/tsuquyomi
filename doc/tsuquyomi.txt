@@ -91,20 +91,28 @@ INTERFACE					*tsuquyomi-interface*
 ------------------------------------------------------------------------------
 COMMANDS					*tsuquyomi-commands*
 
-:TsuquyomiStartServer				*:TsuquyomiStartServer*
+						*:TsuquyomiStartServer*
+						*:TsuStartServer*
+:TsuquyomiStartServer
 		Start TSServer process using |vimproc|.
 		If already the process is running, this command does not
 		anything.
 
-:TsuquyomiStopServer 				*:TsuquyomiStopServer*
+						*:TsuquyomiStopServer*
+						*:TsuStopServer*
+:TsuquyomiStopServer
 		Stop TSServer process if it exists.
 
-:TsuquyomiStatusServer				*:TsuquyomiStatusServer*
+						*:TsuquyomiStatusServer*
+						*:TsuStatusServer*
+:TsuquyomiStatusServer
 		Show TSServer status.
 		When TSServer is running, the message 'reading' will be
 		displayed.
 
-:TsuquyomiOpen [{file} ...]			*:TsuquyomiOpen*
+						*:TsuquyomiOpen*
+						*:TsuOpen*
+:TsuquyomiOpen [{file} ...]
 		Let TSServer open {file}s.
 		Once TSServer opens files, you can start a variety of
 		operations on them.
@@ -113,40 +121,56 @@ COMMANDS					*tsuquyomi-commands*
 		By the default, |g:tsuquyomi_auto_open| is enable.
 		So, usually user don't need to exec this command manually.
 
-:TsuquyomiClose [{file} ...]			*:TsuquyomiClose*
+						*:TsuquyomiClose*
+						*:TsuClose*
+:TsuquyomiClose [{file} ...]
 		Let TSServer releace opened {file}s.
 		If you omit the argument {file}, TSServer closes the file
 		related to the current buffer.
 
-:TsuquyomiReload [{file} ...]			*:TsuquyomiReload*
+						*:TsuquyomiReload*
+						*:TsuReload*
+:TsuquyomiReload [{file} ...]
 		Let TSServer reload files.
 		If you omit the argument {file}, TSServer reloads the current
 		buffer.
 
-:TsuquyomiDump [{file} ...]			*:TsuquyomiDump*
+						*:TsuquyomiDump*
+						*:TsuDump*
+:TsuquyomiDump [{file} ...]
 		Save TSServer's buffer to files.
 		This command can be execute for only debug purpose.
 		If you omit the argument {file}, TSServer saves the file
 		related to the current buffer.
 		Note: Dumped filename is `originalFileName` + `'.dump'` .
 
-:TsuquyomiDefinition				*:TsuquyomiDefinition*
+						*:TsuquyomiDefinition*
+						*:TsuDefinition*
+:TsuquyomiDefinition
 		Navigate to the location where the symbol is defined.
 
-:TsuquyomiGoBack				*:TsuquyomiGoBack*
+						*:TsuquyomiGoBack*
+						*:TsuGoBack*
+:TsuquyomiGoBack
 		Move the cursor position to the location where
 		the last |:TsuquyomiDefinition| was called.
 
-:TsuquyomiReferences				*:TsuquyomiReferences*
+						*:TsuquyomiReferences*
+						*:TsuReferences*
+:TsuquyomiReferences
 		Navigate to the locations where the symbol is referenced.
 		The result is showen to |location-list| .
 
-:TsuquyomiRenameSymbol				*:TsuquyomiRenameSymbol*
+						*:TsuquyomiRenameSymbol*
+						*:TsuRenameSymbol*
+:TsuquyomiRenameSymbol
 		Rename the identifier under the cursor to a new name.
 		If the identifier is refferenced by other .ts files,
 		you should open them before executing this command.
 
-:TsuquyomiReloadProject				*:TsuquyomiReloadProject*
+						*:TsuquyomiReloadProject*
+						*:TsuReloadProject*
+:TsuquyomiReloadProject
 		Let close and re-open all files opened by |:TsuquyomiOpen|.
 		When you change `tsconfig.json` after open some `*.ts` files,
 		you should execute this command.

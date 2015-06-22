@@ -112,7 +112,8 @@ autocmd FileType typescript setlocal completeopt+=menu,preview
 ### Nav to definition
 Type `<C-]>` in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol under the cursor is defined.
 
-Alternatively, call the Ex comand `:TsuquyomiDefinition`.
+Alternatively, call the Ex comand `:TsuquyomiDefinition` or `:TsuDefinition`.
+(All Tsuquyomi's commands have aliases with short prefix `'Tsu'`.)
 
 And type `<C-t>` , Tsuquyomi moves the cursor to the location where the last `<C-]>` was typed.
 
