@@ -421,6 +421,9 @@ endfunction
 
 " #### Geterr {{{
 function! tsuquyomi#geterr()
+  if g:tsuquyomi_disable_quickfix
+    return
+  endif
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif

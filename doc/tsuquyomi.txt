@@ -218,7 +218,6 @@ g:tsuquyomi_tsserver_path	(default `''`)
 g:tsuquyomi_nodejs_path		(default 'node')
 		A path to Node.js.
 
-
 						*g:tsuquyomi_definition_split*
 g:tsuquyomi_definition_split	(default 0)
 		Whether to open a new split when navigating to definition in
@@ -231,6 +230,17 @@ g:tsuquyomi_definition_split	(default 0)
 g:tsuquyomi_completion_case_sensitive	(default 0)
 		Whether to search completion case-sensitively when
 		|tsuquyomi#complete|.
+
+						*g:tsuquyomi_disable_quickfix*
+g:tsuquyomi_disable_quickfix	(default 0)
+		If set, |:TsuquyomiGeterr| isn't called when you save buffers.
+
+						*g:tsuquyomi_save_onrename*
+g:tsuquyomi_save_onrename	(default 0)
+		If set, Tsuquyomi saves arbitrarily the files which have the 
+		replaced symbols by |:TsuquyomiRenameSymbol| .
+		If not set, Tsuquyomi shows replaced files with |:split|.
+		You can save them with |:wa| after your review changes.
 
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
