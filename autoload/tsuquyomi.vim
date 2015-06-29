@@ -588,7 +588,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
     endif
   endfor
 
-  if !g:tsuquyomi_save_on_rename
+  if !g:tsuquyomi_save_onrename
     let changed_count = s:renameLocal(0)
     echohl String
     echo ' '
