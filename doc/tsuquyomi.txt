@@ -220,11 +220,11 @@ g:tsuquyomi_nodejs_path		(default 'node')
 
 						*g:tsuquyomi_definition_split*
 g:tsuquyomi_definition_split	(default 0)
-		Whether to open a new split when navigating to definition in
-		another file when calling |:TsuquyomiDefinition|.
+		A way to open a target file when |:TsuquyomiDefinition|.
 		* 0: |:edit|
 		* 1: |:split|
 		* 2: |:vplit|
+		* 3: |:tabedit|
 
 					*g:tsuquyomi_completion_case_sensitive*
 g:tsuquyomi_completion_case_sensitive	(default 0)

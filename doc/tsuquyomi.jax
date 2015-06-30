@@ -226,10 +226,11 @@ g:tsuquyomi_nodejs_path		(デフォルト値 'node')
 						*g:tsuquyomi_definition_split*
 g:tsuquyomi_definition_split	(デフォルト値 0)
 		|:TsuquyomiDefinition| にて別ファイル定義への遷移時, 
-		ウィンドウを分割するかどうか.
+		ウィンドウをどのように開くか.
 		* 0: |:edit|
 		* 1: |:split|
 		* 2: |:vsplit|
+		* 3: |:tabedit|
 
 					*g:tsuquyomi_completion_case_sensitive*
 g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)

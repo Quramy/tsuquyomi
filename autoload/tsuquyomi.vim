@@ -357,6 +357,8 @@ function! tsuquyomi#definition()
       execute 'split +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
     elseif g:tsuquyomi_definition_split == 2
       execute 'vsplit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
+    elseif g:tsuquyomi_definition_split == 3
+      execute 'tabedit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
     endif
   else
     " If don't get result, do nothing.
