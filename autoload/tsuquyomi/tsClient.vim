@@ -209,9 +209,7 @@ endfunction
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsOpen(file)
   let l:args = {'file': a:file}
-  let l:res = tsuquyomi#tsClient#sendCommandOneWay('open', l:args)
-  call s:waitTss(g:tsuquyomi_waittime_after_open)
-  return l:res
+  call tsuquyomi#tsClient#sendCommandOneWay('open', l:args)
 endfunction
 
 " Send close command to TSServer.
