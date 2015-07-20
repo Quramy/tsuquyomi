@@ -9,10 +9,7 @@ if !tsuquyomi#config#preconfig()
   finish
 endif
 
-let s:V = vital#of('tsuquyomi')
-let s:P = s:V.import('ProcessManager')
-
-if(!exists(g:tsuquyomi_is_available) && !s:P.is_available())
+if(!exists(g:tsuquyomi_is_available))
   let g:tsuquyomi_is_available = 0
   echom '[Tsuquyomi] Shougo/vimproc.vim is not installed. Please install it.'
   finish

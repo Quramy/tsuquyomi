@@ -8,8 +8,6 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:V = vital#of('tsuquyomi')
-
 let s:buf_info_map = {}
 
 function! s:normalize(buf_name)
