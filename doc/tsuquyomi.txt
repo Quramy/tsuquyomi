@@ -124,7 +124,7 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuquyomiClose*
 						*:TsuClose*
 :TsuquyomiClose [{file} ...]
-		Let TSServer releace opened {file}s.
+		Let TSServer release opened {file}s.
 		If you omit the argument {file}, TSServer closes the file
 		related to the current buffer.
 
@@ -159,13 +159,13 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuReferences*
 :TsuquyomiReferences
 		Navigate to the locations where the symbol is referenced.
-		The result is showen to |location-list| .
+		The result is shown to |location-list| .
 
 						*:TsuquyomiRenameSymbol*
 						*:TsuRenameSymbol*
 :TsuquyomiRenameSymbol
 		Rename the identifier under the cursor to a new name.
-		If the identifier is refferenced by other .ts files,
+		If the identifier is referenced by other .ts files,
 		you should open them before executing this command.
 
 						*:TsuquyomiReloadProject*
@@ -185,7 +185,7 @@ VARIABLES					*tsuquyomi-variables*
 						*g:tsuquyomi_auto_open*
 g:tsuquyomi_auto_open		(default 1)
 		Whether automatically TSServer opens the file of the current
-		buffer, when the buffer is opend in Vim
+		buffer, when the buffer is opened in Vim
 		If you set this option to 0, you should manually exec the 
 		|:TsuquyomiOpen| command after opening buffers.
 
@@ -316,11 +316,11 @@ EXAMPLES					*tsuquyomi-examples*
 You can configure tsuquyomi completion, using |completeopt| .
 
 	When completion in call of some method, show the method signature to 
-	the preview widonw.
+	the preview window.
 >
 	autocmd FileType typescript setlocal completeopt+=preview
 <
-	When compietion, don't show the popup menu of completions.
+	When completion, don't show the popup menu of completions.
 >
 	autocmd FileType typescript setlocal completeopt-=menu
 <
