@@ -194,6 +194,15 @@ If you want more details, please see [doc](doc/tsuquyomi.txt).
 
 * [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
 * [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
+* [Quramy/vison](https://github.com/Quramy/vison) provides omni-completion tsconfig.json(and more .json files).
+
+## Contribute
+### How to test
+
+```sh
+npm install
+./runtest.sh
+```
 
 ## License
 MIT
