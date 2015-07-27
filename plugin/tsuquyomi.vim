@@ -22,6 +22,8 @@ set cpo&vim
 " Global options defintion. {{{
 let g:tsuquyomi_auto_open =
       \ get(g:, 'tsuquyomi_auto_open', 1)
+let g:tsuquyomi_use_local_typescript =
+      \ get(g:, 'tsuquyomi_use_local_typescript', 1)
 let g:tsuquyomi_use_dev_node_module =
       \ get(g:, 'tsuquyomi_use_dev_node_module', 0)
 let g:tsuquyomi_tsserver_path =

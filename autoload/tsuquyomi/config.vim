@@ -10,6 +10,7 @@ set cpo&vim
 
 let s:V = vital#of('tsuquyomi')
 let s:P = s:V.import('ProcessManager')
+let s:Prelude = s:V.import('Prelude')
 let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
 
@@ -46,6 +47,18 @@ function! s:deleteCommand()
 endfunction
 
 function! tsuquyomi#config#tsscmd()
+  if s:tss_cmd !=# ''
+    return s:tss_cmd
+  endif
+  if g:tsuquyomi_use_local_typescript != 0
+    let l:prj_dir = s:Prelude.path2project_directory(getcwd(), 1)
+    if l:prj_dir !=# ''
+      let l:searched_tsserver_path = s:Filepath.join(l:prj_dir, 'node_modules/typescript/bin/tsserver.js')
+      if filereadable(l:searched_tsserver_path)
+        return g:tsuquyomi_nodejs_path.' "'.l:searched_tsserver_path.'"'
+      endif
+    endif
+  endif
   if g:tsuquyomi_use_dev_node_module == 0
     let l:cmd = 'tsserver'
     if !executable(l:cmd)
@@ -54,7 +67,6 @@ function! tsuquyomi#config#tsscmd()
     endif
   else
     if g:tsuquyomi_use_dev_node_module == 1
-      "let l:path = s:Filepath.join(s:script_dir, '../../../node_modules/typescript/bin/tsserver.js')
       let l:path = s:Filepath.join(s:script_dir, '../../node_modules/typescript/bin/tsserver.js')
     elseif g:tsuquyomi_use_dev_node_module == 2
       let l:path = g:tsuquyomi_tsserver_path
