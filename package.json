@@ -1,17 +1,16 @@
 {
   "name": "tsuquyomi",
-  "version": "0.4.4",
+  "version": "0.4.6",
   "description": "Vim plugin for typescript",
-  "main": "index.js",
   "directories": {
-    "test": "test"
+    "test": "vest"
   },
   "repository": "https://github.com/Quramy/tsuquyomi.git",
   "devDependencies": {
     "typescript": "1.5.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\""
+    "test": "sh runtest.sh"
   },
   "author": "Quramy",
   "license": "MIT"
