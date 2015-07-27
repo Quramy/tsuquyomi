@@ -197,9 +197,21 @@ g:tsuquyomi_auto_open		(デフォルト値 1)
 		この値を0とした場合, バッファを開いた後に|:TsuquyomiOpen|
 		コマンドを実行すると必要があります.
 
+					*g:tsuquyomi_use_local_typescript*
+g:tsuquyomi_use_local_typescript (default 1)
+		プロジェクト用にローカルインストールした`tsserver.js` を
+		利用するかどうか.
+		* 0: tsuquyomiは `tsserver.js`の探索を行いません.
+		* 1: tsuquyomiはカレントディレクトリを起点にプロジェクトの
+		     ルートディレクトリ(`package.json`を含むディレクトリ)を
+		     探索します. 次にプロジェクトルートから
+		     `node_modules/typescript/bin/tsserver.js`
+                     を探索します. 見つからない場合は, 
+		     |g:tsuquyomi_use_dev_node_module| に従って`tsserver.js`の
+		     パスを決定します.
+
 					*g:tsuquyomi_use_dev_node_module*
 g:tsuquyomi_use_dev_node_module	(デフォルト値 0)
-		Whether to use `tsserver.js` that was installed manually.
 		手動でインストールした`tsserver.js` を利用するかどうか.
 		* 0: tsuquyomi はグローバルインストールされた
 		     `tsserver` コマンドを利用します(デフォルト).

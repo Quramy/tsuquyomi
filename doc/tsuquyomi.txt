@@ -195,6 +195,19 @@ g:tsuquyomi_auto_open		(default 1)
 		If you set this option to 0, you should manually exec the 
 		|:TsuquyomiOpen| command after opening buffers.
 
+					*g:tsuquyomi_use_local_typescript*
+g:tsuquyomi_use_local_typescript (default 1)
+		Whether to use `tsserver.js`that was installed for project
+		locally.
+		* 0: Tsuquyomi does not search `tsserver.js`.
+		* 1: Tsuquyomi searches the root directory(which has
+		     `package.json`) of the project from the current directory.
+		     Then, it searches 
+		     `node_modules/typescript/bin/tsserver.js` from the
+		     project root. 
+		     If not hit, Tsuquyomi determines `tsserver.js`path from 
+		     |g:tsuquyomi_use_dev_node_module| option.
+
 					*g:tsuquyomi_use_dev_node_module*
 g:tsuquyomi_use_dev_node_module	(default 0)
 		Whether to use `tsserver.js` that was installed manually.

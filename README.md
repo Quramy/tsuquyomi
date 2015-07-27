@@ -200,6 +200,10 @@ If you have installed these plugins, calling the following Ex command, the outli
 :Unite outline
 ```
 
+### Use TypeScript installed locally
+By the default, Tsuquyomi searches locally installed TypeScript.
+If not hit, Tsuquyomi uses TypeScript installed globally.
+
 ### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
 
