@@ -148,11 +148,24 @@ So, the changes of tsconfig.json are reflected in the TSServer.
 
 Using the command `:TsuquyomiRenameSymbol`, you can rename the identifier under the cursor to a new name.
 
+If you want to rename identifiers including in comments, you can use `:TsuquyomiRenameSymbolC` command.
+For example, this command is useful when you want rename `opt` in the following code: 
+
+```typescript
+/**
+*
+* @param opt
+*
+**/
+var someFunc = (opt: any) => {...};
+```
+
 This feature does not have the default key mapping.
 If you need, configure your `.vimrc` . For example: 
 
 ```vim
 autocmd FileType typescript nmap <buffer> <Leader>e <Plug>(TsuquyomiRenameSymbol)
+autocmd FileType typescript nmap <buffer> <Leader>E <Plug>(TsuquyomiRenameSymbolC)
 ```
 
 ### Show balloon(tooltip)

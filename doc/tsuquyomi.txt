@@ -168,6 +168,12 @@ COMMANDS					*tsuquyomi-commands*
 		If the identifier is referenced by other .ts files,
 		you should open them before executing this command.
 
+						*:TsuquyomiRenameSymbolC*
+						*:TsuRenameSymbolC*
+:TsuquyomiRenameSymbolC
+		Rename the identifier under the cursor to a new name.
+		This command renames the identifiers including comments.
+
 						*:TsuquyomiReloadProject*
 						*:TsuReloadProject*
 :TsuquyomiReloadProject
@@ -264,6 +270,11 @@ Normal mode key mappings.
 <Plug>(TsuquyomiRenameSymbol)
 		Rename the identifier under the cursor to a new name.
 		Please see |:TsuquyomiRenameSymbol|.
+
+					*<Plug>(TsuquyomiRenameSymbolC)*
+<Plug>(TsuquyomiRenameSymbolC)
+		Rename the identifier under the cursor to a new name.
+		Please see |:TsuquyomiRenameSymbolC|.
 
 Following keymappings are default keymappings.
 

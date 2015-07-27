@@ -170,6 +170,12 @@ Prompt:
 		このコマンドを実行するより前に対象ファイルをバッファに
 		開いておく必要があります.
 
+						*:TsuquyomiRenameSymbolC*
+						*:TsuRenameSymbolC*
+:TsuquyomiRenameSymbolC
+		カーソル直下の識別子を別名に変更します.
+		コメントに含まれている識別子も含めて変更されます.
+
 						*:TsuquyomiReloadProject*
 						*:TsuReloadProject*
 :TsuquyomiReloadProject
@@ -274,6 +280,12 @@ g:tsuquyomi_save_onrename	(デフォルト値 0)
 		カーソル直下のシンボルを別名に変更する.
 		|:TsuquyomiRenameSymbol|を参照のこと.
 
+					*<Plug>(TsuquyomiRenameSymbolC)*
+<Plug>(TsuquyomiRenameSymbolC)
+		カーソル直下のシンボルをコメントも含めて別名に変更する.
+		|:TsuquyomiRenameSymbolC|を参照のこと.
+
+デフォルトキーマップは下記の通り:
 デフォルトキーマップは下記の通り:
 
 ノーマルモード:
