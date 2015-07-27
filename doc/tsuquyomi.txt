@@ -205,7 +205,7 @@ g:tsuquyomi_use_local_typescript (default 1)
 		     Then, it searches 
 		     `node_modules/typescript/bin/tsserver.js` from the
 		     project root. 
-		     If not hit, Tsuquyomi determines `tsserver.js`path from 
+		     If not hit, Tsuquyomi determines `tsserver.js` path from 
 		     |g:tsuquyomi_use_dev_node_module| option.
 
 					*g:tsuquyomi_use_dev_node_module*
