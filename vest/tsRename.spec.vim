@@ -54,7 +54,6 @@ Context Vesting.run()
     let file = s:Filepath.join(s:script_dir, 'vest/resources/renameTest.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let result_rename_dict = tsuquyomi#tsClient#tsRename(file, 3, 9, 0, 0) 
-    echo result_rename_dict
     Should len(result_rename_dict.locs[0].locs) == 3
     Should result_rename_dict.locs[0].locs[0].start.line == 4
     Should result_rename_dict.locs[0].locs[0].start.offset == 13
@@ -64,6 +63,22 @@ Context Vesting.run()
     Should result_rename_dict.locs[0].locs[2].start.offset == 9 
     call tsuquyomi#tsClient#stopTss()
   End
+
+  It can rename variables in comments.
+    let file = s:Filepath.join(s:script_dir, 'vest/resources/renameTest.ts')
+    call tsuquyomi#tsClient#tsOpen(file)
+    let result_rename_dict = tsuquyomi#tsClient#tsRename(file, 11, 21, 1, 0) 
+    Should len(result_rename_dict.locs[0].locs) == 2
+    Should result_rename_dict.locs[0].locs[1].start.line == 8
+    Should result_rename_dict.locs[0].locs[1].start.offset == 15 
+  End
+
+  " It can rename identifiers in strings.
+  "   let file = s:Filepath.join(s:script_dir, 'vest/resources/renameTest.ts')
+  "   call tsuquyomi#tsClient#tsOpen(file)
+  "   let result_rename_dict = tsuquyomi#tsClient#tsRename(file, 14, 13, 0, 1) 
+  "   Should len(result_rename_dict.locs[0].locs) == 4
+  " End
 
 End
 Fin

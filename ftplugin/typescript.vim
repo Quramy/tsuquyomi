@@ -39,10 +39,10 @@ command! -buffer TsuquyomiGeterr         :call tsuquyomi#geterr()
 command! -buffer TsuGeterr               :call tsuquyomi#geterr()
 command! -buffer TsuquyomiRenameSymbol   :call tsuquyomi#renameSymbol()
 command! -buffer TsuRenameSymbol         :call tsuquyomi#renameSymbol()
-
-" TODO These commands don't work correctly. [#7]
 command! -buffer TsuquyomiRenameSymbolC  :call tsuquyomi#renameSymbolWithComments()
 command! -buffer TsuRenameSymbolC        :call tsuquyomi#renameSymbolWithComments()
+
+" TODO These commands don't work correctly.
 command! -buffer TsuquyomiRenameSymbolS  :call tsuquyomi#renameSymbolWithStrings()
 command! -buffer TsuRenameSymbolS        :call tsuquyomi#renameSymbolWithStrings()
 command! -buffer TsuquyomiRenameSymbolCS :call tsuquyomi#renameSymbolWithCommentsStrings()
@@ -52,9 +52,9 @@ noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)     :TsuquyomiDefinition <
 noremap <silent> <buffer> <Plug>(TsuquyomiGoBack)         :TsuquyomiGoBack <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
-
-" TODO These commands don't work correctly. [#7]
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)  :TsuquyomiRenameSymbolC <CR>
+
+" TODO These commands don't work correctly.
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolS)  :TsuquyomiRenameSymbolS <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolCS) :TsuquyomiRenameSymbolCS <CR>
 

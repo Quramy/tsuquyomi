@@ -434,7 +434,7 @@ endfunction
 " PARAM: {int} line The line number of the symbol's position.
 " PARAM: {int} offset The col number of the symbol's position.
 " PARAM: {0|1} findInComments Whether result contains word in comments.
-" PARAM: {0|1} findInComments Whether result contains word in String literals.
+" PARAM: {0|1} findInString Whether result contains word in String literals.
 " RETURNS: {dict} Rename information dictionary.
 "   e.g.:
 "     {
@@ -460,7 +460,7 @@ endfunction
 "       ]
 "     }
 function! tsuquyomi#tsClient#tsRename(file, line, offset, findInComments, findInString)
-  " TODO findInComments and findInString parameters don't work... why?
+  " TODO findInString parameter does not work... why?
   let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset,
         \ 'findInComments': a:findInComments ? s:JSON.true : s:JSON.false,
         \ 'findInString'  : a:findInString  ? s:JSON.true : s:JSON.false

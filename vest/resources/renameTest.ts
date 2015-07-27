@@ -10,4 +10,11 @@ module Test {
      **/
     var someFunc = (bar: string) => { };
 
+    var otherFunc = () => {
+        var prefix;
+        console.log(' prefix  ');
+        console.log("   prefix ");
+        console.log(`  prefix `);
+    }
+
 }
