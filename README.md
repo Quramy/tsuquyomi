@@ -204,6 +204,12 @@ If you have installed these plugins, calling the following Ex command, the outli
 By the default, Tsuquyomi searches locally installed TypeScript.
 If not hit, Tsuquyomi uses TypeScript installed globally.
 
+And execute the following command, you can confirm the path of tsserver:
+
+```vim
+:echo tsuquyomi#config#tsscmd()
+```
+
 ### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
 
