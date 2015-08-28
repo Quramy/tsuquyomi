@@ -97,10 +97,12 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
       while l:retry < a:retry_count
         let [out, err, type] = s:P.read_wait(s:tsq, retry_delay, ['Content-Length: \d\+'])
         if type == 'matched'
+          call tsuquyomi#perfLogger#record('tssMatched')
           "call s:debugLog('retry: '.l:retry.', length: '.len(response_list))
           break
         endif
         let l:retry = l:retry + 1
+        call tsuquyomi#perfLogger#record('tssRetry:'.l:retry)
       endwhile
     endif
 
@@ -129,7 +131,9 @@ endfunction
 " RETURNS: {list<dictionary>}
 function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
-  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.01, 10, 1)
+  call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.0001, 10, 1)
+  call tsuquyomi#perfLogger#record('afterCmd:'.a:cmd)
   let l:length = len(l:stdout_list)
   if l:length == 1
     let res = s:JSON.decode(l:stdout_list[0])
@@ -137,6 +141,7 @@ function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
     "  echom '[Tsuquyomi] TSServer command fail. command: '.res.command.', message: '.res.message
     "endif
     let s:request_seq = s:request_seq + 1
+    call tsuquyomi#perfLogger#record('afterDecode:'.a:cmd)
     return [res]
   else
     return []
