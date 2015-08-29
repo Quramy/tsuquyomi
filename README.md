@@ -126,6 +126,9 @@ Alternatively, call the Ex command `:TsuquyomiReferences`.
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi show them to Vim quickfix window.
 
+### Disable Default Mappings
+If you do not want to use the default mappings please add `g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
+
 ### Configure compile options
 Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
 
