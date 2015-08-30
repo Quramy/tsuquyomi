@@ -66,14 +66,16 @@ augroup tsuquyomi_defaults
 augroup END
 
 " Default mapping.
-if !hasmapto('<Plug>(TsuquyomiDefinition)')
-  map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
-endif
-if !hasmapto('<Plug>(TsuquyomiGoBack)')
-  map <buffer> <C-t> <Plug>(TsuquyomiGoBack)
-endif
-if !hasmapto('<Plug>(TsuquyomiReferences)')
-  map <buffer> <C-^> <Plug>(TsuquyomiReferences)
+if(!exists('g:tsuquyomi_disable_default_mappings'))
+  if !hasmapto('<Plug>(TsuquyomiDefinition)')
+      map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
+  endif
+  if !hasmapto('<Plug>(TsuquyomiGoBack)')
+      map <buffer> <C-t> <Plug>(TsuquyomiGoBack)
+  endif
+  if !hasmapto('<Plug>(TsuquyomiReferences)')
+      map <buffer> <C-^> <Plug>(TsuquyomiReferences)
+  endif
 endif
 
 setlocal omnifunc=tsuquyomi#complete
