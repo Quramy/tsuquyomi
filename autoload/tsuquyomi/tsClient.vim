@@ -480,6 +480,42 @@ function! tsuquyomi#tsClient#tsBrace(file, line, offset)
   call s:error('not implemented!')
 endfunction
 
+function! tsuquyomi#tsClient#tsTypeDefinition(file, line, offset)
+  call s:error('not implemented!')
+endfunction
+
+" This command is available only at tsserver ~v.1.6
+function! tsuquyomi#tsClient#tsDocumentHighlights(file, line, offset, filesToSearch)
+  call s:error('not implemented!')
+endfunction
+
+" Fetch project information.  This command is available only at tsserver ~v.1.6
+" PARAM: {string} file File name.
+" PARAM: {0|1} needFileNameList Whether include list of files in response.
+" RETURNS: dict Project information dictionary.
+"   e.g.:
+"     {
+"       'configFileName': '/samplePrjs/prj001/tsconfig.json',
+"       'fileNames': [
+"         '/PATH_TO_TYPESCRIPT/node_modules/typescript/lib/lib.d.ts',
+"         '/samplePrjs/prj001/main.ts'
+"       ]
+"     }
+function! tsuquyomi#tsClient#tsProjectInfo(file, needFileNameList)
+  let l:arg = {'file': a:file,
+        \ 'needFileNameList': a:needFileNameList ? s:JSON.true : s:JSON.false
+        \ }
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('projectInfo', l:arg)
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
+endfunction
+
+" Reload prjects. This command is available only at tsserver ~v.1.6
+" This command does not return any response.
+function! tsuquyomi#tsClient#tsReloadProjects()
+  return tsuquyomi#tsClient#sendCommandOneWay('reloadProjects', {})
+endfunction
+
+
 " ### TSServer command wrappers }}}
 
 let &cpo = s:save_cpo
