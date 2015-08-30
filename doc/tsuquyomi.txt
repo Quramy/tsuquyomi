@@ -250,6 +250,10 @@ g:tsuquyomi_completion_case_sensitive	(default 0)
 		Whether to search completion case-sensitively when
 		|tsuquyomi#complete|.
 
+						*g:tsuquyomi_disable_default_mappings*
+g:tsuquyomi_disable_default_mappings	(default 0)
+		If set no keys are mapped.
+
 						*g:tsuquyomi_disable_quickfix*
 g:tsuquyomi_disable_quickfix	(default 0)
 		If set, |:TsuquyomiGeterr| isn't called when you save buffers.
