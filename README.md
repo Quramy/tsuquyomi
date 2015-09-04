@@ -124,7 +124,10 @@ Alternatively, call the Ex command `:TsuquyomiReferences`.
 
 ### Show quickfix
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
-And if it contains errors, Tsuquyomi show them to Vim quickfix window.
+And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
+
+If your use TypeScript v1.6.0 or later, you can use `:TsuquyomiGeterrProject` command.
+This command shows all compilation errors contained in your project to quickfix window.
 
 ### Configure compile options
 Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
