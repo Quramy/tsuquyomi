@@ -15,7 +15,7 @@ let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
 
 let s:tss_cmd = ''
-let s:tss_version = {'is_valid': 0} 
+let s:tss_version = {'is_valid': 0, 'out': '???'} 
 
 function! tsuquyomi#config#preconfig()
 
@@ -108,12 +108,13 @@ function! tsuquyomi#config#getVersion()
   if s:tss_version.is_valid
     return s:tss_version
   endif
-  let l:cmd = substitute(tsuquyomi#config#tsscmd(), 'tsserver$', 'tsc', '')
+  let l:cmd = substitute(tsuquyomi#config#tsscmd(), 'tsserver', 'tsc', '')
   let out = system(l:cmd.' --version')
   let pattern = '\vVersion\s+(\d+)\.(\d+)\.(\d+)-?([^\.\n\s]*)'
   let matched = matchlist(out, pattern)
   if !len(matched)
-    return {'is_valid': 0, 'out': out}
+    let s:tss_version = {'is_valid': 0, 'out': out}
+    return s:tss_version
   endif
   let [major, minor, patch] = [str2nr(matched[1]), str2nr(matched[2]), str2nr(matched[3])]
   let s:tss_version = {
