@@ -59,6 +59,8 @@ function! s:source.gather_candidates(args, context)
 endfunction
 
 function! unite#sources#tsproject#define()
-  return s:source
+  if tsuquyomi#config#isHigher(160)
+    return s:source
+  endif
 endfunction
 

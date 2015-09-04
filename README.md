@@ -191,6 +191,22 @@ autocmd FileType typescript nmap <buffer> <Leader>t : <C-u>echo tsuquyomi#hint()
 The above example works in terminal Vim.
 
 
+### Show project information(a source of unite)
+This feature requires TypeScript@1.6.0 or later and Vim plugins:
+
+* [unite](https://github.com/Shougo/unite.vim)
+
+Execute the following command, your project information is displayed.
+
+```vim
+:Unite tsproject
+```
+
+The project information contains: 
+
+* tsconfig.json which the current buffer use.
+* .ts(or .tsx) source files which TypeScript compiles. These files are determined by tsconfig.json
+ 
 ### Show outline(an extension of unite-outline)
 This feature requires Vim plugins:
 
@@ -220,7 +236,6 @@ If you want more details, please see [doc](doc/tsuquyomi.txt).
 
 * [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
 * [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
-* [Quramy/vison](https://github.com/Quramy/vison) provides omni-completion tsconfig.json(and more .json files).
 
 ## Contribute
 ### How to test
