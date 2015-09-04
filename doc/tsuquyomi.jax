@@ -1,6 +1,6 @@
 *tsuquyomi* はTypeScript向けのVim plugin です.
 
-Version: 0.4.2
+Version: 0.5.0
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -185,6 +185,19 @@ Prompt:
 		このコマンドを実行する必要があります.
 		このコマンドを実行すると, `tsconfig.json` の変更が
 		TSServerに反映されます.
+
+						*:TsuquyomiGeterr*
+						*:TsuGeterr*
+:TsuquyomiGeterr
+		カレントバッファのコンパイルエラー情報をQuickFixウィンドウへ
+		表示します.
+
+						*:TsuquyomiGeterrProject*
+						*:TsuGeterrProject*
+:TsuquyomiGeterrProject
+		プロジェクトのコンパイルエラー情報全てをQuickFixウィンドウへ
+		表示します.
+		このコマンドにはTypeScript@v1.6.0以上が必要です.
 
 Todo
 

@@ -1,6 +1,6 @@
 *tsuquyomi* is a Vim plugin for TypeScript.
 
-Version: 0.4.2
+Version: 0.5.0
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -182,6 +182,17 @@ COMMANDS					*tsuquyomi-commands*
 		you should execute this command.
 		So, the changes of `tsconfig.json` are reflected in the
 		TSServer
+
+						*:TsuquyomiGeterr*
+						*:TsuGeterr*
+:TsuquyomiGeterr
+		Show compilation errors of current buffer in QuickFix window.
+
+						*:TsuquyomiGeterrProject*
+						*:TsuGeterrProject*
+:TsuquyomiGeterrProject
+		Show all compilation errors of your project in QuickFix window.
+		This command requires TypeScript@v1.6.0 or later.
 
 Todo
 
