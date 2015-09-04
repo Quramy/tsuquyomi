@@ -129,6 +129,9 @@ And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
 If your use TypeScript v1.6.0 or later, you can use `:TsuquyomiGeterrProject` command.
 This command shows all compilation errors contained in your project to quickfix window.
 
+### Disable Default Mappings
+If you do not want to use the default mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
+
 ### Configure compile options
 Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
 
