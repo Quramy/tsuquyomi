@@ -515,7 +515,8 @@ function! tsuquyomi#tsClient#tsProjectInfo(file, needFileNameList)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
-" Reload prjects. This command is available only at tsserver ~v.1.6
+" Reload prjects.
+" This command is available only at tsserver ~v.1.6
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsReloadProjects()
   return tsuquyomi#tsClient#sendCommandOneWay('reloadProjects', {})
