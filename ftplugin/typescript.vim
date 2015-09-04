@@ -37,6 +37,8 @@ command! -buffer TsuquyomiReferences     :call tsuquyomi#references()
 command! -buffer TsuReferences           :call tsuquyomi#references()
 command! -buffer TsuquyomiGeterr         :call tsuquyomi#geterr()
 command! -buffer TsuGeterr               :call tsuquyomi#geterr()
+command! -buffer TsuquyomiGeterrProject  :call tsuquyomi#geterrProject()
+command! -buffer TsuGeterrProject        :call tsuquyomi#geterrProject()
 command! -buffer TsuquyomiRenameSymbol   :call tsuquyomi#renameSymbol()
 command! -buffer TsuRenameSymbol         :call tsuquyomi#renameSymbol()
 command! -buffer TsuquyomiRenameSymbolC  :call tsuquyomi#renameSymbolWithComments()
@@ -58,13 +60,6 @@ noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)  :TsuquyomiRenameSymbol
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolS)  :TsuquyomiRenameSymbolS <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolCS) :TsuquyomiRenameSymbolCS <CR>
 
-augroup tsuquyomi_defaults
-  autocmd!
-  autocmd BufWritePost *.ts silent! call tsuquyomi#reloadAndGeterr()
-  autocmd BufWinEnter * silent! call tsuquyomi#setPreviewOption()
-  autocmd TextChanged,TextChangedI *.ts silent! call tsuquyomi#letDirty()
-augroup END
-
 " Default mapping.
 if !hasmapto('<Plug>(TsuquyomiDefinition)')
   map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
@@ -81,6 +76,19 @@ setlocal omnifunc=tsuquyomi#complete
 if exists('+bexpr')
   setlocal bexpr=tsuquyomi#balloonexpr()
 endif
+
+if !g:tsuquyomi_disable_quickfix
+  augroup tsuquyomi_geterr
+    autocmd!
+    autocmd BufWritePost *.ts silent! call tsuquyomi#reloadAndGeterr()
+  augroup END
+endif
+
+augroup tsuquyomi_defaults
+  autocmd!
+  autocmd BufWinEnter * silent! call tsuquyomi#setPreviewOption()
+  autocmd TextChanged,TextChangedI *.ts silent! call tsuquyomi#letDirty()
+augroup END
 
 if g:tsuquyomi_auto_open
   silent! call tsuquyomi#open()

@@ -322,23 +322,28 @@ function! tsuquyomi#tsClient#tsFormationkey(file, line, offset, key)
   call s:error('not implemented!')
 endfunction
 
-" Geterr = "geterr";
+" Get error for files.
+" PARAM: {list<string>} files List of filename
 " PARAM: {int} delay Delay time [msec].
+" PARAM: {list<dict>} error event list
 function! tsuquyomi#tsClient#tsGeterr(files, delay)
   let l:args = {'files': a:files, 'delay': a:delay}
   let l:delaySec = a:delay * 1.0 / 1000.0
-  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', l:args, l:delaySec, 2)
-  if(len(l:result) > 0)
-    let l:bodies = {}
-    for res in l:result
-      if(has_key(res, 'body') && has_key(res, 'event'))
-        let l:bodies[res.event] = res.body
-      endif
-    endfor
-    return l:bodies
-  else
-    return {}
-  endif
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', l:args, l:delaySec, len(a:files) * 2)
+  return l:result
+endfunction
+
+" Get errors for project.
+" This command is available only at tsserver ~v.1.6
+" PARAM: {string} file File name in target project.
+" PARAM: {int} delay Delay time [msec].
+" PARAM: {count} count The number of files in the project(you can fetch this from tsProjectInfo).
+" PARAM: {list<dict>} error event list
+function! tsuquyomi#tsClient#tsGeterrForProject(file, delay, count)
+  let l:args = {'file': a:file, 'delay': a:delay}
+  let l:delaySec = a:delay * 1.0 / 1000.0
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterrForProject', l:args, l:delaySec, a:count * 2)
+  return l:result
 endfunction
 
 " Fetch navigation list from TSServer.
@@ -489,7 +494,8 @@ function! tsuquyomi#tsClient#tsDocumentHighlights(file, line, offset, filesToSea
   call s:error('not implemented!')
 endfunction
 
-" Fetch project information.  This command is available only at tsserver ~v.1.6
+" Fetch project information.
+" This command is available only at tsserver ~v.1.6
 " PARAM: {string} file File name.
 " PARAM: {0|1} needFileNameList Whether include list of files in response.
 " RETURNS: dict Project information dictionary.

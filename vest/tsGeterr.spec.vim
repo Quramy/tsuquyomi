@@ -10,20 +10,21 @@ Context Vesting.run()
     let file = s:Filepath.join(s:script_dir, 'vest/resources/SimpleModule_writing.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let files = [file]
-    let result_dict = tsuquyomi#tsClient#tsGeterr(files, 10)
-    "echo result_dict
-    Should has_key(result_dict, 'syntaxDiag')
-    Should has_key(result_dict, 'semanticDiag')
-    Should has_key(result_dict.semanticDiag, 'diagnostics')
-    Should has_key(result_dict.semanticDiag, 'file')
-    Should len(result_dict.semanticDiag.diagnostics) > 0
-    Should has_key(result_dict.semanticDiag.diagnostics[0], 'text')
-    Should has_key(result_dict.semanticDiag.diagnostics[0], 'start')
-    Should has_key(result_dict.semanticDiag.diagnostics[0].start, 'line')
-    Should has_key(result_dict.semanticDiag.diagnostics[0].start, 'offset')
-    Should has_key(result_dict.semanticDiag.diagnostics[0], 'end')
-    Should has_key(result_dict.semanticDiag.diagnostics[0].end, 'line')
-    Should has_key(result_dict.semanticDiag.diagnostics[0].end, 'offset')
+    let result_list = tsuquyomi#tsClient#tsGeterr(files, 10)
+    echo result_list
+    Should len(result_list) == 2
+    let semanticDiagDict = filter(copy(result_list), 'v:val.event == "semanticDiag"')[0].body
+    let syntaxDiagDict = filter(copy(result_list), 'v:val.event == "syntaxDiag"')[0].body
+    Should has_key(semanticDiagDict, 'diagnostics')
+    Should has_key(semanticDiagDict, 'file')
+    Should len(semanticDiagDict.diagnostics) > 0
+    Should has_key(semanticDiagDict.diagnostics[0], 'text')
+    Should has_key(semanticDiagDict.diagnostics[0], 'start')
+    Should has_key(semanticDiagDict.diagnostics[0].start, 'line')
+    Should has_key(semanticDiagDict.diagnostics[0].start, 'offset')
+    Should has_key(semanticDiagDict.diagnostics[0], 'end')
+    Should has_key(semanticDiagDict.diagnostics[0].end, 'line')
+    Should has_key(semanticDiagDict.diagnostics[0].end, 'offset')
     call tsuquyomi#tsClient#stopTss()
   End
 End
