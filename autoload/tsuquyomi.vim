@@ -451,11 +451,6 @@ endfunction
 
 function! tsuquyomi#geterr()
 
-  if !tsuquyomi#config#isHigher(160)
-    echom '[Tsuquyomi] This feature requires TypeScript@1.6.0 or higher'
-    return
-  endif
-
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -479,6 +474,12 @@ function! tsuquyomi#geterr()
 endfunction
 
 function! tsuquyomi#geterrProject()
+
+  if !tsuquyomi#config#isHigher(160)
+    echom '[Tsuquyomi] This feature requires TypeScript@1.6.0 or higher'
+    return
+  endif
+
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
