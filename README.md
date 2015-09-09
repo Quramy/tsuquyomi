@@ -103,7 +103,9 @@ If you don't want the popup menu:
 autocmd FileType typescript setlocal completeopt-=menu
 ```
 
-If you want to show a method's signature in the preview window when completion:
+If you want to show a method's signature in the preview window when you complete this method's arguments:
+
+(The preview window isn't shown when completion properties or variables)
 
 ```vim
 autocmd FileType typescript setlocal completeopt+=menu,preview
