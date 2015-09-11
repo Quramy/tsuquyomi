@@ -110,7 +110,7 @@ endfunction
 
 function! s:openFromList(filelist)
   for file in a:filelist
-    if file == ''
+    if file == '' || tsuquyomi#bufManager#isOpened(file)
       continue
     endif
     call tsuquyomi#tsClient#tsOpen(file)
