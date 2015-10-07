@@ -82,14 +82,14 @@ endif
 if !g:tsuquyomi_disable_quickfix
   augroup tsuquyomi_geterr
     autocmd!
-    autocmd BufWritePost *.ts silent! call tsuquyomi#reloadAndGeterr()
+    autocmd BufWritePost *.ts,*.tsx silent! call tsuquyomi#reloadAndGeterr()
   augroup END
 endif
 
 augroup tsuquyomi_defaults
   autocmd!
   autocmd BufWinEnter * silent! call tsuquyomi#setPreviewOption()
-  autocmd TextChanged,TextChangedI *.ts silent! call tsuquyomi#letDirty()
+  autocmd TextChanged,TextChangedI *.ts,*.tsx silent! call tsuquyomi#letDirty()
 augroup END
 
 if g:tsuquyomi_auto_open
