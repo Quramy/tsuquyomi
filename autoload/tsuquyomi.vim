@@ -204,9 +204,12 @@ endfunction
 " #### Complete {{{
 "
 function! tsuquyomi#setPreviewOption()
-  if &previewwindow
-    setlocal ft=typescript
-  endif
+  " issue #41
+  " I'll consider how to highlighting preview window without setting filetype.
+  "
+  " if &previewwindow
+  "   setlocal ft=typescript
+  " endif
 endfunction
 
 function! tsuquyomi#makeCompleteMenu(file, line, offset, entryNames)
