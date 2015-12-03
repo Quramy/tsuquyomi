@@ -7,7 +7,7 @@
   },
   "repository": "https://github.com/Quramy/tsuquyomi.git",
   "devDependencies": {
-    "typescript": "1.6.0-beta"
+    "typescript": "1.7.3"
   },
   "scripts": {
     "test": "sh runtest.sh"
