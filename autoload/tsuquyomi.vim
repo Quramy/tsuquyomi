@@ -292,7 +292,7 @@ function! tsuquyomi#complete(findstart, base)
     if enable_menu
       call tsuquyomi#perfLogger#record('start_menu')
       let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
-      let size = g:tsuquyomi_completion_chank_size
+      let size = g:tsuquyomi_completion_chunk_size
       let j = 0
       while j * size < len(l:res_list)
         let entries = []
