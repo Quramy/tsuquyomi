@@ -219,7 +219,10 @@ g:tsuquyomi_use_local_typescript (default 1)
 		     ルートディレクトリ(`package.json`を含むディレクトリ)を
 		     探索します. 次にプロジェクトルートから
 		     `node_modules/typescript/bin/tsserver.js`
-                     を探索します. 見つからない場合は, 
+                     を探索します.
+	             `package.json`に`jspm` プロパティが記載されている場合,
+	             `tsserver.js`を`jspm_packages/npm/typescript@vX.Y.Z`
+		     から探索します.  見つからない場合は, 
 		     |g:tsuquyomi_use_dev_node_module| に従って`tsserver.js`の
 		     パスを決定します.
 
