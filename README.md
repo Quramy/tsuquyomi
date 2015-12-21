@@ -20,11 +20,19 @@ Tsuquyomi requires the following:
 
 + [Vim](http://www.vim.org/) (v7.4.0 or later)
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
-+ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (**v1.5.0 or later**)
++ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (v1.5.0 or later)
 
 ### vim v7.4+ and TypeScript
 
 This requires v7.4.0+, which means that you'll need to manually install.
+
+### Install TypeScript
+
+```bash
+npm -g install typescript
+```
+
+It's highly recommended to install or update TypeScript **v1.7.3 or later** because stability.
 
 #### OS X
 
@@ -80,12 +88,6 @@ NeoBundle 'Quramy/tsuquyomi'
 And exec `:NeoBundleInstall`.
 
 (About vimproc installation, please see [the original install guide](https://github.com/Shougo/vimproc.vim#install).)
-
-### Install TypeScript
-
-```bash
-npm -g install typescript
-```
 
 ## Usage
 
