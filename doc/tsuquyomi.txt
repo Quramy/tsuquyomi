@@ -216,8 +216,6 @@ g:tsuquyomi_use_local_typescript (default 1)
 		     Then, it searches 
 		     `node_modules/typescript/bin/tsserver.js` from the
 		     project root. 
-	             If your `package.json` has `jspm` property, it searches
-	             `tsserver.js` from `jspm_packages/npm/typescript@vX.Y.Z`.
 		     If not hit, Tsuquyomi determines `tsserver.js` path from 
 		     |g:tsuquyomi_use_dev_node_module| option.
 
