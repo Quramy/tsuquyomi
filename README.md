@@ -225,7 +225,7 @@ If you have installed these plugins, calling the following Ex command, the outli
 ```
 
 ### Use TypeScript installed locally
-By the default, Tsuquyomi searches locally installed TypeScript.
+By the default, Tsuquyomi searches locally installed TypeScript(from `node_modules` or jspm_packages).
 If not hit, Tsuquyomi uses TypeScript installed globally.
 
 And execute the following command, you can confirm the path of tsserver:
