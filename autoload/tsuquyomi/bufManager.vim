@@ -33,6 +33,14 @@ function! tsuquyomi#bufManager#open(file_name)
   return info
 endfunction
 
+function! tsuquyomi#bufManager#isNotOpenable(file_name)
+  if (match(a:file_name, '^[^\/]*:\/\/') + 1) && !(match(a:file_name, '^file:\/\/') + 1)
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
 function! tsuquyomi#bufManager#openedFiles()
   return filter(copy(s:buf_info_map), 'v:val.is_opened')
 endfunction

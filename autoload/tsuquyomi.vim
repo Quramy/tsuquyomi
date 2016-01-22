@@ -53,6 +53,12 @@ function! s:checkOpenAndMessage(filelist)
     endif
   endfor
   if len(not_opend)
+    for file in not_opend
+      if tsuquyomi#bufManager#isNotOpenable(file)
+        echom '[Tsuquyomi] The buffer "'.file.'" is not valid filepath, so tusuqoymi cannot open this buffer.'
+        return [opened, not_opend]
+      endif
+    endfor
     echom '[Tsuquyomi] Buffers ['.join(not_opend, ', ').'] are not opened by TSServer. Please exec command ":TsuquyomiOpen '.join(not_opend).'" and retry.'
   endif
   return [opened, not_opend]
@@ -110,7 +116,7 @@ endfunction
 
 function! s:openFromList(filelist)
   for file in a:filelist
-    if file == '' || tsuquyomi#bufManager#isOpened(file)
+    if file == '' || tsuquyomi#bufManager#isNotOpenable(file) ||tsuquyomi#bufManager#isOpened(file)
       continue
     endif
     call tsuquyomi#tsClient#tsOpen(file)
