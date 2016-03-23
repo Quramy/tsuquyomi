@@ -1,13 +1,13 @@
 {
   "name": "tsuquyomi",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Vim plugin for typescript",
   "directories": {
     "test": "vest"
   },
   "repository": "https://github.com/Quramy/tsuquyomi.git",
   "devDependencies": {
-    "typescript": "1.7.3"
+    "typescript": "1.8.7"
   },
   "scripts": {
     "test": "sh runtest.sh"
