@@ -715,6 +715,80 @@ function! tsuquyomi#navBar()
 endfunction
 " #### NavBar }}}
 
+" #### Navto {{{
+function! tsuquyomi#navto(term, kindModifiers, matchKindType)
+
+  if len(a:term) < 3
+    echom "[Tsuquyomi] search term's length should be greater than 3."
+    return [[], 0]
+  endif
+
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return [[], 0]
+  endif
+
+  call s:flash()
+
+  let l:filename = expand('%:p')
+
+  let result_list = tsuquyomi#tsClient#tsNavto(tsuquyomi#bufManager#normalizePath(l:filename), a:term, 100)
+
+  if len(result_list)
+    let list = []
+    for result in result_list
+      let flg = 1
+      if a:matchKindType == 1
+        let flg = flg && (result.matchKind=='prefix' || result.matchKind=='exact')
+      elseif a:matchKindType == 2
+        let flg = flg && (result.matchKind=='exact')
+      endif
+      if a:kindModifiers != ''
+        let flg = flg && has_key(result, 'kindModifiers') && result.kindModifiers==a:kindModifiers
+      endif
+      if flg
+        call add(list, result)
+      endif
+    endfor
+    return [list, 1]
+  else
+    echom "[Tsuquyomi] nothing was hit."
+    return [[], 0]
+  endif
+
+endfunction
+
+function! tsuquyomi#navtoByLoclist(term, kindModifiers, matchKindType)
+  let [result_list, res_code] = tsuquyomi#navto(a:term, a:kindModifiers, a:matchKindType)
+  if res_code
+    let l:location_list = []
+    for navtoItem in result_list
+      let text = navtoItem.kind.' '.navtoItem.name
+      if has_key(navtoItem, 'kindModifiers')
+        let text = navtoItem.kindModifiers.' '.text
+      endif
+      if has_key(navtoItem, 'containerName')
+        if has_key(navtoItem, 'containerKind')
+          let text = text.' in '.navtoItem.containerKind.' '.navtoItem.containerName
+        else
+          let text = text.' in '.navtoItem.containerName
+        endif
+      endif
+      let l:location_info = {
+            \'filename': navtoItem.file,
+            \'lnum': navtoItem.start.line,
+            \'col': navtoItem.start.offset,
+            \'text': text
+            \}
+      call add(l:location_list, l:location_info)
+    endfor
+    if(len(l:location_list) > 0)
+      call setloclist(0, l:location_list, 'r')
+      lwindow
+    endif
+  endif
+endfunction
+" #### Navto }}}
+
 " ### Public functions }}}
 
 let &cpo = s:save_cpo
