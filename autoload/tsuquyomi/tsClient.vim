@@ -370,7 +370,9 @@ endfunction
 
 " Navto = "navto";
 function! tsuquyomi#tsClient#tsNavto(file, searchValue, maxResultCount)
-  call s:error('not implemented!')
+  let l:args = {'file': a:file, 'searchValue': a:searchValue, 'maxResultCount': a:maxResultCount}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('navto', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Fetch quickinfo from TSServer.
