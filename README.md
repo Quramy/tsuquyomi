@@ -131,6 +131,17 @@ And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
 If your use TypeScript v1.6.0 or later, you can use `:TsuquyomiGeterrProject` command.
 This command shows all compilation errors contained in your project to quickfix window.
 
+### Integrate syntastic
+If you use [syntastic](https://github.com/scrooloose/syntastic), you can use syntastic for displaying syntax and semantics errors instead of vim's default quickfix window. To integrate syntastic, write the following setting to your .vimrc.
+
+```vim
+let g:tsuquyomi_disable_quickfix = 1
+let g:syntastic_typescript_checkers = ['tsuquyomi'] " You shouldn't use 'tsc' checker.
+```
+
+syntastic has default TypeScript checker whose name is 'tsc'. You shouldn't use it with running Tusuquyomi because they don't share compile options.
+Tusuquyomi's checker whose name is 'tsuquyomi' uses tsserver and your tsconfig.json.
+
 ### Disable Default Mappings
 If you do not want to use the default mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
 
