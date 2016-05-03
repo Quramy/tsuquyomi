@@ -111,7 +111,10 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
       let l:res_list = split(l:tmp2, '\n\+')
       for res_item in l:res_list
-        call add(response_list, res_item)
+        " ignore 2nd response of reload command #62
+        if res_item !~'{"reloadFinished":true}}$'
+          call add(response_list, res_item)
+        endif
       endfor
     else
       echom '[Tsuquyomi] TSServer request was timeout:'.a:line
