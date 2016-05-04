@@ -28,6 +28,8 @@ command! -buffer -nargs=* -complete=buffer TsuquyomiReload  :call tsuquyomi#relo
 command! -buffer -nargs=* -complete=buffer TsuReload        :call tsuquyomi#reload(<f-args>)
 command! -buffer -nargs=* -complete=buffer TsuquyomiDump    :call tsuquyomi#dump(<f-args>)
 command! -buffer -nargs=* -complete=buffer TsuDump          :call tsuquyomi#dump(<f-args>)
+command! -buffer -nargs=1 TsuquyomiSearch                   :call tsuquyomi#navtoByLoclistContain(<f-args>)
+command! -buffer -nargs=1 TsuSearch                         :call tsuquyomi#navtoByLoclistContain(<f-args>)
 
 command! -buffer TsuquyomiDefinition     :call tsuquyomi#definition()
 command! -buffer TsuDefinition           :call tsuquyomi#definition()

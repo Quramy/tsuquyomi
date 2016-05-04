@@ -746,7 +746,7 @@ function! tsuquyomi#navto(term, kindModifiers, matchKindType)
         let flg = flg && (result.matchKind=='exact')
       endif
       if a:kindModifiers != ''
-        let flg = flg && has_key(result, 'kindModifiers') && result.kindModifiers==a:kindModifiers
+        let flg = flg && has_key(result, 'kindModifiers') && result.kindModifiers=~a:kindModifiers
       endif
       if flg
         call add(list, result)
@@ -790,6 +790,19 @@ function! tsuquyomi#navtoByLoclist(term, kindModifiers, matchKindType)
     endif
   endif
 endfunction
+
+function! tsuquyomi#navtoByLoclistContain(term)
+  call tsuquyomi#navtoByLoclist(a:term, '', 0)
+endfunction
+
+function! tsuquyomi#navtoByLoclistPrefix(term)
+  call tsuquyomi#navtoByLoclist(a:term, '', 1)
+endfunction
+
+function! tsuquyomi#navtoByLoclistExact(term)
+  call tsuquyomi#navtoByLoclist(a:term, '', 2)
+endfunction
+
 " #### Navto }}}
 
 " ### Public functions }}}
