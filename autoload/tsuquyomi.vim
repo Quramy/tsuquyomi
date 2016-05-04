@@ -458,10 +458,9 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
   return quickfix_list
 endfunction
 
-function! tsuquyomi#geterr()
-
+function! tsuquyomi#createFixlist()
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
-    return
+    return []
   endif
   call s:flash()
 
@@ -472,7 +471,11 @@ function! tsuquyomi#geterr()
   let result = tsuquyomi#tsClient#tsGeterr(l:files, l:delayMsec)
 
   " 2. Make a quick fix list for `setqflist`.
-  let quickfix_list = tsuquyomi#createQuickFixListFromEvents(result)
+  return tsuquyomi#createQuickFixListFromEvents(result)
+endfunction
+
+function! tsuquyomi#geterr()
+  let quickfix_list = tsuquyomi#createFixlist()
 
   call setqflist(quickfix_list, 'r')
   if len(quickfix_list) > 0
