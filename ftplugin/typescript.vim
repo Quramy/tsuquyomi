@@ -52,6 +52,9 @@ command! -buffer TsuRenameSymbolS        :call tsuquyomi#renameSymbolWithStrings
 command! -buffer TsuquyomiRenameSymbolCS :call tsuquyomi#renameSymbolWithCommentsStrings()
 command! -buffer TsuRenameSymbolCS       :call tsuquyomi#renameSymbolWithCommentsStrings()
 
+command! -buffer TsuquyomiImport         :call tsuquyomi#es6import#complete()
+command! -buffer TsuImport               :call tsuquyomi#es6import#complete()
+
 noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)     :TsuquyomiDefinition <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiGoBack)         :TsuquyomiGoBack <CR>
 noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
