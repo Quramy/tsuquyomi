@@ -1,5 +1,5 @@
 "============================================================================
-" FILE: tsuquyomi.vim
+" FILE: autoload/tsuquyomi/es6import.vim
 " AUTHOR: Quramy <yosuke.kurami@gmail.com>
 "============================================================================
 
@@ -32,7 +32,11 @@ function! s:get_keyword_under_cursor()
   while l:end <= strlen(l:line_str) && l:line_str[l:end] =~ "\\k"
     let l:end += 1
   endwhile
-  return l:line_str[l:start-1:l:end-1]
+  return {
+        \ 'text': l:line_str[l:start-1:l:end-1],
+        \ 'start': { 'offset': l:start, 'line': l:line },
+        \ 'end': { 'offset': l:end, 'line': l:line }
+        \ }
 endfunction
 
 function! s:relativePath(from, to)
@@ -57,8 +61,8 @@ function! s:relativePath(from, to)
   endif
 endfunction
 
-function! tsuquyomi#es6import#createImportBlock()
-  let l:identifier = s:get_keyword_under_cursor()
+function! tsuquyomi#es6import#createImportBlock(text)
+  let l:identifier = a:text
   if !s:is_valid_identifier(l:identifier)
     return []
   endif
@@ -71,7 +75,7 @@ function! tsuquyomi#es6import#createImportBlock()
   for nav in l:nav_list
     if has_key(nav, 'containerKind') && nav.containerKind ==# 'module'
       let l:importDict = {
-            \ 'identifier': l:identifier,
+            \ 'identifier': nav.name,
             \ 'path': nav.containerName,
             \ 'nav': nav
             \ }
@@ -181,14 +185,15 @@ function! tsuquyomi#es6import#selectModule()
     return [l:selected_module, 1]
   else
     echohl Error
-    echom '[Tsuquyomi] invalid module path.'
+    echom '[Tsuquyomi] Invalid module path.'
     echohl none
     return ['', 0]
   endif
 endfunction
 
 function! tsuquyomi#es6import#complete()
-  let l:list = tsuquyomi#es6import#createImportBlock()
+  let l:identifier_info = s:get_keyword_under_cursor()
+  let l:list = tsuquyomi#es6import#createImportBlock(l:identifier_info.text)
   if len(l:list) > 1
     let s:impotable_module_list = map(copy(l:list), 'v:val.path')
     let [l:selected_module, l:code] = tsuquyomi#es6import#selectModule()
@@ -228,6 +233,16 @@ function! tsuquyomi#es6import#complete()
       call append(l:target_import.brace.line - 1, l:indent.l:block.identifier)
     endif
   endif
+
+  "Replace search keyword to hit result identifer
+  let l:line = getline(l:identifier_info.start.line)
+  let l:new_line = l:block.identifier
+  if l:identifier_info.start.offset
+    let l:new_line = l:line[0:l:identifier_info.start.offset - 2].l:new_line
+  endif
+  let l:new_line = l:new_line.l:line[l:identifier_info.end.offset: -1]
+  call setline(l:identifier_info.start.line, l:new_line)
+
 endfunction
 
 let &cpo = s:save_cpo
