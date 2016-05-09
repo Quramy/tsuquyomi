@@ -88,7 +88,7 @@ function! tsuquyomi#es6import#createImportBlock(text)
       let l:relative_path= substitute(l:relative_path, '\.d\.ts$', '', '')
       let l:relative_path= substitute(l:relative_path, '\.ts$', '', '')
       let l:importDict = {
-            \ 'identifier': l:identifier,
+            \ 'identifier': nav.name,
             \ 'path': l:relative_path,
             \ 'nav': nav
             \ }
@@ -211,16 +211,27 @@ function! tsuquyomi#es6import#complete()
   endif
   let [l:import_list, l:module_end_line, l:reason] = tsuquyomi#es6import#getImportList()
   let l:same_path_import_list = filter(l:import_list, 'v:val.has_brace && v:val.module.name ==# l:block.path')
+  if len(l:same_path_import_list) && len(filter(copy(l:same_path_import_list), 'v:val.alias_info.text ==# l:block.identifier'))
+    echohl Error
+    echom '[Tsuquyomi] '.l:block.identifier.' is already imported.'
+    echohl none
+    return
+  endif
+
+  "Replace search keyword to hit result identifer
+  let l:line = getline(l:identifier_info.start.line)
+  let l:new_line = l:block.identifier
+  if l:identifier_info.start.offset > 1
+    let l:new_line = l:line[0:l:identifier_info.start.offset - 2].l:new_line
+  endif
+  let l:new_line = l:new_line.l:line[l:identifier_info.end.offset: -1]
+  call setline(l:identifier_info.start.line, l:new_line)
+
+  "Add import declaration
   if !len(l:same_path_import_list)
     let l:expression = 'import { '.l:block.identifier.' } from "'.l:block.path.'";'
     call append(l:module_end_line, l:expression)
   else
-    if len(filter(copy(l:same_path_import_list), 'v:val.alias_info.text ==# l:block.identifier'))
-      echohl Error
-      echom '[Tsuquyomi] '.l:block.identifier.' is already imported.'
-      echohl none
-      return
-    endif
     let l:target_import = l:same_path_import_list[0]
     if l:target_import.is_oneliner
       let l:line = getline(l:target_import.brace.line)
@@ -233,16 +244,6 @@ function! tsuquyomi#es6import#complete()
       call append(l:target_import.brace.line - 1, l:indent.l:block.identifier)
     endif
   endif
-
-  "Replace search keyword to hit result identifer
-  let l:line = getline(l:identifier_info.start.line)
-  let l:new_line = l:block.identifier
-  if l:identifier_info.start.offset
-    let l:new_line = l:line[0:l:identifier_info.start.offset - 2].l:new_line
-  endif
-  let l:new_line = l:new_line.l:line[l:identifier_info.end.offset: -1]
-  call setline(l:identifier_info.start.line, l:new_line)
-
 endfunction
 
 let &cpo = s:save_cpo
