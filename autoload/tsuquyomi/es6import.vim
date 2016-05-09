@@ -61,6 +61,19 @@ function! s:relativePath(from, to)
   endif
 endfunction
 
+function! tsuquyomi#es6import#checkExternalModule(name, file)
+  let l:result = tsuquyomi#tsClient#tsNavBar(a:file)
+  let l:modules = map(filter(l:result, 'v:val.kind==#"module"'), 'v:val.text')
+  for module_name in l:modules
+    if module_name[0] ==# '"' || module_name[0] ==# "'"
+      if module_name[1:-2] ==# a:name
+        return 1
+      endif
+    endif
+  endfor
+  return 0
+endfunction
+
 function! tsuquyomi#es6import#createImportBlock(text)
   let l:identifier = a:text
   if !s:is_valid_identifier(l:identifier)
@@ -74,11 +87,14 @@ function! tsuquyomi#es6import#createImportBlock(text)
   let l:result_list = []
   for nav in l:nav_list
     if has_key(nav, 'containerKind') && nav.containerKind ==# 'module'
-      let l:importDict = {
-            \ 'identifier': nav.name,
-            \ 'path': nav.containerName,
-            \ 'nav': nav
-            \ }
+      if tsuquyomi#es6import#checkExternalModule(nav.containerName, nav.file)
+        let l:importDict = {
+              \ 'identifier': nav.name,
+              \ 'path': nav.containerName,
+              \ 'nav': nav
+              \ }
+        call add(l:result_list, l:importDict)
+      endif
     else
       let l:to = s:normalizePath(nav.file)
       let [l:relative_path, l:result] = s:relativePath(l:from, l:to)
@@ -92,15 +108,15 @@ function! tsuquyomi#es6import#createImportBlock(text)
             \ 'path': l:relative_path,
             \ 'nav': nav
             \ }
+      call add(l:result_list, l:importDict)
     endif
-    call add(l:result_list, l:importDict)
   endfor
   return l:result_list
 endfunction
 
-function!tsuquyomi#es6import#getImportList()
-  let [l:nav_bar_list, l:result] = tsuquyomi#navBar()
-  if !l:result
+function!tsuquyomi#es6import#getImportList(file)
+  let l:nav_bar_list = tsuquyomi#tsClient#tsNavBar(a:file)
+  if !len(l:nav_bar_list)
     return [[], 0, 'no_nav_bar']
   endif
   let l:module_infos = filter(l:nav_bar_list, 'v:val.kind ==# "module"')
@@ -209,7 +225,7 @@ function! tsuquyomi#es6import#complete()
   else
     return
   endif
-  let [l:import_list, l:module_end_line, l:reason] = tsuquyomi#es6import#getImportList()
+  let [l:import_list, l:module_end_line, l:reason] = tsuquyomi#es6import#getImportList(expand('%:p'))
   let l:same_path_import_list = filter(l:import_list, 'v:val.has_brace && v:val.module.name ==# l:block.path')
   if len(l:same_path_import_list) && len(filter(copy(l:same_path_import_list), 'v:val.alias_info.text ==# l:block.identifier'))
     echohl Error
