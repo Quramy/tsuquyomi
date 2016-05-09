@@ -7,7 +7,7 @@ Context Vesting.run()
   let s:script_dir = tsuquyomi#rootDir()
 
   It checks interface of response of 'projectInfo' command
-    let file = substitute(s:Filepath.join(s:script_dir, 'vest/resources/samplePrjs/prj001/main.ts'), '\\', '/', 'g')
+    let file = substitute(s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/samplePrjs/prj001/main.ts'), '\\', '/', 'g')
     call tsuquyomi#tsClient#tsOpen(file)
     let res_projectInfo_dict = tsuquyomi#tsClient#tsProjectInfo(file, 1)
     Should has_key(res_projectInfo_dict, 'configFileName')

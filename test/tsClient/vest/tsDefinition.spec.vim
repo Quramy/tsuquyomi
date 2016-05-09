@@ -8,7 +8,7 @@ Context Vesting.run()
   let s:result = []
 
   It checks interface of responce of 'definition' command.
-    let file = b:Filepath.join(s:script_dir, 'vest/resources/definitionTest.ts')
+    let file = b:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/definitionTest.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let b:result= tsuquyomi#tsClient#tsDefinition(file, 2, 15) 
     Should len(b:result) == 1
@@ -23,7 +23,7 @@ Context Vesting.run()
   End
 
   It checkes no definition at no symbol
-    let file = b:Filepath.join(s:script_dir, 'vest/resources/definitionTest.ts')
+    let file = b:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/definitionTest.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let b:result = tsuquyomi#tsClient#tsDefinition(file, 3, 1) 
     Should b:result == []

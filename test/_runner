@@ -1,4 +1,4 @@
-:Unite vesting:.
+:Unite vesting:./test/tsClient
 *
 :call unite#action#do('start')
 k
@@ -8,6 +8,6 @@ p
 :%s/\n\s*\[OK\].*\s/+/g
 :%s/\s\+/ /g
 :%s/^\s\+\[Vest\]/[Vest]/g
-:w! vest/test_result.log
+:w! test/test_result.log
 :quitall
 vim:ft=vim

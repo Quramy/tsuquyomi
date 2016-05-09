@@ -7,7 +7,7 @@ Context Vesting.run()
   let s:script_dir = tsuquyomi#rootDir()
 
   It checks interface of responce of 'signatureHelp' command.
-    let file = substitute(s:Filepath.join(s:script_dir, 'vest/resources/signatureHelpTest_writing.ts'), '\\', '/', 'g')
+    let file = substitute(s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/signatureHelpTest_writing.ts'), '\\', '/', 'g')
     "echo l:file
     call tsuquyomi#tsClient#tsOpen(file)
     let res_signatureHelp_dict  = tsuquyomi#tsClient#tsSignatureHelp(file, 19, 12) 
@@ -57,7 +57,7 @@ Context Vesting.run()
   End
 
   It returns two items when the method is overridden.
-    let file = substitute(s:Filepath.join(s:script_dir, 'vest/resources/signatureHelpTest_overload.ts'), '\\', '/', 'g')
+    let file = substitute(s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/signatureHelpTest_overload.ts'), '\\', '/', 'g')
     "echo l:file
     call tsuquyomi#tsClient#tsOpen(file)
     let res_signatureHelp_dict  = tsuquyomi#tsClient#tsSignatureHelp(file, 9, 19) 

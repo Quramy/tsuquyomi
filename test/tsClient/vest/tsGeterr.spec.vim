@@ -7,7 +7,7 @@ Context Vesting.run()
   let s:script_dir = tsuquyomi#rootDir()
 
   It checks interface of responce of 'geterr' command.
-    let file = s:Filepath.join(s:script_dir, 'vest/resources/SimpleModule_writing.ts')
+    let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule_writing.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let files = [file]
     let result_list = tsuquyomi#tsClient#tsGeterr(files, 10)

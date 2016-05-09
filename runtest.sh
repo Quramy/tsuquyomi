@@ -1,8 +1,8 @@
 #/bin/sh
 
-VIMRC_FILE="vest/.vimrc"
-DRIVER_FILE="vest/_runner"
-RESULT_FILE="vest/test_result.log"
+VIMRC_FILE="test/.vimrc"
+DRIVER_FILE="test/_runner"
+RESULT_FILE="test/test_result.log"
 VIM_BUILD=1
 VIM_INSTALL_DIR=`pwd`/local
 
