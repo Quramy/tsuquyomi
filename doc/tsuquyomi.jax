@@ -199,6 +199,11 @@ Prompt:
 		表示します.
 		このコマンドにはTypeScript@v1.6.0以上が必要です.
 
+						*:TsuquyomiSeaarch*
+						*:TsuSearch*
+:TsuquyomiSearch {keyword}
+		プロジェクトで {keyword} を含んでいる箇所を検索します.
+
 Todo
 
 ------------------------------------------------------------------------------

@@ -124,6 +124,9 @@ Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location w
 
 Alternatively, call the Ex command `:TsuquyomiReferences`.
 
+### Keyword search
+Call the Ex command `:TsuquyomiSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
+
 ### Show quickfix
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
