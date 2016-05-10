@@ -61,17 +61,26 @@ function! s:relativePath(from, to)
   endif
 endfunction
 
-function! tsuquyomi#es6import#checkExternalModule(name, file)
-  let l:result = tsuquyomi#tsClient#tsNavBar(a:file)
-  let l:modules = map(filter(l:result, 'v:val.kind==#"module"'), 'v:val.text')
-  for module_name in l:modules
-    if module_name[0] ==# '"' || module_name[0] ==# "'"
-      if module_name[1:-2] ==# a:name
-        return 1
-      endif
+let s:external_module_cache_dict = {}
+function! tsuquyomi#es6import#checkExternalModule(name, file, no_use_cache)
+  let l:cache = s:external_module_cache_dict
+  if a:no_use_cache || !has_key(l:cache, a:file) || !has_key(l:cache[a:file], a:name)
+    if !has_key(l:cache, a:file)
+      let l:cache[a:file] = {}
     endif
-  endfor
-  return 0
+    let l:result = tsuquyomi#tsClient#tsNavBar(a:file)
+    let l:modules = map(filter(l:result, 'v:val.kind==#"module"'), 'v:val.text')
+    let l:cache[a:file][a:name] = 0
+    for module_name in l:modules
+      if module_name[0] ==# '"' || module_name[0] ==# "'"
+        if module_name[1:-2] ==# a:name
+          let l:cache[a:file][a:name] = 1
+          break
+        endif
+      endif
+    endfor
+  endif
+  return l:cache[a:file][a:name]
 endfunction
 
 function! tsuquyomi#es6import#createImportBlock(text)
@@ -87,7 +96,7 @@ function! tsuquyomi#es6import#createImportBlock(text)
   let l:result_list = []
   for nav in l:nav_list
     if has_key(nav, 'containerKind') && nav.containerKind ==# 'module'
-      if tsuquyomi#es6import#checkExternalModule(nav.containerName, nav.file)
+      if tsuquyomi#es6import#checkExternalModule(nav.containerName, nav.file, 0)
         let l:importDict = {
               \ 'identifier': nav.name,
               \ 'path': nav.containerName,
