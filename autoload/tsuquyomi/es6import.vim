@@ -110,8 +110,8 @@ function! tsuquyomi#es6import#createImportBlock(text)
       if !l:result
         return []
       endif
-      let l:relative_path= substitute(l:relative_path, '\.d\.ts$', '', '')
-      let l:relative_path= substitute(l:relative_path, '\.ts$', '', '')
+      let l:relative_path = substitute(l:relative_path, '\.d\.ts$', '', '')
+      let l:relative_path = substitute(l:relative_path, '\.ts$', '', '')
       let l:importDict = {
             \ 'identifier': nav.name,
             \ 'path': l:relative_path,
@@ -123,32 +123,45 @@ function! tsuquyomi#es6import#createImportBlock(text)
   return l:result_list
 endfunction
 
-function!tsuquyomi#es6import#getImportList(file)
-  let l:nav_bar_list = tsuquyomi#tsClient#tsNavBar(a:file)
+function! s:comp_alias(alias1, alias2)
+  return a:alias2.spans[0].end.line - a:alias1.spans[0].end.line
+endfunction
+
+function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
+  let l:nav_bar_list = tsuquyomi#tsClient#tsNavBar(a:fileName)
   if !len(l:nav_bar_list)
-    return [[], 0, 'no_nav_bar']
+    return [[], {}, 'no_nav_bar']
   endif
-  let l:module_infos = filter(l:nav_bar_list, 'v:val.kind ==# "module"')
+  let l:module_infos = filter(copy(l:nav_bar_list), 'v:val.kind ==# "module"')
   if !len(l:module_infos)
-    return [[], 0, 'no_module_info']
+    return [[], {
+          \ 'start': { 'line': l:nav_bar_list[0].spans[0].start.line - 1 },
+          \ 'end': { 'line': l:nav_bar_list[0].spans[0].start.line - 1}
+          \ }, 'no_module_info']
   endif
   let l:result_list = []
   let l:module_end_line = l:module_infos[0].spans[0].end.line
   let l:alias_list = filter(l:module_infos[0].childItems, 'v:val.kind ==# "alias"')
   let l:end_line = l:module_end_line
-  for alias in l:alias_list
+  for alias in sort(l:alias_list, "s:comp_alias")
     let l:hit = 0
     let [l:has_brace, l:brace] = [0, {}]
     let [l:has_from, l:from] = [0, { 'start': {}, 'end': {} }]
     let [l:has_module, l:module] = [0, { 'name': '', 'start': {}, 'end': {} }]
     let l:line = alias.spans[0].start.line
     while !l:hit && l:line <= l:end_line
-      let l:line_str = getline(l:line)
-      let l:brace_offset = match(l:line_str, '\}')
+      if !len(a:content_list)
+        let l:line_str = getline(l:line)
+      else
+        let l:line_str = a:content_list[l:line - 1]
+      endif
+      let l:brace_end_offset = match(l:line_str, "}")
       let l:from_offset = match(l:line_str, 'from')
-      if l:brace_offset + 1 && !l:has_from
+      if l:brace_end_offset + 1 && !l:has_brace && !l:has_from
         let l:has_brace = 1
-        let l:brace = { 'offset': l:brace_offset + 1, 'line': l:line }
+        let l:brace = { 
+              \ 'end': { 'offset': l:brace_end_offset + 1, 'line': l:line }
+              \ }
       endif
       if l:from_offset + 1
         let l:has_from = 1
@@ -184,6 +197,7 @@ function!tsuquyomi#es6import#getImportList(file)
     if l:hit
       let l:info = {
             \ 'module': l:module,
+            \ 'has_from': l:has_from,
             \ 'from_span': l:from,
             \ 'has_brace': l:has_brace,
             \ 'brace': l:brace,
@@ -193,7 +207,11 @@ function!tsuquyomi#es6import#getImportList(file)
       call add(l:result_list, l:info)
     endif
   endfor
-  return [l:result_list, l:result_list[-1].module.end.line, '']
+  let l:position = len(l:result_list) ? {
+        \ 'start': {'line': l:module_infos[0].spans[0].start.line },
+        \ 'end': { 'line': l:module_infos[-1].spans[0].end.line }
+        \ } : {}
+  return [l:result_list, l:position, '']
 endfunction
 
 let s:impotable_module_list = []
@@ -234,7 +252,8 @@ function! tsuquyomi#es6import#complete()
   else
     return
   endif
-  let [l:import_list, l:module_end_line, l:reason] = tsuquyomi#es6import#getImportList(expand('%:p'))
+  let [l:import_list, l:dec_position, l:reason] = tsuquyomi#es6import#getImportDeclarations(expand('%:p'), [])
+  let l:module_end_line = has_key(l:dec_position, 'end') ? l:dec_position.end.line : 0
   let l:same_path_import_list = filter(l:import_list, 'v:val.has_brace && v:val.module.name ==# l:block.path')
   if len(l:same_path_import_list) && len(filter(copy(l:same_path_import_list), 'v:val.alias_info.text ==# l:block.identifier'))
     echohl Error
@@ -259,14 +278,14 @@ function! tsuquyomi#es6import#complete()
   else
     let l:target_import = l:same_path_import_list[0]
     if l:target_import.is_oneliner
-      let l:line = getline(l:target_import.brace.line)
-      let l:expression = l:line[0:l:target_import.brace.offset - 2].', '.l:block.identifier.' '.l:line[l:target_import.brace.offset - 1: -1]
-      call setline(l:target_import.brace.line, l:expression)
+      let l:line = getline(l:target_import.brace.end.line)
+      let l:expression = l:line[0:l:target_import.brace.end.offset - 2].', '.l:block.identifier.' '.l:line[l:target_import.brace.end.offset - 1: -1]
+      call setline(l:target_import.brace.end.line, l:expression)
     else
-      let l:before_line = getline(l:target_import.brace.line - 1)
+      let l:before_line = getline(l:target_import.brace.end.line - 1)
       let l:indent = matchstr(l:before_line, '\m^\s*')
-      call setline(l:target_import.brace.line - 1, l:before_line.',')
-      call append(l:target_import.brace.line - 1, l:indent.l:block.identifier)
+      call setline(l:target_import.brace.end.line - 1, l:before_line.',')
+      call append(l:target_import.brace.end.line - 1, l:indent.l:block.identifier)
     endif
   endif
 endfunction
