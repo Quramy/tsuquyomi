@@ -248,6 +248,43 @@ And execute the following command, you can confirm the path of tsserver:
 :echo tsuquyomi#config#tsscmd()
 ```
 
+### Create es6 import declaration
+**It's highly experimental**
+
+For example, if your buffer is the following state:
+
+```ts
+readFile('hoge', 'utf-8', (err, content) => {
+  if(!err) console.log(content);
+});
+```
+
+Move cursor onto `readFile` and call `:TsuImport`, so Tsuquyomi appends the import declaration.
+
+```ts
+import { readFile } from 'fs';
+readFile('hoge', 'utf-8', (err, content) => {
+  if(!err) console.log(content);
+});
+```
+
+This command has the following limitation:
+
+* This command searches aliases from only files already opened or referenced
+* This command searches aliases which are exported explicitly.
+
+In other words, if your project has the following 2 files, `import { foo } from './lib';` is a valid declaration, but Tsuquyomi creates only `import { foo } from './lib/foo';`.
+
+```ts
+/* lib/index.ts */
+export * from './foo';
+```
+
+```ts
+/* lib/foo.ts */
+export const var foo = 'FOO'
+```
+
 ### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
 
