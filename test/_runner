@@ -1,0 +1,29 @@
+:Unite vesting:./test/tsClient
+*
+:call unite#action#do('start')
+k
+ygg
+:winc j
+p
+:%s/\n\s*\[OK\].*\s/+/g
+:%s/\s\+/ /g
+:%s/^\s\+\[Vest\]/[Vest]/g
+:w! test/test_result.log
+gg
+dG
+:winc k
+q
+q
+:Unite vesting:./test/es6import
+*
+:call unite#action#do('start')
+k
+ygg
+:winc j
+p
+:%s/\n\s*\[OK\].*\s/+/g
+:%s/\s\+/ /g
+:%s/^\s\+\[Vest\]/[Vest]/g
+:w! >> test/test_result.log
+:quitall!
+vim:ft=vim

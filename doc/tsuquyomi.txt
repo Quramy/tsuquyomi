@@ -194,6 +194,11 @@ COMMANDS					*tsuquyomi-commands*
 		Show all compilation errors of your project in QuickFix window.
 		This command requires TypeScript@v1.6.0 or later.
 
+						*:TsuquyomiSeaarch*
+						*:TsuSearch*
+:TsuquyomiSearch {keyword}
+		Search locations which containts {keyword} from ptoject.
+
 Todo
 
 ------------------------------------------------------------------------------

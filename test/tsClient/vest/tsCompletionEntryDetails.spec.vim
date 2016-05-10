@@ -7,7 +7,7 @@ Context Vesting.run()
   let s:script_dir = tsuquyomi#rootDir()
 
   It checks interface of responce of 'completionEntryDetails' command.
-    let file = s:Filepath.join(s:script_dir, 'vest/resources/SimpleModule_writing.ts')
+    let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule_writing.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let res_list = tsuquyomi#tsClient#tsCompletionEntryDetails(file, 19, 9, ['say', 'greeting'])
     Should len(res_list) == 2

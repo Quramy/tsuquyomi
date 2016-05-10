@@ -7,7 +7,7 @@ Context Vesting.run()
   let s:script_dir = tsuquyomi#rootDir()
 
   It checks interface of responce of 'rename' command.
-    let file = s:Filepath.join(s:script_dir, 'vest/resources/SimpleModule.ts')
+    let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let result_rename_dict = tsuquyomi#tsClient#tsRename(file, 5, 16, 0, 0) 
     Should has_key(result_rename_dict, 'info')
@@ -23,8 +23,8 @@ Context Vesting.run()
     Should has_key(result_rename_dict, 'locs')
     Should len(result_rename_dict.locs) == 1
     Should has_key(result_rename_dict.locs[0], 'file')
-    Should result_rename_dict.locs[0].file != 'vest/resources/SimpleModule.ts'
-    Should stridx(result_rename_dict.locs[0].file, 'vest/resources/SimpleModule.ts')
+    Should result_rename_dict.locs[0].file != 'test/tsClient/vest/resources/SimpleModule.ts'
+    Should stridx(result_rename_dict.locs[0].file, 'test/tsClient/vest/resources/SimpleModule.ts')
     Should has_key(result_rename_dict.locs[0], 'locs')
     Should len(result_rename_dict.locs[0].locs) == 2
     Should has_key(result_rename_dict.locs[0].locs[0], 'start')
@@ -37,21 +37,21 @@ Context Vesting.run()
   End
 
   It checks rename command within symbol occurred across multiple files.
-    let fileA = s:Filepath.join(s:script_dir, 'vest/resources/referencesTestA.ts')
-    let fileB = s:Filepath.join(s:script_dir, 'vest/resources/referencesTestB.ts')
+    let fileA = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/referencesTestA.ts')
+    let fileB = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/referencesTestB.ts')
     call tsuquyomi#tsClient#tsOpen(fileA)
     call tsuquyomi#tsClient#tsOpen(fileB)
     let result_rename_dict = tsuquyomi#tsClient#tsRename(fileA, 2, 16, 0, 0) 
 
     Should len(result_rename_dict.locs) == 2
-    Should stridx(result_rename_dict.locs[0].file, 'vest/resources/referencesTestA.ts')
-    Should stridx(result_rename_dict.locs[1].file, 'vest/resources/referencesTestB.ts')
+    Should stridx(result_rename_dict.locs[0].file, 'test/tsClient/vest/resources/referencesTestA.ts')
+    Should stridx(result_rename_dict.locs[1].file, 'test/tsClient/vest/resources/referencesTestB.ts')
 
     call tsuquyomi#tsClient#stopTss()
   End
 
   It can rename when a line has two symbols. Should to that the result is sorted by reverse order.
-    let file = s:Filepath.join(s:script_dir, 'vest/resources/renameTest.ts')
+    let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/renameTest.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let result_rename_dict = tsuquyomi#tsClient#tsRename(file, 3, 9, 0, 0) 
     Should len(result_rename_dict.locs[0].locs) == 3
@@ -65,7 +65,7 @@ Context Vesting.run()
   End
 
   It can rename variables in comments.
-    let file = s:Filepath.join(s:script_dir, 'vest/resources/renameTest.ts')
+    let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/renameTest.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let result_rename_dict = tsuquyomi#tsClient#tsRename(file, 11, 21, 1, 0) 
     Should len(result_rename_dict.locs[0].locs) == 2
@@ -74,7 +74,7 @@ Context Vesting.run()
   End
 
   " It can rename identifiers in strings.
-  "   let file = s:Filepath.join(s:script_dir, 'vest/resources/renameTest.ts')
+  "   let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/renameTest.ts')
   "   call tsuquyomi#tsClient#tsOpen(file)
   "   let result_rename_dict = tsuquyomi#tsClient#tsRename(file, 14, 13, 0, 1) 
   "   Should len(result_rename_dict.locs[0].locs) == 4

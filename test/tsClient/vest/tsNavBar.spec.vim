@@ -7,7 +7,7 @@ Context Vesting.run()
   let s:script_dir = tsuquyomi#rootDir()
 
   It checks interface of responce of 'navbar' command.
-    let file = substitute(s:Filepath.join(s:script_dir, 'vest/resources/SimpleModule.ts'), '\\', '/', 'g')
+    let file = substitute(s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule.ts'), '\\', '/', 'g')
     call tsuquyomi#tsClient#tsOpen(file)
     let res_list = tsuquyomi#tsClient#tsNavBar(file)
     "echo res_list

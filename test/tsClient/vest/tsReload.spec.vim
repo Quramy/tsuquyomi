@@ -7,7 +7,7 @@ Context Vesting.run()
   let s:script_dir = tsuquyomi#rootDir()
 
   It checks interface of responce of 'reload' command.
-    let file = s:Filepath.join(s:script_dir, 'vest/resources/SimpleModule.ts')
+    let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     Should tsuquyomi#tsClient#tsReload(file, file) == 1
     call tsuquyomi#tsClient#stopTss()
