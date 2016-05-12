@@ -1,7 +1,8 @@
 # Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi)
 
-Tsuquyomi is a Vim plugin for TypeScript.
+Make your Vim an TypeScript IDE.
 
+![capture](screen.gif)
 ## Features
 
 Tsuquyomi works as a client for **TSServer**(which is an editor service bundled into TypeScript).
@@ -13,31 +14,26 @@ So, installing Tsuquyomi, your vim gets the following features provided by TSSer
 + Display a list of syntax and semantics errors to Vim quickfix window.
 + and so on,,,
 
-![capture](capt_comp.png)
+### Relevant plugins
+Tsuquyomi does not provide syntax-highlight nor indentation. You can use the following Vim plugins for writing .ts:
+
+* [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
+* [Quramy/vim-js-pretty-template](https://github.com/Quramy/vim-js-pretty-template) provides syntax highlight for contents in Template Strings.
+* [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
+* [Quramy/vim-dtsm](https://github.com/Quramy/vim-dtsm) provides `.d.ts` management for [dtsm](with [https://github.com/vvakame/dtsm) users.
+* [mhartington/vim-typings](https://github.com/mhartington/vim-typings) provides `.d.ts` management for [typings](https://github.com/typings/typings) users.
 
 ## How to install
 Tsuquyomi requires the following:
 
 + [Vim](http://www.vim.org/) (v7.4.0 or later)
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
-+ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (**v1.5.0 or later**)
++ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (v1.5.3 or later)
 
-### vim v7.4+ and TypeScript
+### TypeScript
 
-This requires v7.4.0+, which means that you'll need to manually install.
-
-#### OS X
-
-```
-brew install vim
-```
-
-#### Ubuntu
-
-```
-sudo add-apt-repository ppa:fcwu-tw/ppa
-sudo apt-get update
-sudo apt-get install vim
+```bash
+npm -g install typescript
 ```
 
 ### Pathogen
@@ -81,12 +77,6 @@ And exec `:NeoBundleInstall`.
 
 (About vimproc installation, please see [the original install guide](https://github.com/Shougo/vimproc.vim#install).)
 
-### Install TypeScript
-
-```bash
-npm -g install typescript
-```
-
 ## Usage
 
 ### Completion
@@ -117,7 +107,9 @@ If you want to show a method's signature in the preview window when you complete
 autocmd FileType typescript setlocal completeopt+=menu,preview
 ```
 
-### Nav to definition
+### Navigations
+
+#### Definition
 Type `<C-]>` in normal mode or visual mode, Tsuquyomi navigates to the location where the symbol under the cursor is defined.
 
 Alternatively, call the Ex command `:TsuquyomiDefinition` or `:TsuDefinition`.
@@ -125,36 +117,25 @@ Alternatively, call the Ex command `:TsuquyomiDefinition` or `:TsuDefinition`.
 
 And type `<C-t>` , Tsuquyomi moves the cursor to the location where the last `<C-]>` was typed.
 
-### Show references
+#### References
 Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol under the cursor is referenced.
 
-Alternatively, call the Ex command `:TsuquyomiReferences`.
+Alternatively, call the Ex command `:TsuReferences`.
 
-### Keyword search
-Call the Ex command `:TsuquyomiSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
+#### Keyword search
+Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
 
-### Show quickfix
+#### Disable default mappings
+If you do not want to use the above key mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
+
+### Show compile errors
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
 
 If your use TypeScript v1.6.0 or later, you can use `:TsuquyomiGeterrProject` command.
 This command shows all compilation errors contained in your project to quickfix window.
 
-### Integrate syntastic
-If you use [syntastic](https://github.com/scrooloose/syntastic), you can use syntastic for displaying syntax and semantics errors instead of vim's default quickfix window. To integrate syntastic, write the following setting to your .vimrc.
-
-```vim
-let g:tsuquyomi_disable_quickfix = 1
-let g:syntastic_typescript_checkers = ['tsuquyomi'] " You shouldn't use 'tsc' checker.
-```
-
-syntastic has default TypeScript checker whose name is 'tsc'. You shouldn't use it with running Tusuquyomi because they don't share compile options.
-Tusuquyomi's checker whose name is 'tsuquyomi' uses tsserver and your tsconfig.json.
-
-### Disable Default Mappings
-If you do not want to use the default mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
-
-### Configure compile options
+#### Configure compile options
 Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
 
 For example:
@@ -172,7 +153,19 @@ For example:
 When you change tsconfig.json after opening `*.ts` files, you should exec `:TsuquyomiReloadProject` command.
 So, the changes of tsconfig.json are reflected in the TSServer.
 
-### Rename symbols
+#### Integrate with syntastic
+If you use [syntastic](https://github.com/scrooloose/syntastic), you can use syntastic for displaying syntax and semantics errors instead of vim's default quickfix window. To integrate syntastic, write the following setting to your .vimrc.
+
+```vim
+let g:tsuquyomi_disable_quickfix = 1
+let g:syntastic_typescript_checkers = ['tsuquyomi'] " You shouldn't use 'tsc' checker.
+```
+
+syntastic has default TypeScript checker whose name is 'tsc'. You shouldn't use it with running Tusuquyomi because they don't share compile options.
+Tusuquyomi's checker whose name is 'tsuquyomi' uses tsserver and your tsconfig.json.
+
+### Refactor
+#### Rename symbols
 
 Using the command `:TsuquyomiRenameSymbol`, you can rename the identifier under the cursor to a new name.
 
@@ -216,10 +209,10 @@ autocmd FileType typescript nmap <buffer> <Leader>t : <C-u>echo tsuquyomi#hint()
 The above example works in terminal Vim.
 
 
-### Show project information(a source of unite)
-This feature requires TypeScript@1.6.0 or later and Vim plugins:
+### Unite sources
+Tsuquyomi provides some [unite](https://github.com/Shougo/unite.vim) sources.
 
-* [unite](https://github.com/Shougo/unite.vim)
+#### Show project information(a source of unite)
 
 Execute the following command, your project information is displayed.
 
@@ -231,11 +224,12 @@ The project information contains:
 
 * tsconfig.json which the current buffer use.
 * .ts(or .tsx) source files which TypeScript compiles. These files are determined by tsconfig.json
+
+This feature requires TypeScript@1.6.0 or later.
  
-### Show outline(an extension of unite-outline)
+#### Show outline(an extension of unite-outline)
 This feature requires Vim plugins:
 
-* [unite](https://github.com/Shougo/unite.vim)
 * [unite-outline](https://github.com/Shougo/unite-outline).
 
 If you have installed these plugins, calling the following Ex command, the outline of the current buffer is displayed.
@@ -245,8 +239,7 @@ If you have installed these plugins, calling the following Ex command, the outli
 ```
 
 ### Use TypeScript installed locally
-By the default, Tsuquyomi searches locally installed TypeScript.
-If not hit, Tsuquyomi uses TypeScript installed globally.
+By the default, Tsuquyomi searches locally installed TypeScript. If not hit, Tsuquyomi uses TypeScript installed globally.
 
 And execute the following command, you can confirm the path of tsserver:
 
@@ -293,11 +286,6 @@ export const var foo = 'FOO'
 
 ### More details
 If you want more details, please see [doc](doc/tsuquyomi.txt).
-
-## Relevant plugins
-
-* [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
-* [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
 
 ## Contribute
 ### How to test
