@@ -309,23 +309,29 @@ function! tsuquyomi#complete(findstart, base)
           if !length 
                 \ || !g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] == a:base
                 \ || g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] ==# a:base
-            let l:item = {'word': info.name}
-            call add(entries, info.name)
-            call add(items, l:item)
+            let l:item = {'word': info.name, 'menu': info.kind }
+            if !g:tsuquyomi_completion_detail
+              call complete_add(l:item)
+            else
+              call add(entries, info.name)
+              call add(items, l:item)
+            endif
           endif
         endfor
-        call tsuquyomi#perfLogger#record('before_completeMenu'.j)
-        let menus = tsuquyomi#makeCompleteMenu(l:file, l:line, l:start, entries)
-        call tsuquyomi#perfLogger#record('after_completeMenu'.j)
-        let idx = 0
-        for menu in menus
-          let items[idx].menu = menu
-          if has_info
-            let items[idx].info = siginfo
-          endif
-          call complete_add(items[idx])
-          let idx = idx + 1
-        endfor
+        if g:tsuquyomi_completion_detail
+          call tsuquyomi#perfLogger#record('before_completeMenu'.j)
+          let menus = tsuquyomi#makeCompleteMenu(l:file, l:line, l:start, entries)
+          call tsuquyomi#perfLogger#record('after_completeMenu'.j)
+          let idx = 0
+          for menu in menus
+            let items[idx].menu = menu
+            if has_info
+              let items[idx].info = siginfo
+            endif
+            call complete_add(items[idx])
+            let idx = idx + 1
+          endfor
+        endif
         if complete_check()
           break
         endif
