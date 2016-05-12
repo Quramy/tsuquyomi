@@ -268,6 +268,13 @@ g:tsuquyomi_definition_split	(デフォルト値 0)
 		* 2: |:vsplit|
 		* 3: |:tabedit|
 
+					*g:tsuquyomi_completion_detail*
+g:tsuquyomi_completion_detail		(デフォルト値 0)
+		|tsuquyomi#complete|実行時に詳細な補完メニューを作成するかどうか.
+		このオプションは|completeopt|に "menu"が含まれるときにのみ
+		意味を持つ.
+		NOTE: このオプションを1に設定した場合, 補完速度は遅くなる
+
 					*g:tsuquyomi_completion_case_sensitive*
 g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)
 		|tsuquyomi#complete|実行時に補完候補をcase-sensitiveに

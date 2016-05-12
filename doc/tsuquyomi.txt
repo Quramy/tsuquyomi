@@ -1,6 +1,6 @@
 *tsuquyomi* is a Vim plugin for TypeScript.
 
-Version: 0.5.1
+Version: 0.6.0
 Author : Quramy <yosuke.kurami@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -260,6 +260,12 @@ g:tsuquyomi_definition_split	(default 0)
 		* 1: |:split|
 		* 2: |:vplit|
 		* 3: |:tabedit|
+
+					*g:tsuquyomi_completion_detail*
+g:tsuquyomi_completion_detail		(default 0)
+		Whether to show details of complete menu when |tsuquyomi#complete|.
+		This options makes sence when |completeopt| includes "menu".
+		NOTE: If it's set, completions gets slow.
 
 					*g:tsuquyomi_completion_case_sensitive*
 g:tsuquyomi_completion_case_sensitive	(default 0)
