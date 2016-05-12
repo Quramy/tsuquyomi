@@ -66,7 +66,7 @@ endfunction
 
 " Save current buffer to a temp file, and emit to reload TSServer.
 " This function may be called for conversation with TSServer after user's change buffer.
-function! s:flash()
+function! s:flush()
   if tsuquyomi#bufManager#isDirty(expand('%:p'))
     let file_name = expand('%:p')
     call tsuquyomi#bufManager#saveTmp(file_name)
@@ -105,6 +105,10 @@ endfunction
 " #### Notify changed {{{
 function! tsuquyomi#letDirty()
   return tsuquyomi#bufManager#setDirty(expand('%:p'), 1)
+endfunction
+
+function! tsuquyomi#flush()
+  call s:flush()
 endfunction
 " #### Notify changed }}}
 
@@ -283,9 +287,9 @@ function! tsuquyomi#complete(findstart, base)
   endwhile
 
   if(a:findstart)
-    call tsuquyomi#perfLogger#record('before_flash')
-    call s:flash()
-    call tsuquyomi#perfLogger#record('after_flash')
+    call tsuquyomi#perfLogger#record('before_flush')
+    call s:flush()
+    call tsuquyomi#perfLogger#record('after_flush')
     return l:start - 1
   else
     let l:file = expand('%:p')
@@ -353,7 +357,7 @@ function! tsuquyomi#definition()
     return
   endif
 
-  call s:flash()
+  call s:flush()
 
   let l:file = s:normalizePath(expand('%:p'))
   let l:line = line('.')
@@ -407,7 +411,7 @@ function! tsuquyomi#references()
     return
   endif
 
-  call s:flash()
+  call s:flush()
 
   let l:file = expand('%:p')
   let l:line = line('.')
@@ -468,7 +472,7 @@ function! tsuquyomi#createFixlist()
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return []
   endif
-  call s:flash()
+  call s:flush()
 
   let l:files = [expand('%:p')]
   let l:delayMsec = 50 "TODO export global option
@@ -502,7 +506,7 @@ function! tsuquyomi#geterrProject()
     return
   endif
 
-  call s:flash()
+  call s:flush()
   let l:file = expand('%:p')
 
   " 1. Fetch Project info for event count.
@@ -538,7 +542,7 @@ endfunction
 function! tsuquyomi#balloonexpr()
 
   "if tsuquyomi#tsClient#tsReload() != 'undefined'
-  call s:flash()
+  call s:flush()
   let l:filename = buffer_name(v:beval_bufnr)
   let res = tsuquyomi#tsClient#tsQuickinfo(l:filename, v:beval_lnum, v:beval_col)
   if has_key(res, 'displayString')
@@ -548,7 +552,7 @@ function! tsuquyomi#balloonexpr()
 endfunction
 
 function! tsuquyomi#hint()
-  call s:flash()
+  call s:flush()
   let res = tsuquyomi#tsClient#tsQuickinfo(expand('%:p'), line('.'), col('.'))
   if has_key(res, 'displayString')
     return res.displayString
@@ -582,7 +586,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
     return
   endif
 
-  call s:flash()
+  call s:flush()
 
   let l:filename = expand('%:p')
   let l:line = line('.')
@@ -709,7 +713,7 @@ function! tsuquyomi#navBar()
     return [[], 0]
   endif
 
-  call s:flash()
+  call s:flush()
 
   let l:filename = expand('%:p')
 
@@ -736,7 +740,7 @@ function! tsuquyomi#navto(term, kindModifiers, matchKindType)
     return [[], 0]
   endif
 
-  call s:flash()
+  call s:flush()
 
   let l:filename = expand('%:p')
 

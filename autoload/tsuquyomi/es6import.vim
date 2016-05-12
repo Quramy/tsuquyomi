@@ -133,9 +133,13 @@ function! tsuquyomi#es6import#createImportPosition(nav_bar_list)
   endif
   if len(a:nav_bar_list) == 1
     if a:nav_bar_list[0].kind ==# 'module'
-      echo a:nav_bar_list
-      let l:start_line = a:nav_bar_list[0].spans[0].start.line
-      let l:end_line = a:nav_bar_list[0].spans[0].end.line
+      if !len(filter(copy(a:nav_bar_list[0].childItems), 'v:val.kind ==#"alias"'))
+        let l:start_line = a:nav_bar_list[0].spans[0].start.line - 1
+        let l:end_line = l:start_line
+      else
+        let l:start_line = a:nav_bar_list[0].spans[0].start.line
+        let l:end_line = a:nav_bar_list[0].spans[0].end.line
+      endif
     else
       let l:start_line = a:nav_bar_list[0].spans[0].start.line - 1
       let l:end_line = l:start_line
@@ -224,10 +228,6 @@ function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
       call add(l:result_list, l:info)
     endif
   endfor
-  " let l:position = len(l:result_list) ? {
-  "       \ 'start': {'line': l:module_infos[0].spans[0].start.line },
-  "       \ 'end': { 'line': l:module_infos[-1].spans[0].end.line }
-  "       \ } : {}
   return [l:result_list, l:position, '']
 endfunction
 
@@ -252,6 +252,10 @@ function! tsuquyomi#es6import#selectModule()
 endfunction
 
 function! tsuquyomi#es6import#complete()
+  if !tsuquyomi#bufManager#isOpened(expand('%:p'))
+    return
+  end
+  call tsuquyomi#flush()
   let l:identifier_info = s:get_keyword_under_cursor()
   let l:list = tsuquyomi#es6import#createImportBlock(l:identifier_info.text)
   if len(l:list) > 1
