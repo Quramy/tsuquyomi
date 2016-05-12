@@ -127,22 +127,39 @@ function! s:comp_alias(alias1, alias2)
   return a:alias2.spans[0].end.line - a:alias1.spans[0].end.line
 endfunction
 
+function! tsuquyomi#es6import#createImportPosition(nav_bar_list)
+  if !len(a:nav_bar_list)
+    return {}
+  endif
+  if len(a:nav_bar_list) == 1
+    if a:nav_bar_list[0].kind ==# 'module'
+      echo a:nav_bar_list
+      let l:start_line = a:nav_bar_list[0].spans[0].start.line
+      let l:end_line = a:nav_bar_list[0].spans[0].end.line
+    else
+      let l:start_line = a:nav_bar_list[0].spans[0].start.line - 1
+      let l:end_line = l:start_line
+    endif
+  elseif len(a:nav_bar_list) > 1
+      let l:start_line = a:nav_bar_list[0].spans[0].start.line
+      let l:end_line = a:nav_bar_list[1].spans[0].start.line - 1
+  endif
+  return { 'start': { 'line': l:start_line }, 'end': { 'line': l:end_line } }
+endfunction
+
 function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
   let l:nav_bar_list = tsuquyomi#tsClient#tsNavBar(a:fileName)
   if !len(l:nav_bar_list)
     return [[], {}, 'no_nav_bar']
   endif
+  let l:position = tsuquyomi#es6import#createImportPosition(l:nav_bar_list)
   let l:module_infos = filter(copy(l:nav_bar_list), 'v:val.kind ==# "module"')
   if !len(l:module_infos)
-    return [[], {
-          \ 'start': { 'line': l:nav_bar_list[0].spans[0].start.line - 1 },
-          \ 'end': { 'line': l:nav_bar_list[0].spans[0].start.line - 1}
-          \ }, 'no_module_info']
+    return [[], l:position, 'no_module_info']
   endif
   let l:result_list = []
-  let l:module_end_line = l:module_infos[0].spans[0].end.line
   let l:alias_list = filter(l:module_infos[0].childItems, 'v:val.kind ==# "alias"')
-  let l:end_line = l:module_end_line
+  let l:end_line = position.end.line
   for alias in sort(l:alias_list, "s:comp_alias")
     let l:hit = 0
     let [l:has_brace, l:brace] = [0, {}]
@@ -207,10 +224,10 @@ function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
       call add(l:result_list, l:info)
     endif
   endfor
-  let l:position = len(l:result_list) ? {
-        \ 'start': {'line': l:module_infos[0].spans[0].start.line },
-        \ 'end': { 'line': l:module_infos[-1].spans[0].end.line }
-        \ } : {}
+  " let l:position = len(l:result_list) ? {
+  "       \ 'start': {'line': l:module_infos[0].spans[0].start.line },
+  "       \ 'end': { 'line': l:module_infos[-1].spans[0].end.line }
+  "       \ } : {}
   return [l:result_list, l:position, '']
 endfunction
 
