@@ -36,10 +36,10 @@ let g:tsuquyomi_nodejs_path =
       \ get(g:, 'tsuquyomi_nodejs_path', 'node')
 let g:tsuquyomi_waittime_after_open = 
       \ get(g:, 'tsuquyomi_waittime_after_open', 0.01)
-let g:tsuquyomi_completion_detail = 
-      \ get(g:, 'tsuquyomi_completion_detail', 1)
 let g:tsuquyomi_completion_chunk_size = 
       \ get(g:, 'tsuquyomi_completion_chunk_size', 20)
+let g:tsuquyomi_completion_detail = 
+      \ get(g:, 'tsuquyomi_completion_detail', 0)
 let g:tsuquyomi_completion_case_sensitive = 
       \ get(g:, 'tsuquyomi_completion_case_sensitive', 0)
 let g:tsuquyomi_definition_split =

@@ -103,6 +103,12 @@ If you don't want the popup menu:
 autocmd FileType typescript setlocal completeopt-=menu
 ```
 
+If you want details of popup menu, set `g:tsuquyomi_completion_detail`. **Remarks: This option makes completion slow**
+
+```vim
+let g:tsuquyomi_completion_detail = 1
+```
+
 If you want to show a method's signature in the preview window when you complete this method's arguments:
 
 (The preview window isn't shown when completion properties or variables)
