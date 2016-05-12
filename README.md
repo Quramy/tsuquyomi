@@ -1,6 +1,6 @@
 # Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi)
 
-Make your Vim an TypeScript IDE.
+Make your Vim a TypeScript IDE.
 
 ![capture](screen.gif)
 ## Features
@@ -30,13 +30,17 @@ Tsuquyomi requires the following:
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
 + [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (v1.5.3 or later)
 
-### TypeScript
+### Install TypeScript
 
 ```bash
 npm -g install typescript
 ```
 
-### Pathogen
+### Install Tsuquyomi
+
+Download zip.file from [here](https://github.com/Quramy/tsuquyomi/archive/master.zip), or use your favorite Vim plugin manager.
+
+#### Pathogen
 
 See https://github.com/tpope/vim-pathogen for instructions to install pathogen itself
 (very simple one-line install, one-line config)
@@ -55,7 +59,7 @@ popd
 git clone https://github.com/Quramy/tsuquyomi.git ~/.vim/bundle/tsuquyomi
 ```
 
-### NeoBundle
+#### NeoBundle
 
 If you use [NeoBundle](https://github.com/Shougo/neobundle.vim) for Vim plugin management, append the following to your `.vimrc`:
 
@@ -77,7 +81,7 @@ And exec `:NeoBundleInstall`.
 
 (About vimproc installation, please see [the original install guide](https://github.com/Shougo/vimproc.vim#install).)
 
-## Usage
+## How to use
 
 ### Completion
 Tsuquyomi supports Omni-Completion.
