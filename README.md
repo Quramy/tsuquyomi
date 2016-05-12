@@ -127,7 +127,7 @@ Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location w
 Alternatively, call the Ex command `:TsuReferences`.
 
 #### Keyword search
-Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
+Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project. Alternatively call the Ex command `:TsuGeterr`.
 
 #### Disable default mappings
 If you do not want to use the above key mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
@@ -136,7 +136,7 @@ If you do not want to use the above key mappings please add `let g:tsuquyomi_dis
 When a buffer is saved, Tsuquyomi checks syntax and semantics.
 And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
 
-If your use TypeScript v1.6.0 or later, you can use `:TsuquyomiGeterrProject` command.
+If your use TypeScript v1.6.0 or later, you can use `:TsuGeterrProject` command.
 This command shows all compilation errors contained in your project to quickfix window.
 
 #### Configure compile options
@@ -171,9 +171,9 @@ Tusuquyomi's checker whose name is 'tsuquyomi' uses tsserver and your tsconfig.j
 ### Refactor
 #### Rename symbols
 
-Using the command `:TsuquyomiRenameSymbol`, you can rename the identifier under the cursor to a new name.
+Using the command `:TsuRenameSymbol`, you can rename the identifier under the cursor to a new name.
 
-If you want to rename identifiers including in comments, you can use `:TsuquyomiRenameSymbolC` command.
+If you want to rename identifiers including in comments, you can use `:TsuRenameSymbolC` command.
 For example, this command is useful when you want rename `opt` in the following code: 
 
 ```typescript
@@ -193,9 +193,8 @@ autocmd FileType typescript nmap <buffer> <Leader>e <Plug>(TsuquyomiRenameSymbol
 autocmd FileType typescript nmap <buffer> <Leader>E <Plug>(TsuquyomiRenameSymbolC)
 ```
 
-### Show balloon(tooltip)
-Tsuquyomi can display tooltip window about symbol under the mouse cursor.
-If you want to use this feature, configure `.vimrc` as follows:
+### Tooltip
+Tsuquyomi can display tooltip window about symbol under the mouse cursor. If you want to use this feature, configure `.vimrc` as follows:
 
 ```vim
 set ballooneval
