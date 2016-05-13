@@ -275,7 +275,7 @@ This command has the following limitation:
 * This command searches aliases from only files already opened or referenced
 * This command searches aliases which are exported explicitly.
 
-In other words, if your project has the following 2 files, `import { foo } from './lib';` is a valid declaration, but Tsuquyomi creates only `import { foo } from './lib/foo';`.
+In other words, if your project has the following 2 files, `import { foo } from './lib';` is a valid declaration, but Tsuquyomi can create only `import { foo } from './lib/foo';`.
 
 ```ts
 /* lib/index.ts */
@@ -284,7 +284,7 @@ export * from './foo';
 
 ```ts
 /* lib/foo.ts */
-export const var foo = 'FOO'
+export const foo = 'FOO'
 ```
 
 ### More details
