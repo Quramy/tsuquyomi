@@ -35,6 +35,16 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     call tsuquyomi#tsClient#stopTss()
   End
 
+  It returns position when input file has import declaration and expression
+    let s:file = s:Filepath.join(s:resource_dir, 'decAndFunction.ts')
+    call tsuquyomi#tsClient#tsOpen(s:file)
+    let [result_list, position, reason] = tsuquyomi#es6import#getImportDeclarations(s:file, readfile(s:file))
+    Should reason ==# ''
+    Should position.start.line == 1
+    Should position.end.line == 1
+    call tsuquyomi#tsClient#stopTss()
+  End
+
   It returns declaration_info list
     let s:file = s:Filepath.join(s:resource_dir, 'simple.ts')
     call tsuquyomi#tsClient#tsOpen(s:file)

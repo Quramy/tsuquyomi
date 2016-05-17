@@ -164,6 +164,7 @@ function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
   let l:result_list = []
   let l:alias_list = filter(l:module_infos[0].childItems, 'v:val.kind ==# "alias"')
   let l:end_line = position.end.line
+  let l:last_module_end_line = 0
   for alias in sort(l:alias_list, "s:comp_alias")
     let l:hit = 0
     let [l:has_brace, l:brace] = [0, {}]
@@ -211,6 +212,9 @@ function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
               \ 'start': { 'line': l:line },
               \ 'end': { 'line': l:line },
               \ }
+        if !l:last_module_end_line
+          let l:last_module_end_line = l:line
+        endif
       else
         let l:line += 1
       endif
@@ -228,6 +232,9 @@ function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
       call add(l:result_list, l:info)
     endif
   endfor
+  if l:last_module_end_line
+    let l:position.end.line = l:last_module_end_line
+  endif
   return [l:result_list, l:position, '']
 endfunction
 
