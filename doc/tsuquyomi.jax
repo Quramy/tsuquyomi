@@ -326,6 +326,11 @@ g:tsuquyomi_save_onrename	(デフォルト値 0)
 		カーソル直下のシンボルをコメントも含めて別名に変更する.
 		|:TsuquyomiRenameSymbolC|を参照のこと.
 
+						*<Plug>(TsuquyomiImport)*
+<Plug>(TsuquyomiImport)
+		カーソル直下のシンボルに対応するES6 import文を生成する.
+		|:TsuquyomiImport|を参照のこと.
+
 デフォルトキーマップは下記の通り:
 デフォルトキーマップは下記の通り:
 

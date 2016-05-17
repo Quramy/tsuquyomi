@@ -315,6 +315,11 @@ Normal mode key mappings.
 		Rename the identifier under the cursor to a new name.
 		Please see |:TsuquyomiRenameSymbolC|.
 
+						*<Plug>(TsuquyomiImport)*
+<Plug>(TsuquyomiImport)
+		Generate ES6 import declaration whose alias is under 
+		the cursor. See |:TsuquyomiImport|.
+
 Following keymappings are default keymappings.
 
 Normal mode default mappings.
