@@ -10,6 +10,7 @@ set cpo&vim
 
 let s:V = vital#of('tsuquyomi')
 let s:P = s:V.import('ProcessManager')
+let s:Process = s:V.import('Process')
 let s:Prelude = s:V.import('Prelude')
 let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
@@ -109,7 +110,7 @@ function! tsuquyomi#config#getVersion()
     return s:tss_version
   endif
   let l:cmd = substitute(tsuquyomi#config#tsscmd(), 'tsserver', 'tsc', '')
-  let out = system(l:cmd.' --version')
+  let out = s:Process.system(l:cmd.' --version')
   let pattern = '\vVersion\s+(\d+)\.(\d+)\.(\d+)-?([^\.\n\s]*)'
   let matched = matchlist(out, pattern)
   if !len(matched)
