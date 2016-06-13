@@ -20,6 +20,8 @@ endif
 
 let g:tsuquyomi_is_available = 1
 
+setlocal suffixesadd+=.ts
+
 command! -buffer -nargs=* -complete=buffer TsuquyomiOpen    :call tsuquyomi#open(<f-args>)
 command! -buffer -nargs=* -complete=buffer TsuOpen          :call tsuquyomi#open(<f-args>)
 command! -buffer -nargs=* -complete=buffer TsuquyomiClose   :call tsuquyomi#close(<f-args>)
