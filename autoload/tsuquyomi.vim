@@ -540,15 +540,11 @@ endfunction
 
 " #### Balloon {{{
 function! tsuquyomi#balloonexpr()
-
-  "if tsuquyomi#tsClient#tsReload() != 'undefined'
   call s:flush()
-  let l:filename = buffer_name(v:beval_bufnr)
-  let res = tsuquyomi#tsClient#tsQuickinfo(l:filename, v:beval_lnum, v:beval_col)
+  let res = tsuquyomi#tsClient#tsQuickinfo(expand('%:p'), v:beval_lnum, v:beval_col)
   if has_key(res, 'displayString')
     return res.displayString
   endif
-  "endif
 endfunction
 
 function! tsuquyomi#hint()
