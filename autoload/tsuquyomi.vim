@@ -541,7 +541,7 @@ endfunction
 " #### Balloon {{{
 function! tsuquyomi#balloonexpr()
   call s:flush()
-  let res = tsuquyomi#tsClient#tsQuickinfo(expand('%:p'), v:beval_lnum, v:beval_col)
+  let res = tsuquyomi#tsClient#tsQuickinfo(fnamemodify(buffer_name(v:beval_bufnr),":p"), v:beval_lnum, v:beval_col)
   if has_key(res, 'displayString')
     return res.displayString
   endif
