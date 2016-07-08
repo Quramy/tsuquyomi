@@ -287,6 +287,11 @@ g:tsuquyomi_save_onrename	(default 0)
 		If not set, Tsuquyomi shows replaced files with |:split|.
 		You can save them with |:wa| after your review changes.
 
+						*g:tsuquyomi_singlequate_import*
+g:tsuquyomi_singlequate_import		(default 0)
+		If set, Tsuquyomi generates import block using single quates
+		instead of double quates when |:TsuquyomiImport|.
+
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
 

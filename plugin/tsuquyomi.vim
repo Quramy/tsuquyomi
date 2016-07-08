@@ -48,6 +48,8 @@ let g:tsuquyomi_disable_quickfix =
       \ get(g:, 'tsuquyomi_disable_quickfix', 0)
 let g:tsuquyomi_save_onrename =
       \ get(g:, 'tsuquyomi_save_onrename', 0)
+let g:tsuquyomi_singlequate_import =
+      \ get(g:, 'tsuquyomi_singlequate_import', 0)
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group
