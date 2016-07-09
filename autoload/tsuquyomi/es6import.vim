@@ -301,7 +301,7 @@ function! tsuquyomi#es6import#complete()
 
   "Add import declaration
   if !len(l:same_path_import_list)
-    if g:tsuquyomi_singlequate_import
+    if g:tsuquyomi_single_quote_import
       let l:expression = "import { ".l:block.identifier." } from '".l:block.path."';"
     else
       let l:expression = 'import { '.l:block.identifier.' } from "'.l:block.path.'";'

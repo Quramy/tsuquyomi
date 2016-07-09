@@ -297,8 +297,8 @@ g:tsuquyomi_save_onrename	(デフォルト値 0)
 		で表示すため, ユーザは変更箇所を確認してから, ファイルを
 		|:wa| 等で保存すればよい.
 
-						*g:tsuquyomi_singlequate_import*
-g:tsuquyomi_singlequate_import		(デフォルト値 0)
+						*g:tsuquyomi_single_quote_import*
+g:tsuquyomi_single_quote_import		(デフォルト値 0)
 		値をセットすると、|:TsuImport| 利用時にダブルクォートではなく
 		シングルクォートを使って import blockが生成される.
 
