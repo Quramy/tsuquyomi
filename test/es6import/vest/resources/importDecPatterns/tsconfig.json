@@ -5,7 +5,15 @@
         "noImplicitAny": false,
         "sourceMap": false
     },
-    "exclude": [
-        "node_modules"
+    "files": [
+      "decAndFunction.ts",
+      "decAndOther.ts",
+      "empty.ts",
+      "explictAlias.ts",
+      "multiAlias.ts",
+      "multiline.ts",
+      "noDec.ts",
+      "simple.ts",
+      "some-module.ts"
     ]
 }

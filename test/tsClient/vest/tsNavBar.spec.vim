@@ -10,10 +10,10 @@ Context Vesting.run()
     let file = substitute(s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule.ts'), '\\', '/', 'g')
     call tsuquyomi#tsClient#tsOpen(file)
     let res_list = tsuquyomi#tsClient#tsNavBar(file)
-    "echo res_list
+    " echo res_list
     Should len(res_list) > 0
     Should has_key(res_list[0], 'text')
-    Should res_list[0].text == 'SimpleModule'
+    Should res_list[0].text == '<global>'
     Should has_key(res_list[0], 'kind')
     Should res_list[0].kind == 'module'
     Should has_key(res_list[0], 'kindModifiers')

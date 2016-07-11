@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
-    "noImplicitAny": true
-  }
+    "noImplicitAny": true,
+    "module": "commonjs"
+  },
+  "files": ["main.ts", "sub.ts"]
 }
