@@ -50,6 +50,8 @@ let g:tsuquyomi_save_onrename =
       \ get(g:, 'tsuquyomi_save_onrename', 0)
 let g:tsuquyomi_single_quote_import =
       \ get(g:, 'tsuquyomi_single_quote_import', 0)
+let g:tsuquyomi_javascript_support =
+      \ get(g:, 'tsuquyomi_javascript_support', 0)
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group
