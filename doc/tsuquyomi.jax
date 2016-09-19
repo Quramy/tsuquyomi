@@ -280,6 +280,14 @@ g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)
 		|tsuquyomi#complete|実行時に補完候補をcase-sensitiveに
 		探索するかどうか.
 
+					*g:tsuquyomi_completion_preview*
+g:tsuquyomi_completion_preview		(デフォルト値 0)
+		|tsuquyomi#complete|実行時にシグネチャの情報をプレビューに表示
+		するかどうか.
+		このオプションは|completeopt|に "menu"と"preview"が含まれるとき
+		にのみ意味を持つ.
+		NOTE: このオプションを1に設定した場合, 補完速度は少し遅くなる
+
 						*g:tsuquyomi_disable_default_mappings*
 g:tsuquyomi_disable_default_mappings	(デフォルト値 0)
 		デフォルトキーマッピングを適用するかどうか.

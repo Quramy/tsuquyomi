@@ -301,7 +301,12 @@ function! tsuquyomi#complete(findstart, base)
     let length = strlen(a:base)
     if enable_menu
       call tsuquyomi#perfLogger#record('start_menu')
-      let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
+      if g:tsuquyomi_completion_preview
+        let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
+      else
+        let [has_info, siginfo] = [0, '']
+      endif
+
       let size = g:tsuquyomi_completion_chunk_size
       let j = 0
       while j * size < len(l:res_list)
@@ -314,6 +319,9 @@ function! tsuquyomi#complete(findstart, base)
                 \ || !g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] == a:base
                 \ || g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] ==# a:base
             let l:item = {'word': info.name, 'menu': info.kind }
+            if has_info
+                let l:item.info = siginfo
+            endif
             if !g:tsuquyomi_completion_detail
               call complete_add(l:item)
             else
@@ -329,9 +337,6 @@ function! tsuquyomi#complete(findstart, base)
           let idx = 0
           for menu in menus
             let items[idx].menu = menu
-            if has_info
-              let items[idx].info = siginfo
-            endif
             call complete_add(items[idx])
             let idx = idx + 1
           endfor
