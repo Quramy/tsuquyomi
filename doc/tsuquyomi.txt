@@ -279,6 +279,11 @@ g:tsuquyomi_completion_preview		(default 0)
 		and "preview".
 		NOTE: If it's set, completions gets a little slow.
 
+					*g:tsuquyomi_completion_sort*
+g:tsuquyomi_completion_sort		(default 0)
+		Whether to sort completion entries by TypeScript's "sortText"
+		property
+
 						*g:tsuquyomi_disable_default_mappings*
 g:tsuquyomi_disable_default_mappings	(default 0)
 		If set no keys are mapped.
