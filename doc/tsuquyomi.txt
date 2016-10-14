@@ -299,6 +299,12 @@ g:tsuquyomi_single_quote_import		(default 0)
 		If set, Tsuquyomi generates import block using single quotes
 		instead of double quotes when |:TsuquyomiImport|.
 
+						*g:tsuquyomi_javascript_support*
+g:tsuquyomi_javascript_support	(default 0)
+		If set, Tsuquyomi will also be enabled for JavaScript files.
+		You can further configure tsserver's behavior using
+		tsconfig.json or jsconfig.json in your project.
+
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
 
