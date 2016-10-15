@@ -311,12 +311,8 @@ function! tsuquyomi#complete(findstart, base)
     let l:alpha_sorted_res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
     call tsuquyomi#perfLogger#record('after_tsCompletions')
 
-    if g:tsuquyomi_completion_sort
-      " Sort the result list according to how TypeScript suggests entries to be sorted
-      let l:res_list = sort(copy(l:alpha_sorted_res_list), 's:sortTextComparator')
-    else
-      let l:res_list = l:alpha_sorted_res_list
-    endif
+    " Sort the result list according to how TypeScript suggests entries to be sorted
+    let l:res_list = sort(copy(l:alpha_sorted_res_list), 's:sortTextComparator')
 
     let enable_menu = stridx(&completeopt, 'menu') != -1
     let length = strlen(a:base)
