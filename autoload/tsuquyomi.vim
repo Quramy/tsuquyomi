@@ -311,7 +311,8 @@ function! tsuquyomi#complete(findstart, base)
     let l:alpha_sorted_res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
     call tsuquyomi#perfLogger#record('after_tsCompletions')
 
-    if &filetype == 'javascript'
+    let is_javascript = (&filetype == 'javascript')
+    if is_javascript
       " Sort the result list according to how TypeScript suggests entries to be sorted
       let l:res_list = sort(copy(l:alpha_sorted_res_list), 's:sortTextComparator')
     else
@@ -343,7 +344,7 @@ function! tsuquyomi#complete(findstart, base)
             if has_info
               let l:item.info = siginfo
             endif
-            if &filetype == 'javascript' && info.kind == 'warning'
+            if is_javascript && info.kind == 'warning'
               let l:item.menu = '' " Make display cleaner by not showing 'warning' as the type
             endif
             if !g:tsuquyomi_completion_detail
@@ -353,7 +354,7 @@ function! tsuquyomi#complete(findstart, base)
               " fetch details. Or in the case of JavaScript, avoid adding to
               " entries list if ScriptElementKind is 'warning'. Because those
               " entries are just random identifiers that occur in the file.
-              if &filetype != 'javascript' || info.kind != 'warning'
+              if !is_javascript || info.kind != 'warning'
                 call add(entries, info.name)
               endif
               call add(items, l:item)
