@@ -341,12 +341,21 @@ function! tsuquyomi#complete(findstart, base)
                 \ || g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] ==# a:base
             let l:item = {'word': info.name, 'menu': info.kind }
             if has_info
-                let l:item.info = siginfo
+              let l:item.info = siginfo
+            endif
+            if &filetype == 'javascript' && info.kind == 'warning'
+              let l:item.menu = '' " Make display cleaner by not showing 'warning' as the type
             endif
             if !g:tsuquyomi_completion_detail
               call complete_add(l:item)
             else
-              call add(entries, info.name)
+              " if file is TypeScript, then always add to entries list to
+              " fetch details. Or in the case of JavaScript, avoid adding to
+              " entries list if ScriptElementKind is 'warning'. Because those
+              " entries are just random identifiers that occur in the file.
+              if &filetype != 'javascript' || info.kind != 'warning'
+                call add(entries, info.name)
+              endif
               call add(items, l:item)
             endif
           endif
@@ -360,6 +369,12 @@ function! tsuquyomi#complete(findstart, base)
             let items[idx].menu = menu
             call complete_add(items[idx])
             let idx = idx + 1
+          endfor
+          " For JavaScript completion, there are entries whose
+          " ScriptElementKind is 'warning'. tsserver won't have any details
+          " returned for them, but they still need to be added at the end.
+          for i in range(idx, len(items) - 1)
+            call complete_add(items[i])
           endfor
         endif
         if complete_check()
