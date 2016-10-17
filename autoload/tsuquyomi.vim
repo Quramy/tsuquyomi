@@ -271,6 +271,18 @@ function! tsuquyomi#makeCompleteInfo(file, line, offset)
   return [has_info, '']
 endfunction
 
+" Comparator comparing on TypeScript CompletionEntry's 'sortText' property
+" See https://github.com/Microsoft/TypeScript/blob/master/src/server/protocol.ts#L1483
+function! s:sortTextComparator(entry1, entry2)
+  if a:entry1.sortText < a:entry2.sortText
+    return -1
+  elseif a:entry1.sortText > a:entry2.sortText
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
 function! tsuquyomi#complete(findstart, base)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
@@ -295,8 +307,17 @@ function! tsuquyomi#complete(findstart, base)
     let l:file = expand('%:p')
     let l:res_dict = {'words': []}
     call tsuquyomi#perfLogger#record('before_tsCompletions')
-    let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
+    " By default the result list will be sorted by the 'name' properly alphabetically
+    let l:alpha_sorted_res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
     call tsuquyomi#perfLogger#record('after_tsCompletions')
+
+    if &filetype == 'javascript'
+      " Sort the result list according to how TypeScript suggests entries to be sorted
+      let l:res_list = sort(copy(l:alpha_sorted_res_list), 's:sortTextComparator')
+    else
+      let l:res_list = l:alpha_sorted_res_list
+    endif
+
     let enable_menu = stridx(&completeopt, 'menu') != -1
     let length = strlen(a:base)
     if enable_menu
