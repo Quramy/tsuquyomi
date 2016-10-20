@@ -15,14 +15,6 @@ Context Vesting.run()
     call tsuquyomi#tsClient#stopTss()
   End
 
-  It checks interface of responce of 'completions' command with writing source.
-    let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule_writing.ts')
-    call tsuquyomi#tsClient#tsOpen(file)
-    let res_list = tsuquyomi#tsClient#tsCompletions(file, 19, 9, 'say') 
-    Should len(res_list) > 1
-    call tsuquyomi#tsClient#stopTss()
-  End
-
   It checks interface of responce of 'completions' command with non-existing keyword.
     let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule.ts')
     call tsuquyomi#tsClient#tsOpen(file)
