@@ -54,6 +54,8 @@ let g:tsuquyomi_single_quote_import =
       \ get(g:, 'tsuquyomi_single_quote_import', 0)
 let g:tsuquyomi_javascript_support =
       \ get(g:, 'tsuquyomi_javascript_support', 0)
+let g:tsuquyomi_ignore_missing_modules =
+      \ get(g:, 'tsuquyomi_ignore_missing_modules', 0)
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group

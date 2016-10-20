@@ -495,6 +495,9 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
   for event_item in a:event_list
     if has_key(event_item, 'type') && event_item.type ==# 'event' && (event_item.event ==# 'syntaxDiag' || event_item.event ==# 'semanticDiag')
       for diagnostic in event_item.body.diagnostics
+        if diagnostic.text =~ "Cannot find module" && g:tsuquyomi_ignore_missing_modules == 1
+          continue
+        endif
         let item = {}
         let item.filename = event_item.body.file
         let item.lnum = diagnostic.start.line
