@@ -310,6 +310,17 @@ g:tsuquyomi_single_quote_import		(デフォルト値 0)
 		値をセットすると、|:TsuImport| 利用時にダブルクォートではなく
 		シングルクォートを使って import blockが生成される.
 
+						*g:tsuquyomi_javascript_support*
+g:tsuquyomi_javascript_support	(デフォルト値 0)
+		値をセットすると、JavaScriptファイルに対しても動作するようになる
+		tsconfig.jsonやjsconfig.jsonによる詳細設定が可能。
+
+						*g:tsuquyomi_ignore_missing_modules*
+g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
+		値をセットすると、"Cannot find module"で始まる
+		エラーメッセージを無視するようになる。
+		import対象の型定義ファイルが存在していないケースで有用。
+
 ------------------------------------------------------------------------------
 キーマッピング					*tsuquyomi-key-mappings*
 
