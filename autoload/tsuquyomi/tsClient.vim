@@ -112,7 +112,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
       let l:res_list = split(l:tmp2, '\n\+')
       for res_item in l:res_list
         " ignore 2nd response of reload command #62
-        if res_item !~'{"reloadFinished":true}}$'
+        if (res_item !~'{"reloadFinished":true}}$') && (res_item !~'"type":"event","event":"configFileDiag"')
           call add(response_list, res_item)
         endif
       endfor
@@ -135,7 +135,7 @@ endfunction
 function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
   call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
-  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.0001, 100, 1)
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.0001, 1000, 1)
   call tsuquyomi#perfLogger#record('afterCmd:'.a:cmd)
   let l:length = len(l:stdout_list)
   if l:length == 1
