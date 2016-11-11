@@ -588,6 +588,10 @@ function! tsuquyomi#balloonexpr()
   call s:flush()
   let res = tsuquyomi#tsClient#tsQuickinfo(fnamemodify(buffer_name(v:beval_bufnr),":p"), v:beval_lnum, v:beval_col)
   if has_key(res, 'displayString')
+    if (has_key(res, 'documentation') && res.documentation != '')
+      return join([res.documentation, res.displayString], "\n\n")
+    endif
+
     return res.displayString
   endif
 endfunction
@@ -596,6 +600,10 @@ function! tsuquyomi#hint()
   call s:flush()
   let res = tsuquyomi#tsClient#tsQuickinfo(expand('%:p'), line('.'), col('.'))
   if has_key(res, 'displayString')
+    if (has_key(res, 'documentation') && res.documentation != '')
+      return join([res.documentation, res.displayString], "\n\n")
+    endif
+
     return res.displayString
   else
     return '[Tsuquyomi] There is no hint at the cursor.'
