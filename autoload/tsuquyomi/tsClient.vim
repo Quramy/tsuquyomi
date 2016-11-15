@@ -22,6 +22,12 @@ let s:tsq = 'tsuquyomiTSServer'
 
 let s:request_seq = 0
 
+let s:ignore_respons_conditions = []
+" ignore 2nd response of reload command. See also #62
+call add(s:ignore_respons_conditions, '{"reloadFinished":true}}$')
+" ignore events configFileDiag triggered by reload event. See also #99
+call add(s:ignore_respons_conditions, '"type":"event","event":"configFileDiag"')
+
 " ### Utilites {{{
 function! s:error(msg)
   echoerr (a:msg)
@@ -111,8 +117,14 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
       let l:res_list = split(l:tmp2, '\n\+')
       for res_item in l:res_list
-        " ignore 2nd response of reload command #62
-        if (res_item !~'{"reloadFinished":true}}$') && (res_item !~'"type":"event","event":"configFileDiag"')
+        let l:check = 0
+        for ignore_reg in s:ignore_respons_conditions
+          let l:check = l:check || (res_item =~ ignore_reg)
+          if l:check
+            break
+          endif
+        endfor
+        if !l:check
           call add(response_list, res_item)
         endif
       endfor
