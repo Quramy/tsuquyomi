@@ -505,6 +505,9 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
           let item.col = diagnostic.start.offset
         endif
         let item.text = diagnostic.text
+        if has_key(diagnostic, 'code')
+          let item.text = 'error TS'.diagnostic.code.': '.item.text
+        endif
         let item.type = 'E'
         call add(quickfix_list, item)
       endfor
