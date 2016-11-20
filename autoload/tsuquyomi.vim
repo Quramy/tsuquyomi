@@ -869,6 +869,23 @@ endfunction
 
 " #### Navto }}}
 
+" #### CodeFixes {{{
+
+function! tsuquyomi#getSupportedCodeFixes()
+  if !tsuquyomi#config#isHigher(210)
+    echom '[Tsuquyomi] This feature requires TypeScript@2.1.0 or higher'
+    return
+  endif
+  let codes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+  if !len(codes)
+    echom '[Tsuquyomi] There is no supported code fixes'
+    return
+  endif
+  echo '[Tsuquyomi] Supported code fixes: '.join(codes, ', ')
+endfunction
+
+"#### CodeFixes }}}
+
 " ### Public functions }}}
 
 let &cpo = s:save_cpo

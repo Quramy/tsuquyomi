@@ -51,6 +51,8 @@ command! -buffer TsuquyomiRenameSymbolS  :call tsuquyomi#renameSymbolWithStrings
 command! -buffer TsuRenameSymbolS        :call tsuquyomi#renameSymbolWithStrings()
 command! -buffer TsuquyomiRenameSymbolCS :call tsuquyomi#renameSymbolWithCommentsStrings()
 command! -buffer TsuRenameSymbolCS       :call tsuquyomi#renameSymbolWithCommentsStrings()
+command! -buffer TsuquyomiGetSupportedCodeFixes :call tsuquyomi#getSupportedCodeFixes()
+command! -buffer TsuGetSupportedCodeFixes :call tsuquyomi#getSupportedCodeFixes()
 
 command! -buffer TsuquyomiImport         :call tsuquyomi#es6import#complete()
 command! -buffer TsuImport               :call tsuquyomi#es6import#complete()
