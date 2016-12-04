@@ -83,6 +83,10 @@ function! tsuquyomi#es6import#checkExternalModule(name, file, no_use_cache)
   return l:cache[a:file][a:name]
 endfunction
 
+if !exists("g:tsuquyomi_shortest_import_path")
+  let g:tsuquyomi_shortest_import_path = 0
+endif
+
 function! tsuquyomi#es6import#createImportBlock(text)
   let l:identifier = a:text
   if !s:is_valid_identifier(l:identifier)
@@ -112,15 +116,111 @@ function! tsuquyomi#es6import#createImportBlock(text)
       endif
       let l:relative_path = substitute(l:relative_path, '\.d\.ts$', '', '')
       let l:relative_path = substitute(l:relative_path, '\.ts$', '', '')
+      if g:tsuquyomi_shortest_import_path == 1
+        let l:path = s:getShortestImportPath(l:to, l:identifier, l:relative_path)
+      else
+        let l:path = l:relative_path
+      endif
       let l:importDict = {
             \ 'identifier': nav.name,
-            \ 'path': l:relative_path,
+            \ 'path': l:path,
             \ 'nav': nav
             \ }
       call add(l:result_list, l:importDict)
     endif
   endfor
   return l:result_list
+endfunction
+
+function! s:getShortestImportPath(absolute_path, module_identifier, relative_path)
+  let l:splitted_relative_path = split(a:relative_path, '/')
+  if l:splitted_relative_path[0] == '..'
+    let l:paths_to_visit = substitute(a:relative_path, '\.\.\/', '', 'g')
+    let l:path_moves_to_do = len(split(l:paths_to_visit, '/'))
+  else
+    let l:path_moves_to_do = len(l:splitted_relative_path) - 1
+  endif
+  let l:shortened_path = l:splitted_relative_path[len(l:splitted_relative_path) - 1]
+  let l:path_move_count = 0
+  let l:splitted_absolute_path = split(a:absolute_path, '/')
+  while l:path_move_count != l:path_moves_to_do
+    let l:splitted_absolute_path = l:splitted_absolute_path[0:len(splitted_absolute_path) - 2]
+    let l:shortened_path = s:getShortenedPath(l:splitted_absolute_path, l:shortened_path, a:module_identifier)
+    let l:path_move_count += 1
+  endwhile
+    let l:shortened_path = substitute(l:shortened_path, '\[\/\]\*\[\index\]\*', '', 'g')
+    if l:splitted_relative_path[0] == '.'
+      return './' . s:getPathWithSkippedRoot(l:shortened_path)
+    elseif l:splitted_relative_path[0] == '..'
+      let l:count = 0
+      let l:current = '..'
+      let l:prefix = ''
+      while l:current == '..' || l:count == len(l:splitted_relative_path) - 1
+        let l:current = l:splitted_relative_path[l:count]
+        if l:current == '..'
+          let l:prefix = l:prefix . l:current . '/'
+        endif
+        let l:count += 1
+      endwhile
+      return l:prefix . s:getPathWithSkippedRoot(l:shortened_path)
+    endif
+    return l:shortened_path
+endfunction
+
+function! s:getPathWithSkippedRoot(path)
+  return join(split(a:path, '/')[1:len(a:path) -1], '/')
+endfunction
+
+function! s:getShortenedPath(splitted_absolute_path, previous_shortened_path, module_identifier)
+  let l:shortened_path = a:previous_shortened_path
+  let l:absolute_path_to_search_in = '/' . join(a:splitted_absolute_path, '/') . '/'
+  let l:found_module_reference = s:findExportingFileForModule(a:module_identifier, l:shortened_path, l:absolute_path_to_search_in)
+  let l:current_directory_name = a:splitted_absolute_path[len(a:splitted_absolute_path) -1]
+  let l:path_separator = '/'
+  while l:found_module_reference != ''
+    if l:found_module_reference == 'index'
+      let l:found_module_reference = '[index]*'
+      let l:path_separator = '[/]*'
+    else 
+      let l:path_separator = '/'
+    endif
+    let l:shortened_path = l:found_module_reference
+    let l:found_module_reference = s:findExportingFileForModule(a:module_identifier, l:found_module_reference, l:absolute_path_to_search_in)
+    if l:found_module_reference != ''
+      let l:shortened_path = l:found_module_reference
+    endif
+  endwhile
+  return l:current_directory_name . l:path_separator . l:shortened_path
+endfunction
+
+function! s:findExportingFileForModule(module, current_module_file, module_directory_path)
+  execute 
+        \"silent! noautocmd vimgrep /export\\s*\\({.*\\(\\s\\|,\\)"
+        \. a:module 
+        \."\\(\\s\\|,\\)*.*}\\|\\*\\)\\s\\+from\\s\\+\\(\\'\\|\\\"\\)\\.\\\/"
+        \. substitute(a:current_module_file, '\/', '\\/', '') 
+        \."[\\/]*\\(\\'\\|\\\"\\)[;]*/j "
+        \. a:module_directory_path 
+        \. "*.ts"
+  redir => l:grep_result
+  silent! clist
+  redir END
+  if l:grep_result =~ 'No Errors'
+    return ''
+  endif
+  let l:raw_result = split(l:grep_result, ' ')[2]
+  let l:raw_result = split(l:raw_result, ':')[0]
+  let l:raw_result = split(l:raw_result, '/')
+  let l:extracted_file_name = l:raw_result[len(l:raw_result) -1 ]
+  let l:extracted_file_name = substitute(l:extracted_file_name, '\.d\.ts$', '', '')
+  let l:extracted_file_name = substitute(l:extracted_file_name, '\.ts$', '', '')
+  return l:extracted_file_name
+endfunction
+
+function! s:substitute_typescript_extension(path)
+  let l:result = substitute(l:plop, '\.d\.ts$', '', '')
+  let l:result = substitute(l:plop, '\.ts$', '', '')
+  return l:result
 endfunction
 
 function! s:comp_alias(alias1, alias2)
@@ -145,8 +245,8 @@ function! tsuquyomi#es6import#createImportPosition(nav_bar_list)
       let l:end_line = l:start_line
     endif
   elseif len(a:nav_bar_list) > 1
-      let l:start_line = a:nav_bar_list[0].spans[0].start.line
-      let l:end_line = a:nav_bar_list[1].spans[0].start.line - 1
+    let l:start_line = a:nav_bar_list[0].spans[0].start.line
+    let l:end_line = a:nav_bar_list[1].spans[0].start.line - 1
   endif
   return { 'start': { 'line': l:start_line }, 'end': { 'line': l:end_line } }
 endfunction
