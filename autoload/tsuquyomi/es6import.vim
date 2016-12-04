@@ -217,12 +217,6 @@ function! s:findExportingFileForModule(module, current_module_file, module_direc
   return l:extracted_file_name
 endfunction
 
-function! s:substitute_typescript_extension(path)
-  let l:result = substitute(l:plop, '\.d\.ts$', '', '')
-  let l:result = substitute(l:plop, '\.ts$', '', '')
-  return l:result
-endfunction
-
 function! s:comp_alias(alias1, alias2)
   return a:alias2.spans[0].end.line - a:alias1.spans[0].end.line
 endfunction
