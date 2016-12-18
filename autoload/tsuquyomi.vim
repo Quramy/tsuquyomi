@@ -311,7 +311,7 @@ function! tsuquyomi#complete(findstart, base)
     let l:alpha_sorted_res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
     call tsuquyomi#perfLogger#record('after_tsCompletions')
 
-    let is_javascript = (&filetype == 'javascript')
+    let is_javascript = (&filetype == 'javascript') || (&filetype == 'jsx') || (&filetype == 'javascript.jsx')
     if is_javascript
       " Sort the result list according to how TypeScript suggests entries to be sorted
       let l:res_list = sort(copy(l:alpha_sorted_res_list), 's:sortTextComparator')
