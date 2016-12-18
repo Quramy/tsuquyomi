@@ -83,10 +83,6 @@ function! tsuquyomi#es6import#checkExternalModule(name, file, no_use_cache)
   return l:cache[a:file][a:name]
 endfunction
 
-if !exists("g:tsuquyomi_shortest_import_path")
-  let g:tsuquyomi_shortest_import_path = 0
-endif
-
 function! tsuquyomi#es6import#createImportBlock(text)
   let l:identifier = a:text
   if !s:is_valid_identifier(l:identifier)
