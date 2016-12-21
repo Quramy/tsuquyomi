@@ -401,7 +401,7 @@ function! tsuquyomi#es6import#complete()
     let l:target_import = l:same_path_import_list[0]
     if l:target_import.is_oneliner
       let l:line = getline(l:target_import.brace.end.line)
-      let l:expression = l:line[0:l:target_import.brace.end.offset - 2].', '.l:block.identifier.' '.l:line[l:target_import.brace.end.offset - 1: -1]
+      let l:expression = l:line[0:l:target_import.brace.end.offset - 3].', '.l:block.identifier.' '.l:line[l:target_import.brace.end.offset - 1: -1]
       call setline(l:target_import.brace.end.line, l:expression)
     else
       let l:before_line = getline(l:target_import.brace.end.line - 1)
