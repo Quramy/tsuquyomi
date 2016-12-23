@@ -270,12 +270,12 @@ readFile('hoge', 'utf-8', (err, content) => {
 });
 ```
 
-This command has the following limitation:
+To allow Tsuquyomi to import the shortest path instead of the complete one (where the initial module declaration is) one, put this in your .vimrc:
+```
+let g:tsuquyomi_shortest_import_path = 1
+```
 
-* This command searches aliases from only files already opened or referenced
-* This command searches aliases which are exported explicitly.
-
-In other words, if your project has the following 2 files, `import { foo } from './lib';` is a valid declaration, but Tsuquyomi can create only `import { foo } from './lib/foo';`.
+For example, if your project has the following 2 files, the plugin will use: `import { foo } from './lib';` instead of: `import { foo } from './lib/foo';`.
 
 ```ts
 /* lib/index.ts */
