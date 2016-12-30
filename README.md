@@ -128,13 +128,13 @@ Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location w
 Alternatively, call the Ex command `:TsuReferences`.
 
 #### Keyword search
-Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project. Alternatively call the Ex command `:TsuGeterr`.
+Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
 
 #### Disable default mappings
 If you do not want to use the above key mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
 
 ### Show compile errors
-When a buffer is saved, Tsuquyomi checks syntax and semantics.
+When a buffer is saved, Tsuquyomi checks syntax and semantics. Alternatively call the Ex command `:TsuGeterr`.
 And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
 
 If your use TypeScript v1.6.0 or later, you can use `:TsuGeterrProject` command.
