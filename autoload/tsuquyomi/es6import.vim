@@ -206,8 +206,8 @@ function! s:findExportingFileForModule(module, current_module_file, module_direc
   endif
   let l:raw_result = split(l:grep_result, ' ')[2]
   let l:raw_result = split(l:raw_result, ':')[0]
-  let l:raw_result = split(l:raw_result, '/')
-  let l:extracted_file_name = l:raw_result[len(l:raw_result) -1 ]
+  let l:raw_result_parts = split(l:raw_result, '/')
+  let l:extracted_file_name = l:raw_result_parts[len(l:raw_result_parts) -1 ]
   let l:extracted_file_name = substitute(l:extracted_file_name, '\.d\.ts$', '', '')
   let l:extracted_file_name = substitute(l:extracted_file_name, '\.ts$', '', '')
   return l:extracted_file_name
