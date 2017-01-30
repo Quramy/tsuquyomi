@@ -391,10 +391,16 @@ function! tsuquyomi#es6import#complete()
 
   "Add import declaration
   if !len(l:same_path_import_list)
+	if g:tsuquyomi_import_curly_spacing == 0
+	  let l:curly_spacing = ''
+	else
+	  let l:curly_spacing = ' '
+	end
+
     if g:tsuquyomi_single_quote_import
-      let l:expression = "import { ".l:block.identifier." } from '".l:block.path."';"
+      let l:expression = "import {".l:curly_spacing.l:block.identifier.l:curly_spacing."} from '".l:block.path."';"
     else
-      let l:expression = 'import { '.l:block.identifier.' } from "'.l:block.path.'";'
+      let l:expression = 'import {'.l:curly_spacing.l:block.identifier.l:curly_spacing.'} from "'.l:block.path.'";'
     endif
     call append(l:module_end_line, l:expression)
   else
