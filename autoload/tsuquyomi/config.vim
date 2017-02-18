@@ -110,6 +110,7 @@ function! tsuquyomi#config#getVersion()
     return s:tss_version
   endif
   let l:cmd = substitute(tsuquyomi#config#tsscmd(), 'tsserver', 'tsc', '')
+  let l:cmd = substitute(l:cmd, "\\", "/", "g")
   let out = s:Process.system(l:cmd.' --version')
   let pattern = '\vVersion\s+(\d+)\.(\d+)\.(\d+)-?([^\.\n\s]*)'
   let matched = matchlist(out, pattern)
