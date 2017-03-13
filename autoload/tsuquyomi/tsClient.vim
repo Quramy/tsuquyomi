@@ -27,6 +27,7 @@ let s:ignore_respons_conditions = []
 call add(s:ignore_respons_conditions, '{"reloadFinished":true}}$')
 " ignore events configFileDiag triggered by reload event. See also #99
 call add(s:ignore_respons_conditions, '"type":"event","event":"configFileDiag"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"requestCompleted"')
 
 " ### Utilites {{{
 function! s:error(msg)
