@@ -1,6 +1,5 @@
-# Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi)
+# Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/tsuquyomi.svg)](https://greenkeeper.io/)
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/tsuquyomi.svg)](https://greenkeeper.io/)
 
 Make your Vim a TypeScript IDE.
 
