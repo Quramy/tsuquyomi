@@ -110,8 +110,7 @@ function! tsuquyomi#es6import#createImportBlock(text)
       if !l:result
         return []
       endif
-      let l:relative_path = substitute(l:relative_path, '\.d\.ts$', '', '')
-      let l:relative_path = substitute(l:relative_path, '\.ts$', '', '')
+      let l:relative_path = s:removeTSExtensions(l:relative_path)
       if g:tsuquyomi_shortest_import_path == 1
         let l:path = s:getShortestImportPath(l:to, l:identifier, l:relative_path)
       else
@@ -126,6 +125,14 @@ function! tsuquyomi#es6import#createImportBlock(text)
     endif
   endfor
   return l:result_list
+endfunction
+
+function! s:removeTSExtensions(path)
+  let l:path = a:path
+  let l:path = substitute(l:path, '\.d\.ts$', '', '')
+  let l:path = substitute(l:path, '\.ts$', '', '')
+  let l:path = substitute(l:path, '\.tsx$', '', '')
+  return l:path
 endfunction
 
 function! s:getShortestImportPath(absolute_path, module_identifier, relative_path)
@@ -208,8 +215,7 @@ function! s:findExportingFileForModule(module, current_module_file, module_direc
   let l:raw_result = split(l:raw_result, ':')[0]
   let l:raw_result_parts = split(l:raw_result, '/')
   let l:extracted_file_name = l:raw_result_parts[len(l:raw_result_parts) -1 ]
-  let l:extracted_file_name = substitute(l:extracted_file_name, '\.d\.ts$', '', '')
-  let l:extracted_file_name = substitute(l:extracted_file_name, '\.ts$', '', '')
+  let l:extracted_file_name = s:removeTSExtensions(l:extracted_file_name)
   return l:extracted_file_name
 endfunction
 
