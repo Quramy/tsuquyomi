@@ -27,7 +27,7 @@ function! tsuquyomi#config#preconfig()
       " 1. vimproc or vim8 installation check
       let g:tsuquyomi_is_available = 0
       call s:deleteCommand()
-	  echom '[Tsuquyomi] Shougo/vimproc.vim or vim8 is not installed. Please install it.'
+      echom '[Tsuquyomi] Shougo/vimproc.vim or vim8 is not installed. Please install it.'
       return 0
     else
       " 2. tsserver installation check
