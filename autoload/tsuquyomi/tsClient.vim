@@ -74,7 +74,7 @@ function! s:startTssVim8()
   if type(s:tsq['job']) == 8 && job_info(s:tsq['job']).status == 'run'
     return 'existing'
   endif
-  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g')
+  let l:cmd = substitute(substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g'), '"', '', 'g')
   try
     let s:tsq['job'] = job_start(l:cmd)
     let s:tsq['channel'] = job_getchannel(s:tsq['job'])
