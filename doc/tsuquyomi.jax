@@ -52,6 +52,7 @@ tsuquyomi は以下の機能を提供します.
 tsuquyomiのインストールには下記が必要です.
 * Vim (v.7.4.0 or later)
 * Shougo/vimproc.vim (https://github.com/Shougo/vimproc.vim)
+  (vim8 もしくはそれ以降をお使いならば必要ありません)
 * Node.js and TypeScript (v.1.5.0 or later)
 
 最初に, |vimproc|が未インストールであれば, インストールしてください.
@@ -94,7 +95,7 @@ Prompt:
 						*:TsuquyomiStartServer*
 						*:TsuStartServer*
 :TsuquyomiStartServer
-		|vimproc| を利用してTSServerのプロセスを起動します.
+		TSServerのプロセスを起動します.
 		すでにプロセスが起動している場合は何もしません.
 
 						*:TsuquyomiStopServer*

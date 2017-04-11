@@ -15,10 +15,17 @@ endif
 let s:script_dir = expand('<sfile>:p:h')
 
 let s:V = vital#of('tsuquyomi')
-let s:P = s:V.import('ProcessManager')
 let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
-let s:tsq = 'tsuquyomiTSServer'
+
+let s:is_vim8 = has('patch-8.0.1')
+
+if !s:is_vim8
+  let s:P = s:V.import('ProcessManager')
+  let s:tsq = 'tsuquyomiTSServer'
+else
+  let s:tsq = {'job':0}
+endif
 
 let s:request_seq = 0
 
@@ -34,10 +41,6 @@ function! s:error(msg)
   echoerr (a:msg)
 endfunction
 
-function! s:waitTss(sec)
-  call s:P.read_wait(s:tsq, a:sec, [])
-endfunction
-
 function! s:debugLog(msg)
   if g:tsuquyomi_debug
     echom a:msg
@@ -49,7 +52,7 @@ endfunction
 " ### Core Functions {{{
 "
 " If not exsiting process of TSServer, create it.
-function! tsuquyomi#tsClient#startTss()
+function! s:startTssVimproc()
   if s:P.state(s:tsq) == 'existing'
     return 'existing'
   endif
@@ -67,17 +70,57 @@ function! tsuquyomi#tsClient#startTss()
   return l:is_new
 endfunction
 
+function! s:startTssVim8()
+  if type(s:tsq['job']) == 8 && job_info(s:tsq['job']).status == 'run'
+    return 'existing'
+  endif
+  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g')
+  try
+    let s:tsq['job'] = job_start(l:cmd)
+    let s:tsq['channel'] = job_getchannel(s:tsq['job'])
+
+    let out =  ch_readraw(s:tsq['channel'])
+    let st = tsuquyomi#tsClient#statusTss()
+    if !g:tsuquyomi_tsserver_debug
+      if err != ''
+        call s:error('Fail to start TSServer... '.err)
+        return 0
+      endif
+    endif
+  catch
+    return 0
+  endtry
+  return 1
+endfunction
+
+function! tsuquyomi#tsClient#startTss()
+  if !s:is_vim8
+    return s:startTssVimproc()
+  else
+    return s:startTssVim8()
+  endif
+endfunction
+
 "
 "Terminate TSServer process if it exsits.
 function! tsuquyomi#tsClient#stopTss()
   if tsuquyomi#tsClient#statusTss() != 'undefined'
-    let l:res = s:P.term(s:tsq)
-    return l:res
+    if !s:is_vim8
+      let l:res = s:P.term(s:tsq)
+      return l:res
+    else
+      let l:res = job_stop(s:tsq['job'])
+      return l:res
+    endif
   endif
 endfunction
 
 function! tsuquyomi#tsClient#statusTss()
-  return s:P.state(s:tsq)
+  if !s:is_vim8
+    return s:P.state(s:tsq)
+  else
+    return job_info(s:tsq['job']).status
+  endif
 endfunction
 
 "
@@ -91,28 +134,36 @@ endfunction
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
   "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
-  call s:P.writeln(s:tsq, a:line)
+  if !s:is_vim8
+    call s:P.writeln(s:tsq, a:line)
+  else
+    call ch_sendraw(s:tsq['channel'], a:line."\n")
+  endif
 
   let l:retry = 0
   let response_list = []
 
   while len(response_list) < a:response_length
-    let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
-    call s:debugLog('out: '.out.', type:'.type)
-    if type == 'timedout'
-      let retry_delay = 0.05
-      while l:retry < a:retry_count
-        let [out, err, type] = s:P.read_wait(s:tsq, retry_delay, ['Content-Length: \d\+'])
-        if type == 'matched'
-          call tsuquyomi#perfLogger#record('tssMatched')
-          "call s:debugLog('retry: '.l:retry.', length: '.len(response_list))
-          break
-        endif
-        let l:retry = l:retry + 1
-        call tsuquyomi#perfLogger#record('tssRetry:'.l:retry)
-      endwhile
+    if !s:is_vim8
+      let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
+      call s:debugLog('out: '.out.', type:'.type)
+      if type == 'timedout'
+        let retry_delay = 0.05
+        while l:retry < a:retry_count
+          let [out, err, type] = s:P.read_wait(s:tsq, retry_delay, ['Content-Length: \d\+'])
+          if type == 'matched'
+            call tsuquyomi#perfLogger#record('tssMatched')
+            "call s:debugLog('retry: '.l:retry.', length: '.len(response_list))
+            break
+          endif
+          let l:retry = l:retry + 1
+          call tsuquyomi#perfLogger#record('tssRetry:'.l:retry)
+        endwhile
+      endif
+    else
+      let out = ch_readraw(s:tsq['channel'])
+      let type = 'matched'
     endif
-
     if type == 'matched'
       let l:tmp1 = substitute(out, 'Content-Length: \d\+', '', 'g')
       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')

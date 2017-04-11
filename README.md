@@ -29,7 +29,7 @@ Tsuquyomi does not provide syntax-highlight nor indentation. You can use the fol
 Tsuquyomi requires the following:
 
 + [Vim](http://www.vim.org/) (v7.4.0 or later)
-+ [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
++ [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim) (Not required if you use vim8 or later)
 + [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (v1.5.3 or later)
 
 ### Install TypeScript
