@@ -79,7 +79,11 @@ function! tsuquyomi#config#tsscmd()
     if l:prj_dir !=# ''
       let l:searched_tsserver_path = s:Filepath.join(l:prj_dir, 'node_modules/typescript/bin/tsserver')
       if filereadable(l:searched_tsserver_path)
-        return g:tsuquyomi_nodejs_path.' "'.l:searched_tsserver_path.'"'
+        if !s:is_vim8
+          return g:tsuquyomi_nodejs_path.' "'.l:searched_tsserver_path.'"'
+        else
+          return g:tsuquyomi_nodejs_path.' '.l:searched_tsserver_path
+        endif
       endif
     endif
   endif
@@ -108,7 +112,11 @@ function! tsuquyomi#config#tsscmd()
       echom '[Tsuquyomi] tsserver.js does not exist. Try "npm install"., '.l:path
       return ''
     endif
-    let l:cmd = g:tsuquyomi_nodejs_path.' "'.l:path.'"'
+    if !s:is_vim8
+      let l:cmd = g:tsuquyomi_nodejs_path.' "'.l:path.'"'
+    else
+      let l:cmd = g:tsuquyomi_nodejs_path.' '.l:path
+    endif
   endif
   return l:cmd
 endfunction
