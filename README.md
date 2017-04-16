@@ -23,14 +23,13 @@ Tsuquyomi does not provide syntax-highlight nor indentation. You can use the fol
 * [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
 * [Quramy/vim-dtsm](https://github.com/Quramy/vim-dtsm) provides `.d.ts` management for [dtsm](with [https://github.com/vvakame/dtsm) users.
 * [mhartington/vim-typings](https://github.com/mhartington/vim-typings) provides `.d.ts` management for [typings](https://github.com/typings/typings) users.
-* [Quramy/ng-tsserver](https://github.com/Quramy/ng-tsserver) provides completion and semantic error checking for Angular Components' template.
 
 ## How to install
 Tsuquyomi requires the following:
 
-+ [Vim](http://www.vim.org/) (v7.4.0 or later)
++ [Vim](http://www.vim.org/) (vim7.4 or later)
++ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript)
 + [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim) (Not required if you use vim8 or later)
-+ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (v1.5.3 or later)
 
 ### Install TypeScript
 
