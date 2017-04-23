@@ -389,14 +389,14 @@ function! tsuquyomi#es6import#complete()
   let l:new_line = l:new_line.l:line[l:identifier_info.end.offset: -1]
   call setline(l:identifier_info.start.line, l:new_line)
 
+  if g:tsuquyomi_import_curly_spacing == 0
+    let l:curly_spacing = ''
+  else
+    let l:curly_spacing = ' '
+  end
+
   "Add import declaration
   if !len(l:same_path_import_list)
-	if g:tsuquyomi_import_curly_spacing == 0
-	  let l:curly_spacing = ''
-	else
-	  let l:curly_spacing = ' '
-	end
-
     if g:tsuquyomi_single_quote_import
       let l:expression = "import {".l:curly_spacing.l:block.identifier.l:curly_spacing."} from '".l:block.path."';"
     else
@@ -407,7 +407,8 @@ function! tsuquyomi#es6import#complete()
     let l:target_import = l:same_path_import_list[0]
     if l:target_import.is_oneliner
       let l:line = getline(l:target_import.brace.end.line)
-      let l:expression = l:line[0:l:target_import.brace.end.offset - 3].', '.l:block.identifier.' '.l:line[l:target_import.brace.end.offset - 1: -1]
+      let l:injection_position = target_import.brace.end.offset - 2 - strlen(l:curly_spacing)
+      let l:expression = l:line[0:l:injection_position].', '.l:block.identifier.l:curly_spacing.l:line[l:target_import.brace.end.offset - 1: -1]
       call setline(l:target_import.brace.end.line, l:expression)
     else
       let l:before_line = getline(l:target_import.brace.end.line - 1)
