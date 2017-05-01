@@ -507,6 +507,7 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
         let item.text = diagnostic.text
         if has_key(diagnostic, 'code')
           let item.text = 'error TS'.diagnostic.code.': '.item.text
+          let item.code = diagnostic.code
         endif
         let item.type = 'E'
         call add(quickfix_list, item)
@@ -870,20 +871,122 @@ endfunction
 " #### Navto }}}
 
 " #### CodeFixes {{{
+let s:supportedCodeFixes = []
+
+function! s:sortQfItemByColdiff(a, b)
+  if a.coldiff < b.coldiff
+    return -1
+  endif
+  if a.coldiff == b.coldiff
+    return 0
+  endif
+  if a.coldiff > b.coldiff
+    return 1
+  endif
+endfunction
 
 function! tsuquyomi#getSupportedCodeFixes()
+  if !tsuquyomi#config#isHigher(210)
+    return []
+  endif
+  if len(s:supportedCodeFixes)
+    return s:supportedCodeFixes
+  endif
+  let s:supportedCodeFixes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+  return s:supportedCodeFixes
+endfunction
+
+function! tsuquyomi#quickFix()
   if !tsuquyomi#config#isHigher(210)
     echom '[Tsuquyomi] This feature requires TypeScript@2.1.0 or higher'
     return
   endif
-  let codes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
-  if !len(codes)
-    echom '[Tsuquyomi] There is no supported code fixes'
+  let l:file = expand('%:p')
+  let l:line = line('.')
+  let l:col = col('.')
+  let l:qfList = tsuquyomi#createFixlist()
+  call filter(l:qfList, 'v:val.lnum == l:line')
+  if !len(l:qfList)
+    echom '[Tsuquyomi] There is no error to fix'
     return
   endif
-  echo '[Tsuquyomi] Supported code fixes: '.join(codes, ', ')
+  if len(l:qfList) > 1
+    let l:temp = []
+    for qfItem in qfList
+      let qfItem.coldiff = abs(qfItem.col - l:col)
+      call add(l:temp, qfItem)
+    endfor
+    call sort(l:temp, function('s:sortQfItemByColdiff'))
+    let l:target = l:temp[0]
+  else
+    let l:target = l:qfList[0]
+  endif
+  let l:supportedCodes = tsuquyomi#getSupportedCodeFixes()
+  call filter(l:supportedCodes, 'v:val == l:target.code')
+  if !len(l:supportedCodes)
+    echom '[Tsuquyomi] '.l:target.code.' has no quick fixes...'
+    return
+  endif
+  let l:result_list = tsuquyomi#tsClient#tsGetCodeFixes(file, l:target.lnum, l:target.col, l:target.lnum, l:target.col, [l:target.code])
+  let s:available_qf_descriptions = map(copy(l:result_list), 'v:val.description')
+  let [description, isSelect] = tsuquyomi#selectQfDescription()
+  if !isSelect
+    return
+  endif
+  let l:changes = filter(l:result_list, 'v:val.description ==# description')[0].changes
+  call tsuquyomi#applyQfChanges(l:changes)
 endfunction
 
+function! tsuquyomi#applyQfChanges(changes)
+  for fileChange in a:changes
+    "TODO file
+    for textChange in fileChange.textChanges
+      let linesCountForReplacement = textChange.end.line - textChange.start.line + 1
+      let preSpan = strpart(getline(textChange.start.line), 0, textChange.start.offset - 1)
+      let postSpan = strpart(getline(textChange.end.line), textChange.end.offset - 1)
+      let repList = split(preSpan.textChange.newText.postSpan, '\n')
+      let l:count = textChange.start.line
+      for rLine in repList
+        if l:count <= textChange.end.line
+          call setline(l:count, rLine)
+        else
+          call append(l:count - 1, rLine)
+        endif
+        let l:count = l:count + 1
+      endfor
+    endfor
+  endfor
+endfunction
+
+s:available_qf_descriptions = []
+function! tsuquyomi#selectQfComplete(arg_lead, cmd_line, cursor_pos)
+  return join(s:available_qf_descriptions, "\n")
+endfunction
+
+function! tsuquyomi#selectQfDescription()
+  echohl String
+  if len(s:available_qf_descriptions) == 1
+    let l:yn = input('[Tsuquyomi] Apply: "'.s:available_qf_descriptions[0].'" [y/N]')
+    echohl none 
+    echo ' '
+    if l:yn =~ 'N'
+      return ['', 0]
+    else
+      return [s:available_qf_descriptions[0], 1]
+    endif
+  endif
+  let l:selected_desc = input('[Tsuquyomi] You can apply 2 more than quick fixes. Select one : ', '', 'custom,tsuquyomi#selectQfComplete')
+  echohl none 
+  echo ' '
+  if len(filter(copy(s:available_qf_descriptions), 'v:val==#l:selected_desc'))
+    return [l:selected_desc, 1]
+  else
+    echohl Error
+    echom '[Tsuquyomi] Invalid selection.'
+    echohl none
+    return ['', 0]
+  endif
+endfunction
 "#### CodeFixes }}}
 
 " ### Public functions }}}

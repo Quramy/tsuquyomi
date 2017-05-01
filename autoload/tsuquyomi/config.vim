@@ -189,6 +189,8 @@ function! tsuquyomi#config#createBufLocalCommand()
   command! -buffer TsuRenameSymbol         :call tsuquyomi#renameSymbol()
   command! -buffer TsuquyomiRenameSymbolC  :call tsuquyomi#renameSymbolWithComments()
   command! -buffer TsuRenameSymbolC        :call tsuquyomi#renameSymbolWithComments()
+  command! -buffer TsuquyomiQuickFix       :call tsuquyomi#quickFix()
+  command! -buffer TsuQuickFix             :call tsuquyomi#quickFix()
   
   " TODO These commands don't work correctly.
   command! -buffer TsuquyomiRenameSymbolS  :call tsuquyomi#renameSymbolWithStrings()
@@ -206,6 +208,7 @@ function! tsuquyomi#config#createBufLocalMap()
   noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)  :TsuquyomiRenameSymbolC <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiQuickFix)       :TsuquyomiQuickFix <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiImport)         :TsuquyomiImport <CR>
   
   " TODO These commands don't work correctly.

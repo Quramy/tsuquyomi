@@ -9,7 +9,7 @@ Context Vesting.run()
   It checks interface of responce of 'getSupportedCodeFixes' command.
     let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/codeFixTest.ts')
     call tsuquyomi#tsClient#tsOpen(file)
-    let result_list = tsuquyomi#tsClient#tsGetCodeFixes(file, 6, 5, 7, 6, [2377])
+    let result_list = tsuquyomi#tsClient#tsGetCodeFixes(file, 6, 5, 6, 5, [2377])
     " echo result_list
     Should len(result_list)
     Should has_key(result_list[0], 'changes')

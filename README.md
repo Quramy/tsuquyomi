@@ -140,6 +140,10 @@ And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
 If your use TypeScript v1.6.0 or later, you can use `:TsuGeterrProject` command.
 This command shows all compilation errors contained in your project to quickfix window.
 
+#### Quick fix
+If the cursor is on an error and TypeScript's LanguageService has a code fix for this error, call `:TsuQuickFix`.
+The code fix will be applied.
+
 #### Configure compile options
 Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
 
