@@ -492,6 +492,7 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
     return []
   endif
   let quickfix_list = []
+  let supportedCodes = tsuquyomi#getSupportedCodeFixes()
   for event_item in a:event_list
     if has_key(event_item, 'type') && event_item.type ==# 'event' && (event_item.event ==# 'syntaxDiag' || event_item.event ==# 'semanticDiag')
       for diagnostic in event_item.body.diagnostics
@@ -505,10 +506,14 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
           let item.col = diagnostic.start.offset
         endif
         let item.text = diagnostic.text
-        if has_key(diagnostic, 'code')
-          let item.text = 'error TS'.diagnostic.code.': '.item.text
-          let item.code = diagnostic.code
+        if !has_key(diagnostic, 'code')
+          continue
         endif
+        let item.code = diagnostic.code
+        let l:cfidx = index(supportedCodes, (diagnostic.code.''))
+        let l:qfmark = l:cfidx >= 0 ? '[QF available]' : ''
+        let item.text = diagnostic.code.l:qfmark.': '.item.text
+        let item.availableCodeFix = l:cfidx >= 0
         let item.type = 'E'
         call add(quickfix_list, item)
       endfor
