@@ -492,6 +492,7 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
     return []
   endif
   let quickfix_list = []
+  let supportedCodes = tsuquyomi#getSupportedCodeFixes()
   for event_item in a:event_list
     if has_key(event_item, 'type') && event_item.type ==# 'event' && (event_item.event ==# 'syntaxDiag' || event_item.event ==# 'semanticDiag')
       for diagnostic in event_item.body.diagnostics
@@ -505,6 +506,14 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
           let item.col = diagnostic.start.offset
         endif
         let item.text = diagnostic.text
+        if !has_key(diagnostic, 'code')
+          continue
+        endif
+        let item.code = diagnostic.code
+        let l:cfidx = index(supportedCodes, (diagnostic.code.''))
+        let l:qfmark = l:cfidx >= 0 ? '[QF available]' : ''
+        let item.text = diagnostic.code.l:qfmark.': '.item.text
+        let item.availableCodeFix = l:cfidx >= 0
         let item.type = 'E'
         call add(quickfix_list, item)
       endfor
@@ -865,6 +874,142 @@ function! tsuquyomi#navtoByLoclistExact(term)
 endfunction
 
 " #### Navto }}}
+
+" #### CodeFixes {{{
+
+function! s:sortQfItemByColdiff(a, b)
+  if a.coldiff < b.coldiff
+    return -1
+  endif
+  if a.coldiff == b.coldiff
+    return 0
+  endif
+  if a.coldiff > b.coldiff
+    return 1
+  endif
+endfunction
+
+let s:supportedCodeFixes = []
+function! tsuquyomi#getSupportedCodeFixes()
+  if !tsuquyomi#config#isHigher(210)
+    return []
+  endif
+  if len(s:supportedCodeFixes)
+    return s:supportedCodeFixes
+  endif
+  let s:supportedCodeFixes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+  return s:supportedCodeFixes
+endfunction
+
+function! tsuquyomi#quickFix()
+  if !tsuquyomi#config#isHigher(210)
+    echom '[Tsuquyomi] This feature requires TypeScript@2.1.0 or higher'
+    return
+  endif
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return
+  endif
+  call s:flush()
+  let l:file = expand('%:p')
+  let l:line = line('.')
+  let l:col = col('.')
+  let l:qfList = tsuquyomi#createFixlist()
+  call filter(l:qfList, 'v:val.lnum == l:line')
+  if !len(l:qfList)
+    echom '[Tsuquyomi] There is no error to fix'
+    return
+  endif
+  if len(l:qfList) > 1
+    let l:temp = []
+    for qfItem in qfList
+      let qfItem.coldiff = abs(qfItem.col - l:col)
+      call add(l:temp, qfItem)
+    endfor
+    call sort(l:temp, function('s:sortQfItemByColdiff'))
+    let l:target = l:temp[0]
+  else
+    let l:target = l:qfList[0]
+  endif
+  let l:supportedCodes = copy(tsuquyomi#getSupportedCodeFixes())
+  call filter(l:supportedCodes, 'v:val == l:target.code')
+  if !len(l:supportedCodes)
+    echom '[Tsuquyomi] '.l:target.code.' has no quick fixes...'
+    return
+  endif
+  let l:result_list = tsuquyomi#tsClient#tsGetCodeFixes(file, l:target.lnum, l:target.col, l:target.lnum, l:target.col, [l:target.code])
+  if !len(l:result_list)
+    echom '[Tsuquyomi] '.l:target.code.' has no quick fixes...'
+    return
+  endif
+  let s:available_qf_descriptions = map(copy(l:result_list), 'v:val.description')
+  let [description, isSelect] = tsuquyomi#selectQfDescription()
+  if !isSelect
+    return
+  endif
+  let l:changes = filter(l:result_list, 'v:val.description ==# description')[0].changes
+  " TODO 
+  " allow other file
+  for fileChange in l:changes
+    if tsuquyomi#bufManager#normalizePath(l:file) !=# fileChange.fileName
+      echom '[Tsuquyomi] Tsuquyomi does not support this code fix...'
+      return
+    endif
+  endfor
+  call tsuquyomi#applyQfChanges(l:changes)
+endfunction
+
+function! tsuquyomi#applyQfChanges(changes)
+  for fileChange in a:changes
+    " TODO 
+    " allow fileChange.fileName
+    for textChange in fileChange.textChanges
+      let linesCountForReplacement = textChange.end.line - textChange.start.line + 1
+      let preSpan = strpart(getline(textChange.start.line), 0, textChange.start.offset - 1)
+      let postSpan = strpart(getline(textChange.end.line), textChange.end.offset - 1)
+      let repList = split(preSpan.textChange.newText.postSpan, '\n')
+      let l:count = textChange.start.line
+      for rLine in repList
+        if l:count <= textChange.end.line
+          call setline(l:count, rLine)
+        else
+          call append(l:count - 1, rLine)
+        endif
+        let l:count = l:count + 1
+      endfor
+    endfor
+  endfor
+endfunction
+
+s:available_qf_descriptions = []
+function! tsuquyomi#selectQfComplete(arg_lead, cmd_line, cursor_pos)
+  return join(s:available_qf_descriptions, "\n")
+endfunction
+
+function! tsuquyomi#selectQfDescription()
+  echohl String
+  if len(s:available_qf_descriptions) == 1
+    let l:yn = input('[Tsuquyomi] Apply: "'.s:available_qf_descriptions[0].'" [y/N]')
+    echohl none 
+    echo ' '
+    if l:yn =~ 'N'
+      return ['', 0]
+    else
+      return [s:available_qf_descriptions[0], 1]
+    endif
+  endif
+  let l:selected_desc = input('[Tsuquyomi] You can apply 2 more than quick fixes. Select one : ', '', 'custom,tsuquyomi#selectQfComplete')
+  echohl none 
+  echo ' '
+  if len(filter(copy(s:available_qf_descriptions), 'v:val==#l:selected_desc'))
+    return [l:selected_desc, 1]
+  else
+    echohl Error
+    echom '[Tsuquyomi] Invalid selection.'
+    echohl none
+    return ['', 0]
+  endif
+endfunction
+"#### CodeFixes }}}
 
 " ### Public functions }}}
 

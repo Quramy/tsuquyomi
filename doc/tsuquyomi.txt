@@ -200,7 +200,12 @@ COMMANDS					*tsuquyomi-commands*
 :TsuquyomiSearch {keyword}
 		Search locations which contain {keyword} from project.
 
-Todo
+						*:TsuquyomiQuickFix*
+						*:TsuQuickFix*
+:TsuquyomiQuickFix
+		If the cursor is on some errors and there is supported
+		quick fix, apply it.
+		This command requires TypeScript@v2.1.0 or later.
 
 ------------------------------------------------------------------------------
 VARIABLES					*tsuquyomi-variables*
@@ -340,6 +345,12 @@ Normal mode key mappings.
 		Rename the identifier under the cursor to a new name.
 		Please see |:TsuquyomiRenameSymbolC|.
 
+
+						*<Plug>(TsuquyomiQuickFix)*
+<Plug>(TsuquyomiQuickFix)
+		Apply quick fix under the cursor if it's available.
+		Please see |:TsuquyomiQuickFix|.
+
 						*<Plug>(TsuquyomiImport)*
 <Plug>(TsuquyomiImport)
 		Generate ES6 import declaration whose alias is under 
@@ -387,6 +398,11 @@ tsuquyomi#hint					*tsuquyomi#hint*
 		autocmd FileType typescript nmap <buffer> <Leader>t :
 		\ <C-u>echo tsuquyomi#hint()<CR>
 <
+tsuquyomi#getSupportedCodeFixes		 *tsuquyomi#getSupportedCodeFixes*
+		Returns a list of all codes quick fix available.
+		An error whose code is in this list can be fixed via
+		|:TsuquyomiQuickFix| command.
+
 Todo
 
 ==============================================================================

@@ -11,7 +11,7 @@ Context Vesting.run()
     call tsuquyomi#tsClient#tsOpen(file)
     let files = [file]
     let result_list = tsuquyomi#tsClient#tsGeterr(files, 10)
-    echo result_list
+    " echo result_list
     Should len(result_list) == 2
     let semanticDiagDict = filter(copy(result_list), 'v:val.event == "semanticDiag"')[0].body
     let syntaxDiagDict = filter(copy(result_list), 'v:val.event == "syntaxDiag"')[0].body

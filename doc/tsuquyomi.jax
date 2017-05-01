@@ -205,7 +205,12 @@ Prompt:
 :TsuquyomiSearch {keyword}
 		プロジェクトで {keyword} を含んでいる箇所を検索します.
 
-Todo
+						*:TsuquyomiQuickFix*
+						*:TsuQuickFix*
+:TsuquyomiQuickFix
+		カーソル配下にエラーが存在し、且つ適用可能なQuickFixが
+		存在する場合に、このQuickFixを適用します.
+		このコマンドにはTypeScript@v2.1.0以上が必要です.
 
 ------------------------------------------------------------------------------
 オプション						*tsuquyomi-variables*
@@ -351,6 +356,11 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		カーソル直下のシンボルをコメントも含めて別名に変更する.
 		|:TsuquyomiRenameSymbolC|を参照のこと.
 
+						*<Plug>(TsuquyomiQuickFix)*
+<Plug>(TsuquyomiQuickFix)
+		カーソル直下でQuickFixが適用可能な場合に、これを適用する.
+		|:TsuquyomiQuickFix|を参照のこと.
+
 						*<Plug>(TsuquyomiImport)*
 <Plug>(TsuquyomiImport)
 		カーソル直下のシンボルに対応するES6 import文を生成する.
@@ -398,6 +408,11 @@ tsuquyomi#hint					*tsuquyomi#hint*
 <
 		Note: This function works in not only GVim but also 
 		      terminal Vim.
+
+tsuquyomi#getSupportedCodeFixes		 *tsuquyomi#getSupportedCodeFixes*
+		QuickFixが利用可能なコード値のリストを返却する.
+		このリストに属するコードのエラーは|:TsuquyomiQuickFix|により
+		修正可能である.
 
 Todo
 
