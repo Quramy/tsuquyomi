@@ -199,7 +199,7 @@ endfunction
 function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
   call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
-  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.0001, 100, 1)
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.0001, 1000, 1)
   call tsuquyomi#perfLogger#record('afterCmd:'.a:cmd)
   let l:length = len(l:stdout_list)
   if l:length == 1
@@ -589,6 +589,50 @@ endfunction
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsReloadProjects()
   return tsuquyomi#tsClient#sendCommandOneWay('reloadProjects', {})
+endfunction
+
+" This command is available only at tsserver ~v.2.1
+function! tsuquyomi#tsClient#tsGetCodeFixes(file, startLine, startOffset, endLine, endOffset, errorCodes)
+  let l:arg = {
+        \ 'file': a:file,
+        \ 'startLine': a:startLine, 'startOffset': a:startOffset,
+        \ 'endLine': a:endLine, 'endOffset': a:endOffset,
+        \ 'errorCodes': a:errorCodes
+        \ }
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getCodeFixes', l:arg)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
+endfunction
+
+" Get available code fixes list
+" This command is available only at tsserver ~v.2.1
+" PARAM: {string} file File name.
+" PARAM: {number} startLine The line number for the req
+" PARAM: {number} startOffset The character offset for the req
+" PARAM: {number} endLine The line number for the req
+" PARAM: {number} endOffset The character offset for the req
+" PARAM: {list<number>} errorCodes Error codes we want to get the fixes for
+" RETURNS: {list<dict>}
+"   e.g.:
+"     [
+"       {
+"         'description': 'Add missing ''super()'' call.',
+"         'changes': [
+"           {
+"             'fileName': '/SamplePrj/codeFixesTest.ts',
+"             'textChanges': [
+"               {
+"                 'start': {'offset': 20, 'line': 6},
+"                 'end': {'offset': 20, 'line': 6},
+"                 'newText': 'super();'
+"               }
+"             ]
+"           }
+"         ]
+"       }
+"     ]
+function! tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getSupportedCodeFixes', {})
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
 

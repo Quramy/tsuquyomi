@@ -505,6 +505,9 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
           let item.col = diagnostic.start.offset
         endif
         let item.text = diagnostic.text
+        if has_key(diagnostic, 'code')
+          let item.text = 'error TS'.diagnostic.code.': '.item.text
+        endif
         let item.type = 'E'
         call add(quickfix_list, item)
       endfor
@@ -865,6 +868,23 @@ function! tsuquyomi#navtoByLoclistExact(term)
 endfunction
 
 " #### Navto }}}
+
+" #### CodeFixes {{{
+
+function! tsuquyomi#getSupportedCodeFixes()
+  if !tsuquyomi#config#isHigher(210)
+    echom '[Tsuquyomi] This feature requires TypeScript@2.1.0 or higher'
+    return
+  endif
+  let codes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+  if !len(codes)
+    echom '[Tsuquyomi] There is no supported code fixes'
+    return
+  endif
+  echo '[Tsuquyomi] Supported code fixes: '.join(codes, ', ')
+endfunction
+
+"#### CodeFixes }}}
 
 " ### Public functions }}}
 
