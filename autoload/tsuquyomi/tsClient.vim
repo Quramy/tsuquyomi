@@ -592,19 +592,6 @@ function! tsuquyomi#tsClient#tsReloadProjects()
 endfunction
 
 " This command is available only at tsserver ~v.2.1
-function! tsuquyomi#tsClient#tsGetCodeFixes(file, startLine, startOffset, endLine, endOffset, errorCodes)
-  let l:arg = {
-        \ 'file': a:file,
-        \ 'startLine': a:startLine, 'startOffset': a:startOffset,
-        \ 'endLine': a:endLine, 'endOffset': a:endOffset,
-        \ 'errorCodes': a:errorCodes
-        \ }
-  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getCodeFixes', l:arg)
-  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
-endfunction
-
-" Get available code fixes list
-" This command is available only at tsserver ~v.2.1
 " PARAM: {string} file File name.
 " PARAM: {number} startLine The line number for the req
 " PARAM: {number} startOffset The character offset for the req
@@ -630,6 +617,19 @@ endfunction
 "         ]
 "       }
 "     ]
+function! tsuquyomi#tsClient#tsGetCodeFixes(file, startLine, startOffset, endLine, endOffset, errorCodes)
+  let l:arg = {
+        \ 'file': a:file,
+        \ 'startLine': a:startLine, 'startOffset': a:startOffset,
+        \ 'endLine': a:endLine, 'endOffset': a:endOffset,
+        \ 'errorCodes': a:errorCodes
+        \ }
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getCodeFixes', l:arg)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
+endfunction
+
+" Get available code fixes list
+" This command is available only at tsserver ~v.2.1
 function! tsuquyomi#tsClient#tsGetSupportedCodeFixes()
   let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getSupportedCodeFixes', {})
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
