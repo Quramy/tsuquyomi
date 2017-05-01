@@ -901,6 +901,10 @@ function! tsuquyomi#quickFix()
     echom '[Tsuquyomi] This feature requires TypeScript@2.1.0 or higher'
     return
   endif
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return
+  endif
+  call s:flush()
   let l:file = expand('%:p')
   let l:line = line('.')
   let l:col = col('.')
@@ -934,12 +938,21 @@ function! tsuquyomi#quickFix()
     return
   endif
   let l:changes = filter(l:result_list, 'v:val.description ==# description')[0].changes
+  " TODO 
+  " allow other file
+  for fileChange in l:changes
+    if tsuquyomi#bufManager#normalizePath(l:file) !=# fileChange.fileName
+      echom '[Tsuquyomi] Tsuquyomi does not support this code fix...'
+      return
+    endif
+  endfor
   call tsuquyomi#applyQfChanges(l:changes)
 endfunction
 
 function! tsuquyomi#applyQfChanges(changes)
   for fileChange in a:changes
-    "TODO file
+    " TODO 
+    " allow fileChange.fileName
     for textChange in fileChange.textChanges
       let linesCountForReplacement = textChange.end.line - textChange.start.line + 1
       let preSpan = strpart(getline(textChange.start.line), 0, textChange.start.offset - 1)
