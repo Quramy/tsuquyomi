@@ -37,7 +37,7 @@ Context Vesting.run()
     Should len(res_signatureHelp_dict.items[0].parameters[0].documentation)
     Should has_key(res_signatureHelp_dict.items[0].parameters[0].documentation[0], 'kind')
     Should has_key(res_signatureHelp_dict.items[0].parameters[0].documentation[0], 'text')
-    Should res_signatureHelp_dict.items[0].parameters[0].documentation[0].text == 'A operand.'
+    Should res_signatureHelp_dict.items[0].parameters[0].documentation[0].text =~ 'A operand.'
     Should has_key(res_signatureHelp_dict.items[0].parameters[0], 'displayParts')
     Should len(res_signatureHelp_dict.items[0].parameters[0].displayParts)
     Should has_key(res_signatureHelp_dict.items[0].parameters[0].displayParts[0], 'kind')
