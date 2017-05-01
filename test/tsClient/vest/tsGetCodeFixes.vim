@@ -16,7 +16,7 @@ Context Vesting.run()
     Should len(result_list[0].changes)
     Should has_key(result_list[0].changes[0], 'textChanges')
     Should len(result_list[0].changes[0].textChanges)
-    Should result_list[0].changes[0].textChanges[0].newText == 'super();'
+    Should result_list[0].changes[0].textChanges[0].newText =~ 'super();'
     call tsuquyomi#tsClient#stopTss()
   End
 End
