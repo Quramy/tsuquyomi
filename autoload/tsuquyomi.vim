@@ -876,7 +876,6 @@ endfunction
 " #### Navto }}}
 
 " #### CodeFixes {{{
-let s:supportedCodeFixes = []
 
 function! s:sortQfItemByColdiff(a, b)
   if a.coldiff < b.coldiff
@@ -890,6 +889,7 @@ function! s:sortQfItemByColdiff(a, b)
   endif
 endfunction
 
+let s:supportedCodeFixes = []
 function! tsuquyomi#getSupportedCodeFixes()
   if !tsuquyomi#config#isHigher(210)
     return []
@@ -930,13 +930,17 @@ function! tsuquyomi#quickFix()
   else
     let l:target = l:qfList[0]
   endif
-  let l:supportedCodes = tsuquyomi#getSupportedCodeFixes()
+  let l:supportedCodes = copy(tsuquyomi#getSupportedCodeFixes())
   call filter(l:supportedCodes, 'v:val == l:target.code')
   if !len(l:supportedCodes)
     echom '[Tsuquyomi] '.l:target.code.' has no quick fixes...'
     return
   endif
   let l:result_list = tsuquyomi#tsClient#tsGetCodeFixes(file, l:target.lnum, l:target.col, l:target.lnum, l:target.col, [l:target.code])
+  if !len(l:result_list)
+    echom '[Tsuquyomi] '.l:target.code.' has no quick fixes...'
+    return
+  endif
   let s:available_qf_descriptions = map(copy(l:result_list), 'v:val.description')
   let [description, isSelect] = tsuquyomi#selectQfDescription()
   if !isSelect
