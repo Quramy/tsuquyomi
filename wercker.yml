@@ -8,6 +8,6 @@ build:
           apt-get update -y
           apt-get install -y vim
     - script:
-        name: echo nodejs information
+        name: run test
         code: |
-          vim --version
+          bash runtest.sh

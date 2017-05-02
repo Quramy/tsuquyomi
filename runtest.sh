@@ -6,7 +6,7 @@ RESULT_FILE="test/test_result.log"
 VIM_BUILD=1
 VIM_INSTALL_DIR=`pwd`/local
 
-if [ "${VIM_BUILD}" -eq 1 ]; then
+if [ "${VIM_BUILD}" -eq 1 -o "${USE_SYSYTEM_VIM}" -ne 1 ]; then
   echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Use local Vim."
   if [ ! -d "./local" ]; then
     echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Installing Vim"
