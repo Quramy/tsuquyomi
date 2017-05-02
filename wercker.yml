@@ -1,0 +1,8 @@
+box: node
+build:
+  steps:
+    - npm-install
+    - script:
+        name: echo nodejs information
+        code: |
+          vim --version
