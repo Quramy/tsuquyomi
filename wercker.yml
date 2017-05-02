@@ -3,6 +3,10 @@ build:
   steps:
     - npm-install
     - script:
+        name: install deps
+        code: |
+          apt-get install vim
+    - script:
         name: echo nodejs information
         code: |
           vim --version
