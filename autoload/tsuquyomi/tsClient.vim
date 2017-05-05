@@ -20,7 +20,7 @@ let s:Filepath = s:V.import('System.Filepath')
 
 let s:is_vim8 = has('patch-8.0.1')
 
-if !s:is_vim8
+if !s:is_vim8 || g:tsuquyomi_use_vimproc
   let s:P = s:V.import('ProcessManager')
   let s:tsq = 'tsuquyomiTSServer'
 else
@@ -94,7 +94,7 @@ function! s:startTssVim8()
 endfunction
 
 function! tsuquyomi#tsClient#startTss()
-  if !s:is_vim8
+  if !s:is_vim8 || g:tsuquyomi_use_vimproc
     return s:startTssVimproc()
   else
     return s:startTssVim8()
@@ -105,7 +105,7 @@ endfunction
 "Terminate TSServer process if it exsits.
 function! tsuquyomi#tsClient#stopTss()
   if tsuquyomi#tsClient#statusTss() != 'undefined'
-    if !s:is_vim8
+    if !s:is_vim8 || g:tsuquyomi_use_vimproc
       let l:res = s:P.term(s:tsq)
       return l:res
     else
@@ -116,7 +116,7 @@ function! tsuquyomi#tsClient#stopTss()
 endfunction
 
 function! tsuquyomi#tsClient#statusTss()
-  if !s:is_vim8
+  if !s:is_vim8 || g:tsuquyomi_use_vimproc
     return s:P.state(s:tsq)
   else
     return job_info(s:tsq['job']).status
@@ -134,7 +134,7 @@ endfunction
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
   "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
-  if !s:is_vim8
+  if !s:is_vim8 || g:tsuquyomi_use_vimproc
     call s:P.writeln(s:tsq, a:line)
   else
     call ch_sendraw(s:tsq['channel'], a:line."\n")
@@ -144,7 +144,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
   let response_list = []
 
   while len(response_list) < a:response_length
-    if !s:is_vim8
+    if !s:is_vim8 || g:tsuquyomi_use_vimproc
       let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
       call s:debugLog('out: '.out.', type:'.type)
       if type == 'timedout'

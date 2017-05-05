@@ -60,6 +60,8 @@ let g:tsuquyomi_ignore_missing_modules =
       \ get(g:, 'tsuquyomi_ignore_missing_modules', 0)
 let g:tsuquyomi_shortest_import_path = 
       \ get(g:, 'tsuquyomi_shortest_import_path', 0)
+let g:tsuquyomi_use_vimproc =
+      \ get(g:, 'tsuquyomi_use_vimproc', 0)
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group
