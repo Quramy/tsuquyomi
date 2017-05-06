@@ -461,13 +461,15 @@ function! tsuquyomi#references()
 
   " 1. Fetch reference information.
   let l:res = tsuquyomi#tsClient#tsReferences(l:file, l:line, l:offset)
+  let l:project_config_file = tsuquyomi#projectInfo(l:file).configFileName
+  let l:project_root_dir = substitute(l:project_config_file, 'tsconfig.json', '', '')
 
   if(has_key(l:res, 'refs') && len(l:res.refs) != 0)
     let l:location_list = []
     " 2. Make a location list for `setloclist`
     for reference in res.refs
       let l:location_info = {
-            \'filename': reference.file,
+            \'filename': substitute(reference.file, l:project_root_dir, '', ''),
             \'lnum': reference.start.line,
             \'col': reference.start.offset,
             \'text': reference.lineText
