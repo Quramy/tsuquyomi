@@ -121,25 +121,13 @@ function! tsuquyomi#config#tsscmd()
   return l:cmd
 endfunction
 
-function! s:system(cmd)
-  let out = ''
-  let job = job_start([&shell, &shellcmdflag, a:cmd], {'out_cb': {ch,msg->[execute("let out .= msg"), out]}, 'out_mode': 'raw'})
-  while job_status(job) == 'run'
-    sleep 10m
-  endwhile
-  return out
-endfunction
-
 function! tsuquyomi#config#getVersion()
   if s:tss_version.is_valid
     return s:tss_version
   endif
   let l:cmd = substitute(tsuquyomi#config#tsscmd(), 'tsserver', 'tsc', '')
-  if !s:is_vim8
-    let out = s:Process.system(l:cmd.' --version')
-  else
-    let out = system(l:cmd.' --version')
-  endif
+  let l:cmd = substitute(l:cmd, "\\", "/", "g")
+  let out = s:Process.system(l:cmd.' --version')
   let pattern = '\vVersion\s+(\d+)\.(\d+)\.(\d+)-?([^\.\n\s]*)'
   let matched = matchlist(out, pattern)
   if !len(matched)
