@@ -138,7 +138,7 @@ function! tsuquyomi#config#getVersion()
   if !s:is_vim8
     let out = s:Process.system(l:cmd.' --version')
   else
-    let out = s:system(l:cmd.' --version')
+    let out = system(l:cmd.' --version')
   endif
   let pattern = '\vVersion\s+(\d+)\.(\d+)\.(\d+)-?([^\.\n\s]*)'
   let matched = matchlist(out, pattern)
