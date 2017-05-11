@@ -982,7 +982,7 @@ function! tsuquyomi#applyQfChanges(changes)
   endfor
 endfunction
 
-s:available_qf_descriptions = []
+let s:available_qf_descriptions = []
 function! tsuquyomi#selectQfComplete(arg_lead, cmd_line, cursor_pos)
   return join(s:available_qf_descriptions, "\n")
 endfunction
