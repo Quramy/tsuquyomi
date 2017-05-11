@@ -286,6 +286,19 @@ function! s:sortTextComparator(entry1, entry2)
   endif
 endfunction
 
+function! s:getCompleteStart()
+  let l:line_str = getline('.')
+  let l:offset = col('.')
+  
+  " search backwards for start of identifier (iskeyword pattern)
+  let l:start = l:offset 
+  while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
+    let l:start -= 1
+  endwhile
+  let l:base = l:line_str[l:start-1:l:offset]
+  return [l:start, l:base]
+endfunction
+
 function! tsuquyomi#complete(findstart, base)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
@@ -296,10 +309,10 @@ function! tsuquyomi#complete(findstart, base)
   let l:offset = col('.')
   
   " search backwards for start of identifier (iskeyword pattern)
-  let l:start = l:offset 
-  while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
-    let l:start -= 1
-  endwhile
+  let [l:start, l:word] = s:getCompleteStart()
+  " while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
+  "   let l:start -= 1
+  " endwhile
 
   if(a:findstart)
     call tsuquyomi#perfLogger#record('before_flush')
@@ -393,6 +406,19 @@ function! tsuquyomi#complete(findstart, base)
 
   endif
 endfunction
+
+function tsuquyomi#getCompletions(callback)
+  if tsuquyomi#statusServer() == 'dead'
+    return
+  endif
+  call s:flush()
+  let l:file = expand('%:p')
+  let l:line = line('.')
+  let [l:start, l:base] = s:getCompleteStart()
+  let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, l:base)
+  call a:callback(map(l:res_list, 'v:val.name'), l:start)
+endfunction
+
 " ### Complete }}}
 
 " #### Definition {{{
