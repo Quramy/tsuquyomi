@@ -43,6 +43,9 @@ endfunction
 " Check whether files are opened.
 " Found not opend file, show message.
 function! s:checkOpenAndMessage(filelist)
+  if tsuquyomi#tsClient#statusTss() == 'dead'
+    return [[], a:filelist]
+  endif
   let opened = []
   let not_opend = []
   for file in a:filelist
@@ -587,7 +590,7 @@ function! tsuquyomi#geterrProject()
 endfunction
 
 function! tsuquyomi#reloadAndGeterr()
-  if tsuquyomi#tsClient#statusTss() != 'undefined'
+  if tsuquyomi#tsClient#statusTss() != 'dead'
     return tsuquyomi#geterr()
   endif
 endfunction

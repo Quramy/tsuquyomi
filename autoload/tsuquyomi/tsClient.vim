@@ -104,7 +104,7 @@ endfunction
 "
 "Terminate TSServer process if it exsits.
 function! tsuquyomi#tsClient#stopTss()
-  if tsuquyomi#tsClient#statusTss() != 'undefined'
+  if tsuquyomi#tsClient#statusTss() != 'dead'
     if !s:is_vim8 || g:tsuquyomi_use_vimproc
       let l:res = s:P.term(s:tsq)
       return l:res
@@ -115,12 +115,24 @@ function! tsuquyomi#tsClient#stopTss()
   endif
 endfunction
 
+" RETURNS: {string} 'run' or 'dead'
 function! tsuquyomi#tsClient#statusTss()
-  if !s:is_vim8 || g:tsuquyomi_use_vimproc
-    return s:P.state(s:tsq)
-  else
-    return job_info(s:tsq['job']).status
-  endif
+  try
+    if !s:is_vim8 || g:tsuquyomi_use_vimproc
+      let stat = s:P.state(s:tsq)
+      if stat == 'undefined'
+        return 'dead'
+      elseif stat == 'reading'
+        return 'run'
+      else
+        return stat
+      endif
+    else
+      return job_info(s:tsq['job']).status
+    endif
+  catch
+    return 'dead' 
+  endtry
 endfunction
 
 "
