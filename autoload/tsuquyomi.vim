@@ -303,17 +303,7 @@ function! tsuquyomi#complete(findstart, base)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
-
-  let l:line_str = getline('.')
-  let l:line = line('.')
-  let l:offset = col('.')
-  
-  " search backwards for start of identifier (iskeyword pattern)
   let [l:start, l:word] = s:getCompleteStart()
-  " while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
-  "   let l:start -= 1
-  " endwhile
-
   if(a:findstart)
     call tsuquyomi#perfLogger#record('before_flush')
     call s:flush()
@@ -321,6 +311,7 @@ function! tsuquyomi#complete(findstart, base)
     return l:start - 1
   else
     let l:file = expand('%:p')
+    let l:line = line('.')
     let l:res_dict = {'words': []}
     call tsuquyomi#perfLogger#record('before_tsCompletions')
     " By default the result list will be sorted by the 'name' properly alphabetically
