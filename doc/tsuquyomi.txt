@@ -207,6 +207,17 @@ COMMANDS					*tsuquyomi-commands*
 		quick fix, apply it.
 		This command requires TypeScript@v2.1.0 or later.
 
+						*:TsuquyomiSignatureHelp*
+						*:TsuSignatureHelp*
+:TsuquyomiSignatureHelp
+		Display signature help for the method signature the cursor is
+		currently inside, and display the output in the preview
+		window. If there are multiple overloads they will be
+		displayed, along with any documentation.
+		Note that the cursor must be between the method parentheses,
+		or at least after the opening parenthesis of a partially
+		written method call.
+
 ------------------------------------------------------------------------------
 VARIABLES					*tsuquyomi-variables*
 
@@ -361,6 +372,11 @@ Normal mode key mappings.
 <Plug>(TsuquyomiImport)
 		Generate ES6 import declaration whose alias is under 
 		the cursor. See |:TsuquyomiImport|.
+
+						*<Plug>(TsuquyomiSignatureHelp)*
+<Plug>(TsuquyomiSignatureHelp)
+		Display signature help for the method arguments under the
+		cursor. See |:TsuquyomiSignatureHelp|.
 
 Following keymappings are default keymappings.
 

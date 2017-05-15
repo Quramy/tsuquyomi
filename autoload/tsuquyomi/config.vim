@@ -16,7 +16,7 @@ let s:Filepath = s:V.import('System.Filepath')
 let s:script_dir = expand('<sfile>:p:h')
 
 let s:tss_cmd = ''
-let s:tss_version = {'is_valid': 0, 'out': '???'} 
+let s:tss_version = {'is_valid': 0, 'out': '???'}
 
 let s:is_vim8 = has('patch-8.0.1')
 
@@ -162,7 +162,7 @@ function! tsuquyomi#config#createBufLocalCommand()
   command! -buffer -nargs=* -complete=buffer TsuDump          :call tsuquyomi#dump(<f-args>)
   command! -buffer -nargs=1 TsuquyomiSearch                   :call tsuquyomi#navtoByLoclistContain(<f-args>)
   command! -buffer -nargs=1 TsuSearch                         :call tsuquyomi#navtoByLoclistContain(<f-args>)
-  
+
   command! -buffer TsuquyomiDefinition     :call tsuquyomi#definition()
   command! -buffer TsuDefinition           :call tsuquyomi#definition()
   command! -buffer TsuquyomiGoBack         :call tsuquyomi#goBack()
@@ -179,13 +179,15 @@ function! tsuquyomi#config#createBufLocalCommand()
   command! -buffer TsuRenameSymbolC        :call tsuquyomi#renameSymbolWithComments()
   command! -buffer TsuquyomiQuickFix       :call tsuquyomi#quickFix()
   command! -buffer TsuQuickFix             :call tsuquyomi#quickFix()
-  
+  command! -buffer TsuquyomiSignatureHelp  :call tsuquyomi#signatureHelp()
+  command! -buffer TsuSignatureHelp        :call tsuquyomi#signatureHelp()
+
   " TODO These commands don't work correctly.
   command! -buffer TsuquyomiRenameSymbolS  :call tsuquyomi#renameSymbolWithStrings()
   command! -buffer TsuRenameSymbolS        :call tsuquyomi#renameSymbolWithStrings()
   command! -buffer TsuquyomiRenameSymbolCS :call tsuquyomi#renameSymbolWithCommentsStrings()
   command! -buffer TsuRenameSymbolCS       :call tsuquyomi#renameSymbolWithCommentsStrings()
-  
+
   command! -buffer TsuquyomiImport         :call tsuquyomi#es6import#complete()
   command! -buffer TsuImport               :call tsuquyomi#es6import#complete()
 endfunction
@@ -197,8 +199,9 @@ function! tsuquyomi#config#createBufLocalMap()
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)  :TsuquyomiRenameSymbolC <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiQuickFix)       :TsuquyomiQuickFix <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiSignatureHelp)  :TsuquyomiSignatureHelp <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiImport)         :TsuquyomiImport <CR>
-  
+
   " TODO These commands don't work correctly.
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolS)  :TsuquyomiRenameSymbolS <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolCS) :TsuquyomiRenameSymbolCS <CR>
@@ -225,7 +228,7 @@ function! tsuquyomi#config#applyBufLocalAutocmd(pattern)
       execute 'autocmd BufWritePost '.a:pattern.' silent! call tsuquyomi#reloadAndGeterr()'
     augroup END
   endif
-  
+
   augroup tsuquyomi_defaults
     autocmd!
     autocmd BufWinEnter * silent! call tsuquyomi#setPreviewOption()
@@ -235,7 +238,7 @@ endfunction
 
 function! tsuquyomi#config#applyBufLocalFunctions()
   setlocal omnifunc=tsuquyomi#complete
-  
+
   if exists('+bexpr')
     setlocal bexpr=tsuquyomi#balloonexpr()
   endif
