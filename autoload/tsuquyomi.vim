@@ -81,6 +81,19 @@ endfunction
 function! s:is_valid_identifier(symbol_str)
   return a:symbol_str =~ '^[A-Za-z_\$][A-Za-z_\$0-9]*$'
 endfunction
+
+" Manually write content to the preview window.
+" Opens a preview window to a scratch buffer named '__TsuquyomiScratch__'
+function! s:writeToPreview(content)
+  silent pedit __TsuquyomiScratch__
+  silent wincmd P
+  setlocal modifiable noreadonly
+  setlocal nobuflisted buftype=nofile bufhidden=wipe ft=typescript
+  put =a:content
+  0d_
+  setlocal nomodifiable readonly
+  silent wincmd p
+endfunction
 " ### Utilites }}}
 
 " ### Public functions {{{
@@ -236,8 +249,8 @@ function! tsuquyomi#makeCompleteMenu(file, line, offset, entryNames)
   return display_texts
 endfunction
 
-" Make complete information for preview window.
-function! tsuquyomi#makeCompleteInfo(file, line, offset)
+" Get signature help information for preview window.
+function! tsuquyomi#getSignatureHelp(file, line, offset)
 
   if stridx(&completeopt, 'preview') == -1
     return [0, '']
@@ -245,7 +258,7 @@ function! tsuquyomi#makeCompleteInfo(file, line, offset)
 
   let l:sig_dict = tsuquyomi#tsClient#tsSignatureHelp(a:file, a:line, a:offset)
   let has_info = 0
-  if has_key(l:sig_dict, 'items') && len(l:sig_dict.items) 
+  if has_key(l:sig_dict, 'items') && len(l:sig_dict.items)
     let has_info = 1
     let info_lines = []
 
@@ -268,7 +281,7 @@ function! tsuquyomi#makeCompleteInfo(file, line, offset)
     endfor
 
     let sigitem = l:sig_dict.items[0]
-    return [has_info, join(info_lines, "\n")]
+    return [has_info, join(info_lines, "\n\n")]
   endif
 
   return [has_info, '']
@@ -286,6 +299,24 @@ function! s:sortTextComparator(entry1, entry2)
   endif
 endfunction
 
+function! tsuquyomi#signatureHelp()
+  pclose
+
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return
+  endif
+
+  call s:flush()
+
+  let l:file = expand('%:p')
+  let l:line = line('.')
+  let l:offset = col('.')
+  let [has_info, siginfo] = tsuquyomi#getSignatureHelp(l:file, l:line, l:offset)
+  if has_info
+    call s:writeToPreview(siginfo)
+  endif
+endfunction
+
 function! tsuquyomi#complete(findstart, base)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
@@ -294,9 +325,9 @@ function! tsuquyomi#complete(findstart, base)
   let l:line_str = getline('.')
   let l:line = line('.')
   let l:offset = col('.')
-  
+
   " search backwards for start of identifier (iskeyword pattern)
-  let l:start = l:offset 
+  let l:start = l:offset
   while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
     let l:start -= 1
   endwhile
@@ -327,7 +358,7 @@ function! tsuquyomi#complete(findstart, base)
     if enable_menu
       call tsuquyomi#perfLogger#record('start_menu')
       if g:tsuquyomi_completion_preview
-        let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
+        let [has_info, siginfo] = tsuquyomi#getSignatureHelp(l:file, l:line, l:start)
       else
         let [has_info, siginfo] = [0, '']
       endif
@@ -340,7 +371,7 @@ function! tsuquyomi#complete(findstart, base)
         let upper = min([(j + 1) * size, len(l:res_list)])
         for i in range(j * size, upper - 1)
           let info = l:res_list[i]
-          if !length 
+          if !length
                 \ || !g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] == a:base
                 \ || g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] ==# a:base
             let l:item = {'word': info.name, 'menu': info.kind }
@@ -659,7 +690,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   let l:res_dict = tsuquyomi#tsClient#tsRename(l:filename, l:line, l:offset, a:findInComments, a:findInString)
 
   " * Check the symbol is renameable
-  if !has_key(l:res_dict, 'info') 
+  if !has_key(l:res_dict, 'info')
     echom '[Tsuquyomi] No symbol to be rename'
     return
   elseif !l:res_dict.info.canRename
@@ -677,7 +708,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   " * Question user what new symbol name.
   echohl String
   let renameTo = input('[Tsuquyomi] New symbol name : ')
-  echohl none 
+  echohl none
   if !s:is_valid_identifier(renameTo)
     echo ' '
     echom '[Tsuquyomi] It is a not valid identifer.'
@@ -691,7 +722,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   " * Execute to replace symbols by location, by buffer
   for fileLoc in l:res_dict.locs
     let is_open = tsuquyomi#bufManager#isOpened(fileLoc.file)
-    if !is_open 
+    if !is_open
       let s:locs_dict[s:normalizePath(fileLoc.file)] = fileLoc.locs
       call add(s:other_buf_list, s:normalizePath(fileLoc.file))
       continue
@@ -711,14 +742,14 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
     echohl String
     echo ' '
     echo 'Changed '.changed_count.' locations.'
-    echohl none 
+    echohl none
     for otherbuf in s:other_buf_list
       execute('silent split +call\ s:renameLocal(0) '.otherbuf)
     endfor
   else
     echohl String
     let l:confirm = input('[Tsuquyomi] The symbol is located in '.(len(s:other_buf_list) + 1).' files. Really replace them? [Y/n]')
-    echohl none 
+    echohl none
     if l:confirm != 'n' && l:confirm != 'no'
       call s:renameLocalSeq(-1)
     endif
@@ -765,7 +796,7 @@ function! s:renameLocalSeq(index)
     echohl String
     echo ' '
     echo 'Changed '.(a:index + 2).' files successfuly.'
-    echohl none 
+    echohl none
   endif
 endfunction
 " #### Rename }}}
@@ -952,7 +983,7 @@ function! tsuquyomi#quickFix()
     return
   endif
   let l:changes = filter(l:result_list, 'v:val.description ==# description')[0].changes
-  " TODO 
+  " TODO
   " allow other file
   for fileChange in l:changes
     if tsuquyomi#bufManager#normalizePath(l:file) !=# fileChange.fileName
@@ -965,7 +996,7 @@ endfunction
 
 function! tsuquyomi#applyQfChanges(changes)
   for fileChange in a:changes
-    " TODO 
+    " TODO
     " allow fileChange.fileName
     for textChange in fileChange.textChanges
       let linesCountForReplacement = textChange.end.line - textChange.start.line + 1
@@ -994,7 +1025,7 @@ function! tsuquyomi#selectQfDescription()
   echohl String
   if len(s:available_qf_descriptions) == 1
     let l:yn = input('[Tsuquyomi] Apply: "'.s:available_qf_descriptions[0].'" [y/N]')
-    echohl none 
+    echohl none
     echo ' '
     if l:yn =~ 'N'
       return ['', 0]
@@ -1003,7 +1034,7 @@ function! tsuquyomi#selectQfDescription()
     endif
   endif
   let l:selected_desc = input('[Tsuquyomi] You can apply 2 more than quick fixes. Select one : ', '', 'custom,tsuquyomi#selectQfComplete')
-  echohl none 
+  echohl none
   echo ' '
   if len(filter(copy(s:available_qf_descriptions), 'v:val==#l:selected_desc'))
     return [l:selected_desc, 1]
