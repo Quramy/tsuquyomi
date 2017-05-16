@@ -300,11 +300,13 @@ function! s:sortTextComparator(entry1, entry2)
 endfunction
 
 function! tsuquyomi#signatureHelp()
+  pclose
+
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
 
-  pclose
+  call s:flush()
 
   let l:file = expand('%:p')
   let l:line = line('.')
