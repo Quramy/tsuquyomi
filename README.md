@@ -6,7 +6,7 @@ Make your Vim a TypeScript IDE.
 ![capture](screen.gif)
 ## Features
 
-Tsuquyomi works as a client for **TSServer**(which is an editor service bundled into TypeScript).
+Tsuquyomi works as a client for **TSServer** (which is an editor service bundled into TypeScript).
 So, installing Tsuquyomi, your vim gets the following features provided by TSServer:
 
 + Completion (omni-completion)
@@ -21,7 +21,7 @@ Tsuquyomi does not provide syntax-highlight nor indentation. You can use the fol
 * [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
 * [Quramy/vim-js-pretty-template](https://github.com/Quramy/vim-js-pretty-template) provides syntax highlight for contents in Template Strings.
 * [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
-* [Quramy/vim-dtsm](https://github.com/Quramy/vim-dtsm) provides `.d.ts` management for [dtsm](with [https://github.com/vvakame/dtsm) users.
+* [Quramy/vim-dtsm](https://github.com/Quramy/vim-dtsm) provides `.d.ts` management for [dtsm](https://github.com/vvakame/dtsm) users.
 * [mhartington/vim-typings](https://github.com/mhartington/vim-typings) provides `.d.ts` management for [typings](https://github.com/typings/typings) users.
 
 ## How to install
