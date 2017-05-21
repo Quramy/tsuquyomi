@@ -1031,7 +1031,7 @@ function! tsuquyomi#selectQfDescription()
       return [s:available_qf_descriptions[0], 1]
     endif
   endif
-  let l:selected_desc = input('[Tsuquyomi] You can apply 2 more than quick fixes. Select one : ', '', 'custom,tsuquyomi#selectQfComplete')
+  let l:selected_desc = input('[Tsuquyomi] You can apply 2 more than quick fixes. Select one (candidates are shown using TAB): ', '', 'custom,tsuquyomi#selectQfComplete')
   echohl none
   echo ' '
   if len(filter(copy(s:available_qf_descriptions), 'v:val==#l:selected_desc'))
