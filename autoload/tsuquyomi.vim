@@ -912,13 +912,13 @@ endfunction
 " #### CodeFixes {{{
 
 function! s:sortQfItemByColdiff(a, b)
-  if a.coldiff < b.coldiff
+  if a:a.coldiff < a:b.coldiff
     return -1
   endif
-  if a.coldiff == b.coldiff
+  if a:a.coldiff == a:b.coldiff
     return 0
   endif
-  if a.coldiff > b.coldiff
+  if a:a.coldiff > a:b.coldiff
     return 1
   endif
 endfunction
