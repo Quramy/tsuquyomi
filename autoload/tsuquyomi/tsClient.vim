@@ -373,9 +373,51 @@ function! tsuquyomi#tsClient#tsSignatureHelp(file, line, offset)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
-" Configure = "configure";
-function! tsuquyomi#tsClient#tsConfigure(file, tabSize, indentSize, hostInfo)
-  call s:error('not implemented!')
+" Configure editor parameter
+" PARAM: {string} file File name.
+" PARAM: {string} hostInfo Information of Vim
+" PARAM: {dict} formatOptions Options for editor. See the following FormatCodeSetting interface.
+" PARAM: {list} extraFileExtensions List of extensions
+"
+"    interface FormatCodeSetting {
+"        baseIndentSize?: number;
+"        indentSize?: number;
+"        tabSize?: number;
+"        newLineCharacter?: string;
+"        convertTabsToSpaces?: boolean;
+"        indentStyle?: IndentStyle | ts.IndentStyle;
+"        insertSpaceAfterCommaDelimiter?: boolean;
+"        insertSpaceAfterSemicolonInForStatements?: boolean;
+"        insertSpaceBeforeAndAfterBinaryOperators?: boolean;
+"        insertSpaceAfterConstructor?: boolean;
+"        insertSpaceAfterKeywordsInControlFlowStatements?: boolean;
+"        insertSpaceAfterFunctionKeywordForAnonymousFunctions?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces?: boolean;
+"        insertSpaceBeforeFunctionParenthesis?: boolean;
+"        placeOpenBraceOnNewLineForFunctions?: boolean;
+"        placeOpenBraceOnNewLineForControlBlocks?: boolean;
+"    }
+let s:NON_BOOLEAN_KEYS_IN_FOPT = [ 'baseIndentSize', 'indentSize', 'tabSize', 'newLineCharacter', 'convertTabsToSpaces', 'indentStyle' ]
+function! tsuquyomi#tsClient#tsConfigure(file, hostInfo, formatOptions, extraFileExtensions)
+  let fopt = { }
+  for k in keys(a:formatOptions)
+    if index(s:NON_BOOLEAN_KEYS_IN_FOPT, k) != -1
+      let fopt[k] = a:formatOptions[k]
+    else
+      let fopt[k] = a:formatOptions[k] ? s:JSON.true : s.JSON.false
+    endif
+  endfor
+  let l:args = {
+        \ 'file': a:file,
+        \ 'hostInfo': a:hostInfo,
+        \ 'formatOptions': fopt,
+        \ 'extraFileExtensions': a:extraFileExtensions
+        \ }
+  return tsuquyomi#tsClient#sendCommandOneWay('configure', l:args)
 endfunction
 
 " Fetch location where the symbol at cursor(line, offset) in file is defined.

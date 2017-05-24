@@ -257,6 +257,7 @@ function! tsuquyomi#config#initBuffer(opt)
   call tsuquyomi#config#applyBufLocalFunctions()
   if g:tsuquyomi_auto_open
     silent! call tsuquyomi#open()
+    silent! call tsuquyomi#sendConfigure()
   endif
   return 1
 endfunction

@@ -909,6 +909,23 @@ endfunction
 
 " #### Navto }}}
 
+" #### Configure {{{
+function! tsuquyomi#sendConfigure()
+  let l:file = expand('%:p')
+  let l:hostInfo = &viminfo
+  let l:formatOptions = { }
+  let l:extraFileExtensions = []
+  if exists('&shiftwidth')
+    let l:formatOptions.baseIndentSize = &shiftwidth
+    let l:formatOptions.indentSize = &shiftwidth
+  endif
+  if exists('&expandtab')
+    let l:formatOptions.convertTabsToSpaces = &expandtab
+  endif
+  call tsuquyomi#tsClient#tsConfigure(l:file, l:hostInfo, l:formatOptions, l:extraFileExtensions)
+endfunction
+" #### }}}
+
 " #### CodeFixes {{{
 
 function! s:sortQfItemByColdiff(a, b)
