@@ -167,8 +167,12 @@ function! tsuquyomi#config#createBufLocalCommand()
   command! -buffer TsuDefinition           :call tsuquyomi#definition()
   command! -buffer TsuquyomiGoBack         :call tsuquyomi#goBack()
   command! -buffer TsuGoBack               :call tsuquyomi#goBack()
+  command! -buffer TsuquyomiImplementation :call tsuquyomi#implementation()
+  command! -buffer TsuImplementation       :call tsuquyomi#implementation()
   command! -buffer TsuquyomiReferences     :call tsuquyomi#references()
   command! -buffer TsuReferences           :call tsuquyomi#references()
+  command! -buffer TsuquyomiTypeDefinition :call tsuquyomi#typeDefinition()
+  command! -buffer TsuTypeDefinition       :call tsuquyomi#typeDefinition()
   command! -buffer TsuquyomiGeterr         :call tsuquyomi#geterr()
   command! -buffer TsuGeterr               :call tsuquyomi#geterr()
   command! -buffer TsuquyomiGeterrProject  :call tsuquyomi#geterrProject()
@@ -194,7 +198,9 @@ endfunction
 
 function! tsuquyomi#config#createBufLocalMap()
   noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)     :TsuquyomiDefinition <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiTypeDefinition) :TsuquyomiTypeDefinition <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiGoBack)         :TsuquyomiGoBack <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiImplementation) :TsuquyomiImplementation <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)  :TsuquyomiRenameSymbolC <CR>

@@ -427,8 +427,7 @@ endfunction
 " ### Complete }}}
 
 " #### Definition {{{
-function! tsuquyomi#definition()
-
+function! tsuquyomi#getDefinition(tsClientFunction)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -438,7 +437,7 @@ function! tsuquyomi#definition()
   let l:file = s:normalizePath(expand('%:p'))
   let l:line = line('.')
   let l:offset = col('.')
-  let l:res_list = tsuquyomi#tsClient#tsDefinition(l:file, l:line, l:offset)
+  let l:res_list = a:tsClientFunction(l:file, l:line, l:offset)
 
   if(len(l:res_list) == 1)
     " If get result, go to the location.
@@ -463,6 +462,14 @@ function! tsuquyomi#definition()
   endif
 endfunction
 
+function! tsuquyomi#definition()
+  call tsuquyomi#getDefinition(function('tsuquyomi#tsClient#tsDefinition'))
+endfunction
+
+function! tsuquyomi#typeDefinition()
+  call tsuquyomi#getDefinition(function('tsuquyomi#tsClient#tsTypeDefinition'))
+endfunction
+
 function! tsuquyomi#goBack()
   let [type, result] = tsuquyomi#bufManager#winPopNavDef(bufwinnr(bufnr('%')))
   if !type
@@ -481,8 +488,7 @@ endfunction
 
 " #### References {{{
 " Show reference on a location window.
-function! tsuquyomi#references()
-
+function! tsuquyomi#getLocations(tsClientFunction, functionTitle)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -494,29 +500,53 @@ function! tsuquyomi#references()
   let l:offset = col('.')
 
   " 1. Fetch reference information.
-  let l:res = tsuquyomi#tsClient#tsReferences(l:file, l:line, l:offset)
+  let l:res = a:tsClientFunction(l:file, l:line, l:offset)
 
-  if(has_key(l:res, 'refs') && len(l:res.refs) != 0)
+  let l:references = []
+  if type(l:res) == v:t_dict && has_key(l:res, 'refs')
+    let l:references = l:res.refs
+  elseif type(l:res) == v:t_list
+    let l:references = l:res
+  endif
+
+  if len(l:references) != 0
     let l:location_list = []
     " 2. Make a location list for `setloclist`
-    for reference in res.refs
-      let l:location_info = {
-            \'filename': fnamemodify(reference.file, ':~:.'),
-            \'lnum': reference.start.line,
-            \'col': reference.start.offset,
-            \'text': reference.lineText
-            \}
+    for reference in l:references
+      if has_key(reference, 'lineText')
+        let l:location_info = {
+              \'filename': fnamemodify(reference.file, ':~:.'),
+              \'lnum': reference.start.line,
+              \'col': reference.start.offset,
+              \'text': reference.lineText
+              \}
+      else
+        let l:location_info = {
+              \'filename': fnamemodify(reference.file, ':~:.'),
+              \'lnum': reference.start.line,
+              \'col': reference.start.offset
+              \}
+      endif
       call add(l:location_list, l:location_info)
     endfor
-    if(len(l:location_list) > 0)
+    if len(l:location_list) > 0
       call setloclist(0, l:location_list, 'r')
       "3. Open location window.
       lwindow
     endif
   else
-    echom '[Tsuquyomi] References: Not found...'
+    echom '[Tsuquyomi] '.a:functionTitle.': Not found...'
   endif
 endfunction
+
+function! tsuquyomi#references()
+  call tsuquyomi#getLocations(function('tsuquyomi#tsClient#tsReferences'), 'References')
+endfunction
+
+function! tsuquyomi#implementation()
+  call tsuquyomi#getLocations(function('tsuquyomi#tsClient#tsImplementation'), 'Implementation')
+endfunction
+
 " #### References }}}
 
 " #### Geterr {{{
