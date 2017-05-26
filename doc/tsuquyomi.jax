@@ -151,11 +151,22 @@ Prompt:
 :TsuquyomiDefinition
 		シンボルが定義された場所へ遷移させます.
 
+						*:TsuquyomiTypeDefinition*
+						*:TsuTypeDefinition*
+:TsuquyomiTypeDefinition
+		シンボルの型が定義されている場所へ遷移させます.
+
 						*:TsuquyomiGoBack*
 						*:TsuGoBack*
 :TsuquyomiGoBack
-		カーソルを最後に|:TsuquyomiDefinition|を実行した箇所へ
-		移動させます.
+		最後に|:TsuquyomiDefinition|, |:TsuTypeDefinition|
+		を実行した箇所へカーソルを移動させます.
+
+						*:TsuquyomiImplementation*
+						*:TsuImplementation*
+:TsuquyomiImplementation
+		interfaceの実装箇所へナビゲートします.
+		参照箇所の結果は|location-list|に表示されます.
 
 						*:TsuquyomiReferences*
 						*:TsuReferences*
@@ -337,9 +348,20 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		カーソル直下のシンボルが定義された箇所へ遷移.
 		|:TsuquyomiDefinition|を参照のこと.
 
+						*<Plug>(TsuquyomiDefinition)*
+<Plug>(TsuquyomiDefinition)
+		カーソル直下のシンボルの型定義箇所へ遷移.
+		|:TsuquyomiDefinition|を参照のこと.
+
 						*<Plug>(TsuquyomiGoBack)*
 <Plug>(TsuquyomiGoBack)
 		|:TsuquyomiGoBack|を参照のこと.
+
+						*<Plug>(TsuquyomiImplementation)*
+<Plug>(TsuquyomiImplementation)
+		カーソル直下のinerfaceが実装されている場所の一覧を表示.
+		|:TsuquyomiImplementation|を参照のこと.
+
 
 						*<Plug>(TsuquyomiReferences)*
 <Plug>(TsuquyomiReferences)
@@ -366,7 +388,6 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		カーソル直下のシンボルに対応するES6 import文を生成する.
 		|:TsuquyomiImport|を参照のこと.
 
-デフォルトキーマップは下記の通り:
 デフォルトキーマップは下記の通り:
 
 ノーマルモード:
