@@ -366,13 +366,6 @@ function! tsuquyomi#tsClient#tsCompletionEntryDetails(file, line, offset, entryN
   return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
-"Fetch method signature information from TSServer.
-function! tsuquyomi#tsClient#tsSignatureHelp(file, line, offset)
-  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('signatureHelp', l:args)
-  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
-endfunction
-
 " Configure editor parameter
 " PARAM: {string} file File name.
 " PARAM: {string} hostInfo Information of Vim
@@ -424,7 +417,7 @@ endfunction
 " PARAM: {string} file File name.
 " PARAM: {int} line The line number of location to complete.
 " PARAM: {int} offset The col number of location to complete.
-" RETURNS: {list} A list of dictionaries of definition location.
+" RETURNS: {list<dict>} A list of dictionaries of definition location.
 "   e.g. : 
 "     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
 function! tsuquyomi#tsClient#tsDefinition(file, line, offset)
@@ -465,6 +458,27 @@ function! tsuquyomi#tsClient#tsGeterrForProject(file, delay, count)
   let l:delaySec = a:delay * 1.0 / 1000.0
   let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterrForProject', l:args, l:delaySec, a:count * 2)
   return l:result
+endfunction
+
+" Fetch a list of implementations of an interface.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of the symbol's position.
+" PARAM: {int} offset The col number of the symbol's position.
+" RETURNS: {list<dict>} Reference information.
+"   e.g. :
+"     [
+"       {
+"         'file': 'SomeClass.ts',
+"         'start': {'offset': 11, 'line': 23}, 'end': {'offset': 5, 'line': 35}
+"       }, {
+"         'file': 'OtherClass.ts',
+"         'start': {'offset': 31, 'line': 26}, 'end': {'offset': 68, 'line': 26}
+"       }
+"     ]
+function! tsuquyomi#tsClient#tsImplementation(file, line, offset)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('implementation', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Fetch navigation list from TSServer.
@@ -537,8 +551,8 @@ endfunction
 "       ]
 "     }
 function! tsuquyomi#tsClient#tsReferences(file, line, offset)
-  let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('references', l:arg)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('references', l:args)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
@@ -608,10 +622,6 @@ function! tsuquyomi#tsClient#tsBrace(file, line, offset)
   call s:error('not implemented!')
 endfunction
 
-function! tsuquyomi#tsClient#tsTypeDefinition(file, line, offset)
-  call s:error('not implemented!')
-endfunction
-
 " This command is available only at tsserver ~v.1.6
 function! tsuquyomi#tsClient#tsDocumentHighlights(file, line, offset, filesToSearch)
   call s:error('not implemented!')
@@ -636,6 +646,77 @@ function! tsuquyomi#tsClient#tsProjectInfo(file, needFileNameList)
         \ }
   let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('projectInfo', l:arg)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
+endfunction
+
+" Fetch method signature information from TSServer.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of the symbol's position.
+" PARAM: {int} offset The col number of the symbol's position.
+" RETURNS:  {dict}  
+"   e.g. :
+"     {
+"       'selectedItemIndex': 0,
+"       'argumentCount': 1,
+"       'argumentIndex': 0,
+"       'applicableSpan': {
+"         'start': { 'offset': 27, 'line': 25 }, 'end': { 'offset': 40, 'line': 25 }
+"       },
+"       'items': [{
+"         'tags': [],
+"         'separatorDisplayParts': [
+"           { 'kind': 'punctuation', 'text': ',' },
+"           { 'kind': 'space', 'text': ' ' }
+"         ],
+"         'prefixDisplayParts': [
+"           { 'kind': 'methodName', 'text': 'deleteTerms' },
+"           { 'kind': 'punctuation', 'text': '(' }
+"         ],
+"         'parameters': [
+"           {
+"             'isOptional': 0,
+"             'name': 'id',
+"             'documentation': [],
+"             'displayParts': [
+"               { 'kind': 'parameterName', 'text': 'id' },
+"               { 'kind': 'punctuation', 'text': ':' },
+"               { 'kind': 'space', 'text': ' ' },
+"               { 'kind': 'keyword', 'text': 'number' }
+"             ]
+"           }
+"         ],
+"         'suffixDisplayParts': [
+"           { 'kind': 'punctuation', 'text': ')' },
+"           { 'kind': 'punctuation', 'text': ':' },
+"           { 'kind': 'space', 'text': ' ' },
+"           { 'kind': 'className', 'text': 'Observable' },
+"           { 'kind': 'punctuation', 'text': '<' },
+"           { 'kind': 'interfaceName', 'text': 'ApiResponseData' },
+"           { 'kind': 'punctuation', 'text': '>' }
+"         ],
+"         'isVariadic': 0,
+"         'documentation': []
+"       }]
+"     }
+"
+" This can be combined into a simple signature like this:
+"     deleteTerms(id: number): Observable<ApiResponseData>
+function! tsuquyomi#tsClient#tsSignatureHelp(file, line, offset)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('signatureHelp', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
+endfunction
+
+" Fetch location where the type of the symbol at cursor(line, offset) in file is defined.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of location to complete.
+" PARAM: {int} offset The col number of location to complete.
+" RETURNS: {list<dict>} A list of dictionaries of type definition location.
+"   e.g. : 
+"     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
+function! tsuquyomi#tsClient#tsTypeDefinition(file, line, offset)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('typeDefinition', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Reload prjects.
