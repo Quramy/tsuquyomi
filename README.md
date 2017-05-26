@@ -122,10 +122,15 @@ Alternatively, call the Ex command `:TsuquyomiDefinition` or `:TsuDefinition`.
 
 And type `<C-t>` , Tsuquyomi moves the cursor to the location where the last `<C-]>` was typed.
 
+#### Type Definition
+`:TsuTypeDefinition` command is similar to `:TsuDefinition`. `:TsuTypeDefinition` navigates to the location where the type of the symbol under the cursor is defined.
+
 #### References
 Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol under the cursor is referenced.
 
-Alternatively, call the Ex command `:TsuReferences`.
+Alternatively, call the Ex command `:TsuReferences`. 
+
+If you want where an interface is implemented, use `:TsuImplementation`.
 
 #### Keyword search
 Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
