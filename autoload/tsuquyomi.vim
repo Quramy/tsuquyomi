@@ -427,7 +427,7 @@ endfunction
 " ### Complete }}}
 
 " #### Definition {{{
-function! tsuquyomi#getDefinition(tsClientFunction)
+function! tsuquyomi#gotoDefinition(tsClientFunction)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -463,11 +463,11 @@ function! tsuquyomi#getDefinition(tsClientFunction)
 endfunction
 
 function! tsuquyomi#definition()
-  call tsuquyomi#getDefinition(function('tsuquyomi#tsClient#tsDefinition'))
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsDefinition'))
 endfunction
 
 function! tsuquyomi#typeDefinition()
-  call tsuquyomi#getDefinition(function('tsuquyomi#tsClient#tsTypeDefinition'))
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsTypeDefinition'))
 endfunction
 
 function! tsuquyomi#goBack()
