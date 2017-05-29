@@ -348,10 +348,10 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		カーソル直下のシンボルが定義された箇所へ遷移.
 		|:TsuquyomiDefinition|を参照のこと.
 
-						*<Plug>(TsuquyomiDefinition)*
-<Plug>(TsuquyomiDefinition)
+					*<Plug>(TsuquyomiTypeDefinition)*
+<Plug>(TsuquyomiTypeDefinition)
 		カーソル直下のシンボルの型定義箇所へ遷移.
-		|:TsuquyomiDefinition|を参照のこと.
+		|:TsuquyomiTypeDefinition|を参照のこと.
 
 						*<Plug>(TsuquyomiGoBack)*
 <Plug>(TsuquyomiGoBack)
