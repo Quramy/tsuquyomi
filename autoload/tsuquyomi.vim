@@ -417,7 +417,7 @@ function! tsuquyomi#complete(findstart, base)
         endif
         let j = j + 1
       endwhile
-      return []
+      return items
     else
       return filter(map(l:res_list, 'v:val.name'), 'stridx(v:val, a:base) == 0')
     endif
