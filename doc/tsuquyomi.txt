@@ -434,7 +434,7 @@ tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		      |+balloon_eval|.
 
 tsuquyomi#hint					*tsuquyomi#hint*
-		Returns information about symbol under the corsor. This
+		Returns information about symbol under the cursor. This
 		function is so similar to |tsuquyomi#ballonexpr|, but
 		This function works in not only GVim but also terminal Vim.
 
