@@ -18,7 +18,7 @@ let s:V = vital#of('tsuquyomi')
 let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
 
-let s:is_vim8 = has('patch-8.0.1')
+let s:is_vim8 = !has('nvim') && has('patch-8.0.1')
 
 if !s:is_vim8 || g:tsuquyomi_use_vimproc
   let s:P = s:V.import('ProcessManager')
