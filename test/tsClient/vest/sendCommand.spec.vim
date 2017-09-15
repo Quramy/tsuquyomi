@@ -15,7 +15,7 @@ Context Vesting.run()
   End
 
   It checks to sendCommandSyncResponse successfully
-    let res_list = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', {'files': ['hoge'], 'delay': 50}, 0.01, 0)
+    let res_list = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', {'files': ['hoge'], 'delay': 50}, str2float("0.01"), 0)
     Should len(res_list) == 0
     call tsuquyomi#tsClient#stopTss()
   End

@@ -211,7 +211,7 @@ endfunction
 function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
   call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
-  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.0001, 1000, 1)
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, str2float("0.0001"), 1000, 1)
   call tsuquyomi#perfLogger#record('afterCmd:'.a:cmd)
   let l:length = len(l:stdout_list)
   if l:length == 1
@@ -252,7 +252,7 @@ endfunction
 
 function! tsuquyomi#tsClient#sendCommandOneWay(cmd, args)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
-  call tsuquyomi#tsClient#sendRequest(l:input, 0.01, 0, 0)
+  call tsuquyomi#tsClient#sendRequest(l:input, str2float("0.01"), 0, 0)
   return []
 endfunction
 

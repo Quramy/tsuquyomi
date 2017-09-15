@@ -35,7 +35,7 @@ let g:tsuquyomi_tsserver_debug =
 let g:tsuquyomi_nodejs_path = 
       \ get(g:, 'tsuquyomi_nodejs_path', 'node')
 let g:tsuquyomi_waittime_after_open = 
-      \ get(g:, 'tsuquyomi_waittime_after_open', 0.01)
+      \ get(g:, 'tsuquyomi_waittime_after_open', str2float("0.01"))
 let g:tsuquyomi_completion_chunk_size = 
       \ get(g:, 'tsuquyomi_completion_chunk_size', 20)
 let g:tsuquyomi_completion_detail = 
