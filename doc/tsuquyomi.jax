@@ -154,8 +154,8 @@ Prompt:
 						*:TsuquyomiSplitDefinition*
 						*:TsuSplitDefinition*
 :TsuquyomiSplitDefinition
-                現在のウィンドウを2つに分割します。
-                シンボルが定義されている場所に移動する.
+                現在のウィンドウを2つに分割し、片方にシンボルが定義された
+		場所を表示します.
 
 						*:TsuquyomiTypeDefinition*
 						*:TsuTypeDefinition*
