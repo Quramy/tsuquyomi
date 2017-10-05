@@ -150,6 +150,12 @@ COMMANDS					*tsuquyomi-commands*
 :TsuquyomiDefinition
 		Navigate to the location where the symbol is defined.
 
+						*:TsuquyomiSplitDefinition*
+						*:TsuSplitDefinition*
+:TsuquyomiSplitDefinition
+		Split current window in two. Navigate to the location where
+		the symbol is defined.
+
 						*:TsuquyomiTypeDefinition*
 						*:TsuTypeDefinition*
 :TsuquyomiTypeDefinition
@@ -358,6 +364,12 @@ Normal mode key mappings.
 		Navigate to the location where the symbol under the cursor is
 		defined. See |:TsuquyomiDefinition|.
 
+						*<Plug>(TsuquyomiSplitDefinition)*
+<Plug>(TsuquyomiSplitDefinition)
+		Split current window in two. Navigate to the location where
+		the symbol under the cursor is defined. See
+		|:TsuquyomiSplitDefinition|.
+
 						*<Plug>(TsuquyomiTypeDefinition)*
 <Plug>(TsuquyomiTypeDefinition)
 		Navigate to the location where the type of the symbol under the
@@ -407,6 +419,7 @@ Normal mode default mappings.
 {lhs}			{rhs}
 --------		-----------------------------
 <C-]>			<Plug>(TsuquyomiDefinition)
+<C-W>]			<Plug>(TsuquyomiSplitDefinition)
 <C-t>			<Plug>(TsuquyomiGoBack)
 <C-^>			<Plug>(TsuquyomiReferences)
 

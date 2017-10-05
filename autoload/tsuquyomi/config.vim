@@ -163,60 +163,66 @@ function! tsuquyomi#config#createBufLocalCommand()
   command! -buffer -nargs=1 TsuquyomiSearch                   :call tsuquyomi#navtoByLoclistContain(<f-args>)
   command! -buffer -nargs=1 TsuSearch                         :call tsuquyomi#navtoByLoclistContain(<f-args>)
 
-  command! -buffer TsuquyomiDefinition     :call tsuquyomi#definition()
-  command! -buffer TsuDefinition           :call tsuquyomi#definition()
-  command! -buffer TsuquyomiGoBack         :call tsuquyomi#goBack()
-  command! -buffer TsuGoBack               :call tsuquyomi#goBack()
-  command! -buffer TsuquyomiImplementation :call tsuquyomi#implementation()
-  command! -buffer TsuImplementation       :call tsuquyomi#implementation()
-  command! -buffer TsuquyomiReferences     :call tsuquyomi#references()
-  command! -buffer TsuReferences           :call tsuquyomi#references()
-  command! -buffer TsuquyomiTypeDefinition :call tsuquyomi#typeDefinition()
-  command! -buffer TsuTypeDefinition       :call tsuquyomi#typeDefinition()
-  command! -buffer TsuquyomiGeterr         :call tsuquyomi#geterr()
-  command! -buffer TsuGeterr               :call tsuquyomi#geterr()
-  command! -buffer TsuquyomiGeterrProject  :call tsuquyomi#geterrProject()
-  command! -buffer TsuGeterrProject        :call tsuquyomi#geterrProject()
-  command! -buffer TsuquyomiRenameSymbol   :call tsuquyomi#renameSymbol()
-  command! -buffer TsuRenameSymbol         :call tsuquyomi#renameSymbol()
-  command! -buffer TsuquyomiRenameSymbolC  :call tsuquyomi#renameSymbolWithComments()
-  command! -buffer TsuRenameSymbolC        :call tsuquyomi#renameSymbolWithComments()
-  command! -buffer TsuquyomiQuickFix       :call tsuquyomi#quickFix()
-  command! -buffer TsuQuickFix             :call tsuquyomi#quickFix()
-  command! -buffer TsuquyomiSignatureHelp  :call tsuquyomi#signatureHelp()
-  command! -buffer TsuSignatureHelp        :call tsuquyomi#signatureHelp()
+  command! -buffer TsuquyomiDefinition      :call tsuquyomi#definition()
+  command! -buffer TsuDefinition            :call tsuquyomi#definition()
+  command! -buffer TsuquyomiSplitDefinition :call tsuquyomi#splitDefinition()
+  command! -buffer TsuSplitDefinition       :call tsuquyomi#splitDefinition()
+  command! -buffer TsuquyomiGoBack          :call tsuquyomi#goBack()
+  command! -buffer TsuGoBack                :call tsuquyomi#goBack()
+  command! -buffer TsuquyomiImplementation  :call tsuquyomi#implementation()
+  command! -buffer TsuImplementation        :call tsuquyomi#implementation()
+  command! -buffer TsuquyomiReferences      :call tsuquyomi#references()
+  command! -buffer TsuReferences            :call tsuquyomi#references()
+  command! -buffer TsuquyomiTypeDefinition  :call tsuquyomi#typeDefinition()
+  command! -buffer TsuTypeDefinition        :call tsuquyomi#typeDefinition()
+  command! -buffer TsuquyomiGeterr          :call tsuquyomi#geterr()
+  command! -buffer TsuGeterr                :call tsuquyomi#geterr()
+  command! -buffer TsuquyomiGeterrProject   :call tsuquyomi#geterrProject()
+  command! -buffer TsuGeterrProject         :call tsuquyomi#geterrProject()
+  command! -buffer TsuquyomiRenameSymbol    :call tsuquyomi#renameSymbol()
+  command! -buffer TsuRenameSymbol          :call tsuquyomi#renameSymbol()
+  command! -buffer TsuquyomiRenameSymbolC   :call tsuquyomi#renameSymbolWithComments()
+  command! -buffer TsuRenameSymbolC         :call tsuquyomi#renameSymbolWithComments()
+  command! -buffer TsuquyomiQuickFix        :call tsuquyomi#quickFix()
+  command! -buffer TsuQuickFix              :call tsuquyomi#quickFix()
+  command! -buffer TsuquyomiSignatureHelp   :call tsuquyomi#signatureHelp()
+  command! -buffer TsuSignatureHelp         :call tsuquyomi#signatureHelp()
 
   " TODO These commands don't work correctly.
-  command! -buffer TsuquyomiRenameSymbolS  :call tsuquyomi#renameSymbolWithStrings()
-  command! -buffer TsuRenameSymbolS        :call tsuquyomi#renameSymbolWithStrings()
-  command! -buffer TsuquyomiRenameSymbolCS :call tsuquyomi#renameSymbolWithCommentsStrings()
-  command! -buffer TsuRenameSymbolCS       :call tsuquyomi#renameSymbolWithCommentsStrings()
+  command! -buffer TsuquyomiRenameSymbolS   :call tsuquyomi#renameSymbolWithStrings()
+  command! -buffer TsuRenameSymbolS         :call tsuquyomi#renameSymbolWithStrings()
+  command! -buffer TsuquyomiRenameSymbolCS  :call tsuquyomi#renameSymbolWithCommentsStrings()
+  command! -buffer TsuRenameSymbolCS        :call tsuquyomi#renameSymbolWithCommentsStrings()
 
-  command! -buffer TsuquyomiImport         :call tsuquyomi#es6import#complete()
-  command! -buffer TsuImport               :call tsuquyomi#es6import#complete()
+  command! -buffer TsuquyomiImport          :call tsuquyomi#es6import#complete()
+  command! -buffer TsuImport                :call tsuquyomi#es6import#complete()
 endfunction
 
 function! tsuquyomi#config#createBufLocalMap()
-  noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)     :TsuquyomiDefinition <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiTypeDefinition) :TsuquyomiTypeDefinition <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiGoBack)         :TsuquyomiGoBack <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiImplementation) :TsuquyomiImplementation <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiReferences)     :TsuquyomiReferences <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)   :TsuquyomiRenameSymbol <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)  :TsuquyomiRenameSymbolC <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiQuickFix)       :TsuquyomiQuickFix <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiSignatureHelp)  :TsuquyomiSignatureHelp <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiImport)         :TsuquyomiImport <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiDefinition)      :TsuquyomiDefinition <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiSplitDefinition) :TsuquyomiSplitDefinition <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiTypeDefinition)  :TsuquyomiTypeDefinition <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiGoBack)          :TsuquyomiGoBack <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiImplementation)  :TsuquyomiImplementation <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiReferences)      :TsuquyomiReferences <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbol)    :TsuquyomiRenameSymbol <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolC)   :TsuquyomiRenameSymbolC <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiQuickFix)        :TsuquyomiQuickFix <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiSignatureHelp)   :TsuquyomiSignatureHelp <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiImport)          :TsuquyomiImport <CR>
 
   " TODO These commands don't work correctly.
-  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolS)  :TsuquyomiRenameSymbolS <CR>
-  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolCS) :TsuquyomiRenameSymbolCS <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolS)   :TsuquyomiRenameSymbolS <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolCS)  :TsuquyomiRenameSymbolCS <CR>
 endfunction
 
 function! tsuquyomi#config#applyBufLocalDefaultMap()
   if(!exists('g:tsuquyomi_disable_default_mappings'))
     if !hasmapto('<Plug>(TsuquyomiDefinition)')
         map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
+    endif
+    if !hasmapto('<Plug>(TsuquyomiSplitDefinition)')
+        map <buffer> <C-W>] <Plug>(TsuquyomiSplitDefinition)
     endif
     if !hasmapto('<Plug>(TsuquyomiGoBack)')
         map <buffer> <C-t> <Plug>(TsuquyomiGoBack)
