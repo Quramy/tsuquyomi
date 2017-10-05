@@ -427,7 +427,7 @@ endfunction
 " ### Complete }}}
 
 " #### Definition {{{
-function! tsuquyomi#gotoDefinition(tsClientFunction)
+function! tsuquyomi#gotoDefinition(tsClientFunction, splitMode)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -438,23 +438,23 @@ function! tsuquyomi#gotoDefinition(tsClientFunction)
   let l:line = line('.')
   let l:offset = col('.')
   let l:res_list = a:tsClientFunction(l:file, l:line, l:offset)
+  let l:definition_split = a:splitMode > 0 ? a:splitMode : g:tsuquyomi_definition_split
 
   if(len(l:res_list) == 1)
     " If get result, go to the location.
     let l:info = l:res_list[0]
-    if l:file == l:info.file
-      " Same file
+    if a:splitMode == 0 && l:file == l:info.file
+      " Same file without split
       call tsuquyomi#bufManager#winPushNavDef(bufwinnr(bufnr('%')), l:file, {'line': l:line, 'col': l:offset})
       call cursor(l:info.start.line, l:info.start.offset)
-    elseif g:tsuquyomi_definition_split == 0
+    elseif l:definition_split == 0
       call tsuquyomi#bufManager#winPushNavDef(bufwinnr(bufnr('%')), l:file, {'line': l:line, 'col': l:offset})
       execute 'edit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
-    elseif g:tsuquyomi_definition_split == 1
-      " If other file, split window
+    elseif l:definition_split == 1
       execute 'split +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
-    elseif g:tsuquyomi_definition_split == 2
+    elseif l:definition_split == 2
       execute 'vsplit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
-    elseif g:tsuquyomi_definition_split == 3
+    elseif l:definition_split == 3
       execute 'tabedit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
     endif
   else
@@ -463,11 +463,15 @@ function! tsuquyomi#gotoDefinition(tsClientFunction)
 endfunction
 
 function! tsuquyomi#definition()
-  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsDefinition'))
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsDefinition'), 0)
+endfunction
+
+function! tsuquyomi#splitDefinition()
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsDefinition'), 1)
 endfunction
 
 function! tsuquyomi#typeDefinition()
-  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsTypeDefinition'))
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsTypeDefinition'), 0)
 endfunction
 
 function! tsuquyomi#goBack()

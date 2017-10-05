@@ -151,6 +151,12 @@ Prompt:
 :TsuquyomiDefinition
 		シンボルが定義された場所へ遷移させます.
 
+						*:TsuquyomiSplitDefinition*
+						*:TsuSplitDefinition*
+:TsuquyomiSplitDefinition
+                現在のウィンドウを2つに分割します。
+                シンボルが定義されている場所に移動する.
+
 						*:TsuquyomiTypeDefinition*
 						*:TsuTypeDefinition*
 :TsuquyomiTypeDefinition
@@ -348,6 +354,11 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		カーソル直下のシンボルが定義された箇所へ遷移.
 		|:TsuquyomiDefinition|を参照のこと.
 
+						*<Plug>(TsuquyomiSplitDefinition)*
+<Plug>(TsuquyomiSplitDefinition)
+		カーソル直下のシンボルが定義された箇所へ遷移.
+		|:TsuquyomiSplitDefinition|を参照のこと.
+
 					*<Plug>(TsuquyomiTypeDefinition)*
 <Plug>(TsuquyomiTypeDefinition)
 		カーソル直下のシンボルの型定義箇所へ遷移.
@@ -394,6 +405,7 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 {lhs}			{rhs}
 --------		-----------------------------
 <C-]>			<Plug>(TsuquyomiDefinition)
+<C-W>]			<Plug>(TsuquyomiSplitDefinition)
 <C-t>			<Plug>(TsuquyomiGoBack)
 <C-^>			<Plug>(TsuquyomiReferences)
 
