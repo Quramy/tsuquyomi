@@ -222,7 +222,7 @@ function! tsuquyomi#config#applyBufLocalDefaultMap()
         map <buffer> <C-]> <Plug>(TsuquyomiDefinition)
     endif
     if !hasmapto('<Plug>(TsuquyomiSplitDefinition)')
-        map <buffer> <C-W>] <Plug>(TsuquyomiSplitDefinition)
+        map <buffer> <C-W> <Plug>(TsuquyomiSplitDefinition)
     endif
     if !hasmapto('<Plug>(TsuquyomiGoBack)')
         map <buffer> <C-t> <Plug>(TsuquyomiGoBack)
