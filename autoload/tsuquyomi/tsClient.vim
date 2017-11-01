@@ -30,11 +30,10 @@ endif
 let s:request_seq = 0
 
 let s:ignore_respons_conditions = []
-" ignore 2nd response of reload command. See also #62
-call add(s:ignore_respons_conditions, '{"reloadFinished":true}}$')
 " ignore events configFileDiag triggered by reload event. See also #99
 call add(s:ignore_respons_conditions, '"type":"event","event":"configFileDiag"')
 call add(s:ignore_respons_conditions, '"type":"event","event":"requestCompleted"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"telemetry"')
 
 " ### Utilites {{{
 function! s:error(msg)
@@ -199,6 +198,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
 
   endwhile
   "call s:debugLog(a:response_length.', '.len(response_list))
+  let s:request_seq = s:request_seq + 1
   return response_list
 endfunction
 
@@ -219,7 +219,6 @@ function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
     "if res.success == 0
     "  echom '[Tsuquyomi] TSServer command fail. command: '.res.command.', message: '.res.message
     "endif
-    let s:request_seq = s:request_seq + 1
     call tsuquyomi#perfLogger#record('afterDecode:'.a:cmd)
     return [res]
   else
@@ -242,7 +241,6 @@ function! tsuquyomi#tsClient#sendCommandSyncEvents(cmd, args, delay, length)
         call add(l:result_list, res)
       endif
     endfor
-    let s:request_seq = s:request_seq + 1
     return l:result_list
   else
     return []
@@ -563,9 +561,16 @@ endfunction
 " RETURNS: {0|1} 
 function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
-  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('reload', l:arg)
+  " With ts > 2.6 and ts <=1.9, tsserver emit 2 responses by reload request.
+  " ignore 2nd response of reload command. See also #62
+  if tsuquyomi#config#isHigher(260) || !tsuquyomi#config#isHigher(190)
+    let l:res_count = 1
+  else
+    let l:res_count = 2
+  endif
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('reload', l:arg, 0.01, l:res_count)
   "echo l:result
-  if(len(l:result) == 1)
+  if(len(l:result) >= 1)
     if(has_key(l:result[0], 'success'))
       return l:result[0].success
     else
