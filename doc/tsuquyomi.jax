@@ -344,6 +344,10 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		エラーメッセージを無視するようになる。
 		import対象の型定義ファイルが存在していないケースで有用。
 
+						*g:tsuquyomi_locale*
+g:tsuquyomi_locale (デフォルト値 'en')
+		エラーメッセージのLCID。
+
 ------------------------------------------------------------------------------
 キーマッピング					*tsuquyomi-key-mappings*
 
