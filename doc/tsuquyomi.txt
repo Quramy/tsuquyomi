@@ -353,6 +353,9 @@ g:tsuquyomi_use_vimproc (default 0)
 		If set, Tsuquyomi will use vimproc instead of vim8 default
 		jobs.
 
+						*g:tsuquyomi_locale*
+g:tsuquyomi_locale (default 'en')
+		LCID for deagonistics localization.
 
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*

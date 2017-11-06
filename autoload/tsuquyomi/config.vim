@@ -70,6 +70,12 @@ function! s:deleteCommand()
   delc TsuReloadProject
 endfunction
 
+function! tsuquyomi#config#tssargs()
+  let args = []
+  call add(args, '--locale '.g:tsuquyomi_locale)
+  return join(args, ' ')
+endfunction
+
 function! tsuquyomi#config#tsscmd()
   if s:tss_cmd !=# ''
     return s:tss_cmd

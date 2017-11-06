@@ -55,7 +55,7 @@ function! s:startTssVimproc()
   if s:P.state(s:tsq) == 'existing'
     return 'existing'
   endif
-  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g')
+  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g').' '.tsuquyomi#config#tssargs()
   let l:is_new = s:P.touch(s:tsq, l:cmd)
   if l:is_new == 'new'
     let [out, err, type] = s:P.read_wait(s:tsq, 0.1, [])
@@ -73,7 +73,7 @@ function! s:startTssVim8()
   if type(s:tsq['job']) == 8 && job_info(s:tsq['job']).status == 'run'
     return 'existing'
   endif
-  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g')
+  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g').' '.tsuquyomi#config#tssargs()
   try
     let s:tsq['job'] = job_start(l:cmd)
     let s:tsq['channel'] = job_getchannel(s:tsq['job'])
