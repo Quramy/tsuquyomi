@@ -62,6 +62,8 @@ let g:tsuquyomi_shortest_import_path =
       \ get(g:, 'tsuquyomi_shortest_import_path', 0)
 let g:tsuquyomi_use_vimproc =
       \ get(g:, 'tsuquyomi_use_vimproc', 0)
+let g:tsuquyomi_locale =
+      \ get(g:, 'tsuquyomi_locale', 'en')
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group
