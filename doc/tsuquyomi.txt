@@ -423,6 +423,7 @@ Normal mode default mappings.
 --------		-----------------------------
 <C-]>			<Plug>(TsuquyomiDefinition)
 <C-W>]			<Plug>(TsuquyomiSplitDefinition)
+<C-W><C-]>		<Plug>(TsuquyomiSplitDefinition)
 <C-t>			<Plug>(TsuquyomiGoBack)
 <C-^>			<Plug>(TsuquyomiReferences)
 
