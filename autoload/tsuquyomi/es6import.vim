@@ -419,8 +419,17 @@ function! tsuquyomi#es6import#complete()
     else
       let l:before_line = getline(l:target_import.brace.end.line - 1)
       let l:indent = matchstr(l:before_line, '\m^\s*')
-      call setline(l:target_import.brace.end.line - 1, l:before_line.',')
-      call append(l:target_import.brace.end.line - 1, l:indent.l:block.identifier)
+      let l:before_has_trailing_comma = matchstr(l:before_line, ',\s*$')
+      if l:before_has_trailing_comma !=# ''
+        let l:prev_trailing_comma = ''
+        let l:new_trailing_comma = ','
+      else
+        let l:prev_trailing_comma = ','
+        let l:new_trailing_comma = ''
+      endif
+
+      call setline(l:target_import.brace.end.line - 1, l:before_line.l:prev_trailing_comma)
+      call append(l:target_import.brace.end.line - 1, l:indent.l:block.identifier.l:new_trailing_comma)
     endif
   endif
 endfunction
