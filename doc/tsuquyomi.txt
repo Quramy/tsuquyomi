@@ -309,6 +309,11 @@ g:tsuquyomi_completion_case_sensitive	(default 0)
 		Whether to search completion case-sensitively when
 		|tsuquyomi#complete|.
 
+					*g:tsuquyomi_case_sensitive_imports*
+g:tsuquyomi_case_sensitive_imports	(default 0)
+		Whether to search imports case-sensitively when
+		|tsuquyomi#es6import#complete|.
+
 					*g:tsuquyomi_completion_preview*
 g:tsuquyomi_completion_preview		(default 0)
 		Whether to show sigunature in preview when |tsuquyomi#complete|.

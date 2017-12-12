@@ -124,6 +124,11 @@ function! tsuquyomi#es6import#createImportBlock(text)
       call add(l:result_list, l:importDict)
     endif
   endfor
+
+  if g:tsuquyomi_case_sensitive_imports == 1
+    call filter(l:result_list, {idx, val -> val.identifier ==# l:identifier})
+  endif
+
   return l:result_list
 endfunction
 

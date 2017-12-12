@@ -42,6 +42,8 @@ let g:tsuquyomi_completion_detail =
       \ get(g:, 'tsuquyomi_completion_detail', 0)
 let g:tsuquyomi_completion_case_sensitive = 
       \ get(g:, 'tsuquyomi_completion_case_sensitive', 0)
+let g:tsuquyomi_case_sensitive_imports =
+      \ get(g:, 'tsuquyomi_case_sensitive_imports', 0)
 let g:tsuquyomi_completion_preview = 
       \ get(g:, 'tsuquyomi_completion_preview', 0)
 let g:tsuquyomi_definition_split =
