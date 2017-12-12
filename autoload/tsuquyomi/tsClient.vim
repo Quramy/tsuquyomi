@@ -34,6 +34,7 @@ let s:ignore_respons_conditions = []
 call add(s:ignore_respons_conditions, '"type":"event","event":"configFileDiag"')
 call add(s:ignore_respons_conditions, '"type":"event","event":"requestCompleted"')
 call add(s:ignore_respons_conditions, '"type":"event","event":"telemetry"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"projectsUpdatedInBackground"')
 
 " ### Utilites {{{
 function! s:error(msg)
