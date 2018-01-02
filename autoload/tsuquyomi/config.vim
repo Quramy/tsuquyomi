@@ -240,18 +240,23 @@ function! tsuquyomi#config#applyBufLocalDefaultMap()
   endif
 endfunction
 
+let s:autocmd_patterns = []
 function! tsuquyomi#config#applyBufLocalAutocmd(pattern)
+  if index(s:autocmd_patterns, a:pattern) == -1
+    call add(s:autocmd_patterns, a:pattern)
+  endif
+  let all_patterns = join(s:autocmd_patterns, ",")
   if !g:tsuquyomi_disable_quickfix
     augroup tsuquyomi_geterr
       autocmd!
-      execute 'autocmd BufWritePost '.a:pattern.' silent! call tsuquyomi#reloadAndGeterr()'
+      execute 'autocmd BufWritePost '.all_patterns.' silent! call tsuquyomi#reloadAndGeterr()'
     augroup END
   endif
 
   augroup tsuquyomi_defaults
     autocmd!
     autocmd BufWinEnter * silent! call tsuquyomi#setPreviewOption()
-    execute 'autocmd TextChanged,TextChangedI '.a:pattern.' silent! call tsuquyomi#letDirty()'
+    execute 'autocmd TextChanged,TextChangedI '.all_patterns.' silent! call tsuquyomi#letDirty()'
   augroup END
 endfunction
 
