@@ -107,7 +107,7 @@ Prompt:
 						*:TsuStatusServer*
 :TsuquyomiStatusServer
 		TSServerの起動状態を表示します.
-		TSServerが起動している場合, 'reading' のメッセージが
+		TSServerが起動している場合, "reading" のメッセージが
 		表示されます.
 
 						*:TsuquyomiOpen*
@@ -279,7 +279,7 @@ g:tsuquyomi_tsserver_path	(デフォルト値 `''`)
 <
 
 						*g:tsuquyomi_nodejs_path*
-g:tsuquyomi_nodejs_path		(デフォルト値 'node')
+g:tsuquyomi_nodejs_path		(デフォルト値 "node")
 		Node.js の実行パス.
 
 						*g:tsuquyomi_definition_split*
@@ -294,7 +294,7 @@ g:tsuquyomi_definition_split	(デフォルト値 0)
 					*g:tsuquyomi_completion_detail*
 g:tsuquyomi_completion_detail		(デフォルト値 0)
 		|tsuquyomi#complete|実行時に詳細な補完メニューを作成するかどうか.
-		このオプションは|completeopt|に "menu"が含まれるときにのみ
+		このオプションは 'completeopt' に "menu" が含まれるときにのみ
 		意味を持つ.
 		NOTE: このオプションを1に設定した場合, 補完速度は遅くなる
 
@@ -307,8 +307,8 @@ g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)
 g:tsuquyomi_completion_preview		(デフォルト値 0)
 		|tsuquyomi#complete|実行時にシグネチャの情報をプレビューに表示
 		するかどうか.
-		このオプションは|completeopt|に "menu"と"preview"が含まれるとき
-		にのみ意味を持つ.
+		このオプションは 'completeopt' に "menu" と "preview" が含まれ
+		るときにのみ意味を持つ.
 		NOTE: このオプションを1に設定した場合, 補完速度は少し遅くなる
 
 						*g:tsuquyomi_disable_default_mappings*
@@ -345,7 +345,7 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		import対象の型定義ファイルが存在していないケースで有用。
 
 						*g:tsuquyomi_locale*
-g:tsuquyomi_locale (デフォルト値 'en')
+g:tsuquyomi_locale (デフォルト値 "en")
 		エラーメッセージのLCID。
 
 ------------------------------------------------------------------------------
@@ -417,10 +417,10 @@ g:tsuquyomi_locale (デフォルト値 'en')
 関数 							*tsuquyomi-functions*
 
 tsuquyomi#complete					*tsuquyomi#complete*
-		|completefunc| や|omnifunc|オプションに適用可能な関数.
-		デフォルトでは, |omnifunc|オプションにこの関数をセットしている
-		補完の挙動をカスタマイズする場合, |tsuquyomi-examples-complete|
-		を参照の事.
+		'completefunc' や 'omnifunc' オプションに適用可能な関数.
+		デフォルトでは, 'omnifunc' オプションにこの関数をセットしてい
+		る補完の挙動をカスタマイズする場合,
+		|tsuquyomi-examples-complete| を参照の事.
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		マウスカーソル直下のシンボルについて, ツールチップにシンボルの
@@ -457,7 +457,7 @@ Todo
 EXAMPLES					*tsuquyomi-examples*
 
 						*tsuquyomi-examples-complete*
-補完の挙動は |completeopt| オプションで設定する.
+補完の挙動は 'completeopt' オプションで設定する.
 
 	メソッド呼び出しの補完時, メソッド定義をプレビューウィンドウに表示.
 >
