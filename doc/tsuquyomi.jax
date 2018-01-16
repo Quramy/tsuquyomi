@@ -419,23 +419,23 @@ g:tsuquyomi_locale (デフォルト値 'en')
 tsuquyomi#complete					*tsuquyomi#complete*
 		|completefunc| や|omnifunc|オプションに適用可能な関数.
 		デフォルトでは, |omnifunc|オプションにこの関数をセットしている
-		補完の挙動をカスタマイズする場合, |tsuquyomi-example-complete|
+		補完の挙動をカスタマイズする場合, |tsuquyomi-examples-complete|
 		を参照の事.
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		マウスカーソル直下のシンボルについて, ツールチップにシンボルの
-		情報を表示させる.  |ballon-expr|にセットして利用する.
+		情報を表示させる.  'balloonexpr' にセットして利用する.
 		設定例:
 >
 		set ballooneval
 		autocmd BufNewFile,BufRead *.ts
-		\ setlocal ballonexpr=tsuquyomi#balloonexpr()
+		\ setlocal balloonexpr=tsuquyomi#balloonexpr()
 <
 		Note: この関数はVimが|+balloon_eval| オプション付きでコンパイル
 		      されている場合のみ利用可能である.
 
 tsuquyomi#hint					*tsuquyomi#hint*
-		カーソル上のシンボルの情報を返却する. |tsuquyomi#ballonexpr|
+		カーソル上のシンボルの情報を返却する. |tsuquyomi#balloonexpr|
 		と似ているが, この関数はGVim, 端末上のVimのどちらでも動作する.
 		
 		設定例:

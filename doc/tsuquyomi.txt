@@ -295,7 +295,7 @@ g:tsuquyomi_definition_split	(default 0)
 		|:TsuquyomiDefinition| or |:TsuquyomiTypeDefinition|.
 		* 0: |:edit|
 		* 1: |:split|
-		* 2: |:vplit|
+		* 2: |:vsplit|
 		* 3: |:tabedit|
 
 					*g:tsuquyomi_completion_detail*
@@ -440,24 +440,24 @@ tsuquyomi#complete				*tsuquyomi#complete*
 		By the default, Tsuquyomi set this function to the |omnifunc|
 		option.
 		If you want to customize completions, see
-		|tsuquyomi-example-complete|.
+		|tsuquyomi-examples-complete|.
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		Returns information about symbol under then mouse cursor for
 		tooltip popover window.
-		This is used as the rhs for |balloon-expr|.
+		This is used as the rhs for 'balloonexpr'.
 		For example,
 >
 		set ballooneval
 		autocmd BufNewFile,BufRead *.ts
-		\ setlocal ballonexpr=tsuquyomi#balloonexpr()
+		\ setlocal balloonexpr=tsuquyomi#balloonexpr()
 <
 		Note: This function works only if your Vim is compiled with
 		      |+balloon_eval|.
 
 tsuquyomi#hint					*tsuquyomi#hint*
 		Returns information about symbol under the cursor. This
-		function is so similar to |tsuquyomi#ballonexpr|, but
+		function is so similar to |tsuquyomi#balloonexpr|, but
 		This function works in not only GVim but also terminal Vim.
 
 		For example,
