@@ -218,7 +218,7 @@ function! s:getBaseUrlImportPath(module_absolute_path)
     let l:base_url_path = simplify(l:project_root_path.l:base_url_config)
   endif
 
-  return substitute(a:module_absolute_path, l:base_url_path, '', '')
+  return s:removeTSExtensions(substitute(a:module_absolute_path, l:base_url_path, '', ''))
 endfunction
 
 function! s:findExportingFileForModule(module, current_module_file, module_directory_path)
