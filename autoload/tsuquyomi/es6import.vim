@@ -211,12 +211,12 @@ function! s:getBaseUrlImportPath(module_absolute_path)
     let l:project_info = tsuquyomi#tsClient#tsProjectInfo(a:module_absolute_path, 0)
     let l:tsconfig_file_path = l:project_info.configFileName
     let s:tsconfig = s:JSON.decode(join(readfile(l:tsconfig_file_path),''))
-
-    let l:project_root_path = fnamemodify(l:tsconfig_file_path, ":h")."/"
-    " We assume that baseUrl is a path relative to tsconfig.json path.
-    let l:base_url_config = has_key(s:tsconfig.compilerOptions, 'baseUrl') ? s:tsconfig.compilerOptions.baseUrl : '.'
-    let l:base_url_path = simplify(l:project_root_path.l:base_url_config)
   endif
+
+  let l:project_root_path = fnamemodify(l:tsconfig_file_path, ":h")."/"
+  " We assume that baseUrl is a path relative to tsconfig.json path.
+  let l:base_url_config = has_key(s:tsconfig.compilerOptions, 'baseUrl') ? s:tsconfig.compilerOptions.baseUrl : '.'
+  let l:base_url_path = simplify(l:project_root_path.l:base_url_config)
 
   return s:removeTSExtensions(substitute(a:module_absolute_path, l:base_url_path, '', ''))
 endfunction
