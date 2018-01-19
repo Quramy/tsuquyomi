@@ -204,21 +204,27 @@ function! s:getShortenedPath(splitted_absolute_path, previous_shortened_path, mo
   return l:current_directory_name . l:path_separator . l:shortened_path
 endfunction
 
-let s:tsconfig = {}
-
 function! s:getBaseUrlImportPath(module_absolute_path)
-  if empty(s:tsconfig)
-    let l:project_info = tsuquyomi#tsClient#tsProjectInfo(a:module_absolute_path, 0)
-    let l:tsconfig_file_path = l:project_info.configFileName
-    let s:tsconfig = s:JSON.decode(join(readfile(l:tsconfig_file_path),''))
-  endif
-
-  let l:project_root_path = fnamemodify(l:tsconfig_file_path, ":h")."/"
+  let [l:tsconfig, l:tsconfig_file_path] = s:getTsconfig(a:module_absolute_path)
+  let l:project_root_path = fnamemodify(l:tsconfig_file_path, ':h').'/'
   " We assume that baseUrl is a path relative to tsconfig.json path.
-  let l:base_url_config = has_key(s:tsconfig.compilerOptions, 'baseUrl') ? s:tsconfig.compilerOptions.baseUrl : '.'
+  let l:base_url_config = has_key(l:tsconfig.compilerOptions, 'baseUrl') ? l:tsconfig.compilerOptions.baseUrl : '.'
   let l:base_url_path = simplify(l:project_root_path.l:base_url_config)
 
   return s:removeTSExtensions(substitute(a:module_absolute_path, l:base_url_path, '', ''))
+endfunction
+
+let s:tsconfig = {}
+let s:tsconfig_file_path = ''
+
+function! s:getTsconfig(module_absolute_path)
+  if empty(s:tsconfig)
+    let l:project_info = tsuquyomi#tsClient#tsProjectInfo(a:module_absolute_path, 0)
+    let s:tsconfig_file_path = l:project_info.configFileName
+    let s:tsconfig = s:JSON.decode(join(readfile(s:tsconfig_file_path),''))
+  endif
+
+  return [s:tsconfig, s:tsconfig_file_path]
 endfunction
 
 function! s:findExportingFileForModule(module, current_module_file, module_directory_path)
