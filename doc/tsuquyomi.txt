@@ -108,7 +108,7 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuStatusServer*
 :TsuquyomiStatusServer
 		Show TSServer status.
-		When TSServer is running, the message 'reading' will be
+		When TSServer is running, the message "reading" will be
 		displayed.
 
 						*:TsuquyomiOpen*
@@ -286,7 +286,7 @@ g:tsuquyomi_tsserver_path	(default `''`)
 <
 
 						*g:tsuquyomi_nodejs_path*
-g:tsuquyomi_nodejs_path		(default 'node')
+g:tsuquyomi_nodejs_path		(default "node")
 		A path to Node.js.
 
 						*g:tsuquyomi_definition_split*
@@ -295,13 +295,13 @@ g:tsuquyomi_definition_split	(default 0)
 		|:TsuquyomiDefinition| or |:TsuquyomiTypeDefinition|.
 		* 0: |:edit|
 		* 1: |:split|
-		* 2: |:vplit|
+		* 2: |:vsplit|
 		* 3: |:tabedit|
 
 					*g:tsuquyomi_completion_detail*
 g:tsuquyomi_completion_detail		(default 0)
 		Whether to show details of complete menu when |tsuquyomi#complete|.
-		This options makes sence when |completeopt| includes "menu".
+		This options makes sence when 'completeopt' includes "menu".
 		NOTE: If it's set, completions gets slow.
 
 					*g:tsuquyomi_completion_case_sensitive*
@@ -317,7 +317,7 @@ g:tsuquyomi_case_sensitive_imports	(default 0)
 					*g:tsuquyomi_completion_preview*
 g:tsuquyomi_completion_preview		(default 0)
 		Whether to show sigunature in preview when |tsuquyomi#complete|.
-		This options makes sence when |completeopt| includes "menu"
+		This options makes sence when 'completeopt' includes "menu"
 		and "preview".
 		NOTE: If it's set, completions gets a little slow.
 
@@ -359,7 +359,7 @@ g:tsuquyomi_use_vimproc (default 0)
 		jobs.
 
 						*g:tsuquyomi_locale*
-g:tsuquyomi_locale (default 'en')
+g:tsuquyomi_locale (default "en")
 		LCID for deagonistics localization.
 
 ------------------------------------------------------------------------------
@@ -436,28 +436,28 @@ Normal mode default mappings.
 FUNCTIONS					*tsuquyomi-functions*
 
 tsuquyomi#complete				*tsuquyomi#complete*
-		It's applicable for the |completefunc| or |omnifunc| option.
-		By the default, Tsuquyomi set this function to the |omnifunc|
+		It's applicable for the 'completefunc' or 'omnifunc' option.
+		By the default, Tsuquyomi set this function to the 'omnifunc'
 		option.
 		If you want to customize completions, see
-		|tsuquyomi-example-complete|.
+		|tsuquyomi-examples-complete|.
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		Returns information about symbol under then mouse cursor for
 		tooltip popover window.
-		This is used as the rhs for |balloon-expr|.
+		This is used as the rhs for 'balloonexpr'.
 		For example,
 >
 		set ballooneval
 		autocmd BufNewFile,BufRead *.ts
-		\ setlocal ballonexpr=tsuquyomi#balloonexpr()
+		\ setlocal balloonexpr=tsuquyomi#balloonexpr()
 <
 		Note: This function works only if your Vim is compiled with
 		      |+balloon_eval|.
 
 tsuquyomi#hint					*tsuquyomi#hint*
 		Returns information about symbol under the cursor. This
-		function is so similar to |tsuquyomi#ballonexpr|, but
+		function is so similar to |tsuquyomi#balloonexpr|, but
 		This function works in not only GVim but also terminal Vim.
 
 		For example,
@@ -476,7 +476,7 @@ Todo
 EXAMPLES					*tsuquyomi-examples*
 
 						*tsuquyomi-examples-complete*
-You can configure tsuquyomi completion, using |completeopt| .
+You can configure tsuquyomi completion, using 'completeopt' .
 
 	When completion in call of some method, show the method signature to
 	the preview window.

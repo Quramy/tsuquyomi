@@ -44,7 +44,7 @@ tsuquyomi は以下の機能を提供します.
 + TSServer からソースコードが持つ情報を参照します.
   (補完, 定義/参照箇所, エラー, etc...)
 
-+ TSServerの起動や停止を行う機能 
++ TSServerの起動や停止を行う機能
 
 ==============================================================================
 インストール 						*tsuquyomi-install*
@@ -65,7 +65,7 @@ Prompt:
     	$ npm -g install typescript
 <
 最後に, tsuquyomiをVim plugin用のディレクトリに配置します.
-もし |NeoBundle| でプラグイン管理をしているのであれば, 
+もし |NeoBundle| でプラグイン管理をしているのであれば,
 `.vimrc` に以下を追記します
 >
 	NeoBundle 'Shougo/vimproc.vim', {
@@ -77,7 +77,7 @@ Prompt:
 	\     'unix' : 'gmake',
 	\    },
 	\ }
-	
+
 	NeoBundle 'Quramy/tsuquyomi'
 >
 |:NeoBundleInstall| を実行し,  プラグインをインストールしてください.
@@ -107,7 +107,7 @@ Prompt:
 						*:TsuStatusServer*
 :TsuquyomiStatusServer
 		TSServerの起動状態を表示します.
-		TSServerが起動している場合, 'reading' のメッセージが
+		TSServerが起動している場合, "reading" のメッセージが
 		表示されます.
 
 						*:TsuquyomiOpen*
@@ -247,7 +247,7 @@ g:tsuquyomi_use_local_typescript (default 1)
 		     ルートディレクトリ(`package.json`を含むディレクトリ)を
 		     探索します. 次にプロジェクトルートから
 		     `node_modules/typescript/bin/tsserver.js`
-                     を探索します. 見つからない場合は, 
+                     を探索します. 見つからない場合は,
 		     |g:tsuquyomi_use_dev_node_module| に従って`tsserver.js`の
 		     パスを決定します.
 
@@ -264,27 +264,27 @@ g:tsuquyomi_use_dev_node_module	(デフォルト値 0)
 		     :cd ~/.vim/bundle/tsuquyomi
 		     :!npm install
 <
-		* 2: tsuquyomiは|g:tsuquyomi_tsserver_path| で指定された 
+		* 2: tsuquyomiは|g:tsuquyomi_tsserver_path| で指定された
 		     `tsserver.js` を利用します.
 
 						*g:tsuquyomi_tsserver_path*
 g:tsuquyomi_tsserver_path	(デフォルト値 `''`)
-		|g:tsuquyomi_use_dev_node_module|を`2`とした場合, 
+		|g:tsuquyomi_use_dev_node_module|を`2`とした場合,
 		このオプションで`tsserver.js`のパスを設定する必要があります.
 		設定例:
 >
 		let g:tsuquyomi_use_dev_node_module = 2
-		let g:tsuquyomi_tsserver_path = 
+		let g:tsuquyomi_tsserver_path =
 		\ '~/typescript/built/local/tsserver.js'
 <
 
 						*g:tsuquyomi_nodejs_path*
-g:tsuquyomi_nodejs_path		(デフォルト値 'node')
+g:tsuquyomi_nodejs_path		(デフォルト値 "node")
 		Node.js の実行パス.
 
 						*g:tsuquyomi_definition_split*
 g:tsuquyomi_definition_split	(デフォルト値 0)
-		|:TsuquyomiDefinition| にて別ファイル定義への遷移時, 
+		|:TsuquyomiDefinition| にて別ファイル定義への遷移時,
 		ウィンドウをどのように開くか.
 		* 0: |:edit|
 		* 1: |:split|
@@ -294,7 +294,7 @@ g:tsuquyomi_definition_split	(デフォルト値 0)
 					*g:tsuquyomi_completion_detail*
 g:tsuquyomi_completion_detail		(デフォルト値 0)
 		|tsuquyomi#complete|実行時に詳細な補完メニューを作成するかどうか.
-		このオプションは|completeopt|に "menu"が含まれるときにのみ
+		このオプションは 'completeopt' に "menu" が含まれるときにのみ
 		意味を持つ.
 		NOTE: このオプションを1に設定した場合, 補完速度は遅くなる
 
@@ -307,8 +307,8 @@ g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)
 g:tsuquyomi_completion_preview		(デフォルト値 0)
 		|tsuquyomi#complete|実行時にシグネチャの情報をプレビューに表示
 		するかどうか.
-		このオプションは|completeopt|に "menu"と"preview"が含まれるとき
-		にのみ意味を持つ.
+		このオプションは 'completeopt' に "menu" と "preview" が含まれ
+		るときにのみ意味を持つ.
 		NOTE: このオプションを1に設定した場合, 補完速度は少し遅くなる
 
 						*g:tsuquyomi_disable_default_mappings*
@@ -345,7 +345,7 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		import対象の型定義ファイルが存在していないケースで有用。
 
 						*g:tsuquyomi_locale*
-g:tsuquyomi_locale (デフォルト値 'en')
+g:tsuquyomi_locale (デフォルト値 "en")
 		エラーメッセージのLCID。
 
 ------------------------------------------------------------------------------
@@ -417,33 +417,33 @@ g:tsuquyomi_locale (デフォルト値 'en')
 関数 							*tsuquyomi-functions*
 
 tsuquyomi#complete					*tsuquyomi#complete*
-		|completefunc| や|omnifunc|オプションに適用可能な関数.
-		デフォルトでは, |omnifunc|オプションにこの関数をセットしている
-		補完の挙動をカスタマイズする場合, |tsuquyomi-example-complete|
-		を参照の事.
+		'completefunc' や 'omnifunc' オプションに適用可能な関数.
+		デフォルトでは, 'omnifunc' オプションにこの関数をセットしてい
+		る補完の挙動をカスタマイズする場合,
+		|tsuquyomi-examples-complete| を参照の事.
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		マウスカーソル直下のシンボルについて, ツールチップにシンボルの
-		情報を表示させる.  |ballon-expr|にセットして利用する.
+		情報を表示させる.  'balloonexpr' にセットして利用する.
 		設定例:
 >
 		set ballooneval
 		autocmd BufNewFile,BufRead *.ts
-		\ setlocal ballonexpr=tsuquyomi#balloonexpr()
+		\ setlocal balloonexpr=tsuquyomi#balloonexpr()
 <
 		Note: この関数はVimが|+balloon_eval| オプション付きでコンパイル
 		      されている場合のみ利用可能である.
 
 tsuquyomi#hint					*tsuquyomi#hint*
-		カーソル上のシンボルの情報を返却する. |tsuquyomi#ballonexpr|
+		カーソル上のシンボルの情報を返却する. |tsuquyomi#balloonexpr|
 		と似ているが, この関数はGVim, 端末上のVimのどちらでも動作する.
-		
+
 		設定例:
 >
 		autocmd FileType typescript nmap <buffer> <Leader>t :
 		\ <C-u>echo tsuquyomi#hint()<CR>
 <
-		Note: This function works in not only GVim but also 
+		Note: This function works in not only GVim but also
 		      terminal Vim.
 
 tsuquyomi#getSupportedCodeFixes		 *tsuquyomi#getSupportedCodeFixes*
@@ -457,7 +457,7 @@ Todo
 EXAMPLES					*tsuquyomi-examples*
 
 						*tsuquyomi-examples-complete*
-補完の挙動は |completeopt| オプションで設定する.
+補完の挙動は 'completeopt' オプションで設定する.
 
 	メソッド呼び出しの補完時, メソッド定義をプレビューウィンドウに表示.
 >
