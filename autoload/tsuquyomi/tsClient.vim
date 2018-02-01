@@ -35,6 +35,8 @@ call add(s:ignore_respons_conditions, '"type":"event","event":"configFileDiag"')
 call add(s:ignore_respons_conditions, '"type":"event","event":"requestCompleted"')
 call add(s:ignore_respons_conditions, '"type":"event","event":"telemetry"')
 call add(s:ignore_respons_conditions, '"type":"event","event":"projectsUpdatedInBackground"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"typingsInstallerPid"')
+call add(s:ignore_respons_conditions, 'npm notice created a lockfile')
 
 " ### Utilites {{{
 function! s:error(msg)
