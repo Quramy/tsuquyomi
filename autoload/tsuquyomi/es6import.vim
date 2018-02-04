@@ -115,7 +115,8 @@ function! tsuquyomi#es6import#createImportBlock(text)
       if g:tsuquyomi_shortest_import_path == 1
         let l:path = s:getShortestImportPath(l:to, l:identifier, l:relative_path)
       elseif g:tsuquyomi_baseurl_import_path == 1
-        let l:path = s:getBaseUrlImportPath(nav.file)
+        let l:base_url_import_path = s:getBaseUrlImportPath(nav.file)
+        let l:path = l:base_url_import_path != '' ? l:base_url_import_path : l:relative_path
       else
         let l:path = l:relative_path
       endif
@@ -206,6 +207,11 @@ endfunction
 
 function! s:getBaseUrlImportPath(module_absolute_path)
   let [l:tsconfig, l:tsconfig_file_path] = s:getTsconfig(a:module_absolute_path)
+
+  if l:tsconfig_file_path == ''
+    return ''
+  endif
+
   let l:project_root_path = fnamemodify(l:tsconfig_file_path, ':h').'/'
   " We assume that baseUrl is a path relative to tsconfig.json path.
   let l:base_url_config = has_key(l:tsconfig.compilerOptions, 'baseUrl') ? l:tsconfig.compilerOptions.baseUrl : '.'
@@ -220,7 +226,13 @@ let s:tsconfig_file_path = ''
 function! s:getTsconfig(module_absolute_path)
   if empty(s:tsconfig)
     let l:project_info = tsuquyomi#tsClient#tsProjectInfo(a:module_absolute_path, 0)
-    let s:tsconfig_file_path = l:project_info.configFileName
+
+    if has_key(l:project_info, 'configFileName')
+      let s:tsconfig_file_path = l:project_info.configFileName
+    else
+      echom '[Tsuquyomi] Cannot find project’s tsconfig.json to compute baseUrl import path.'
+    endif
+
     let s:tsconfig = s:JSON.decode(join(readfile(s:tsconfig_file_path),''))
   endif
 
