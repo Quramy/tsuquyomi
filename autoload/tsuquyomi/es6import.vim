@@ -208,7 +208,7 @@ endfunction
 function! s:getBaseUrlImportPath(module_absolute_path)
   let [l:tsconfig, l:tsconfig_file_path] = s:getTsconfig(a:module_absolute_path)
 
-  if l:tsconfig_file_path == ''
+  if empty(l:tsconfig) || l:tsconfig_file_path == ''
     return ''
   endif
 
@@ -233,7 +233,14 @@ function! s:getTsconfig(module_absolute_path)
       echom '[Tsuquyomi] Cannot find project’s tsconfig.json to compute baseUrl import path.'
     endif
 
-    let s:tsconfig = s:JSON.decode(join(readfile(s:tsconfig_file_path),''))
+    let l:json = join(readfile(s:tsconfig_file_path),'')
+
+    try
+      let s:tsconfig = s:JSON.decode(l:json)
+    catch
+      echom '[Tsuquyomi] Cannot parse project’s tsconfig.json. Does it have comments?'
+    endtry
+
   endif
 
   return [s:tsconfig, s:tsconfig_file_path]
