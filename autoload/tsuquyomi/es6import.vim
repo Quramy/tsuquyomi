@@ -10,6 +10,7 @@ set cpo&vim
 
 let s:V = vital#of('tsuquyomi')
 let s:Filepath = s:V.import('System.Filepath')
+let s:JSON = s:V.import('Web.JSON')
 
 function! s:normalizePath(path)
   return substitute(a:path, '\\', '/', 'g')
@@ -113,6 +114,9 @@ function! tsuquyomi#es6import#createImportBlock(text)
       let l:relative_path = s:removeTSExtensions(l:relative_path)
       if g:tsuquyomi_shortest_import_path == 1
         let l:path = s:getShortestImportPath(l:to, l:identifier, l:relative_path)
+      elseif g:tsuquyomi_baseurl_import_path == 1
+        let l:base_url_import_path = s:getBaseUrlImportPath(nav.file)
+        let l:path = l:base_url_import_path != '' ? l:base_url_import_path : l:relative_path
       else
         let l:path = l:relative_path
       endif
@@ -199,6 +203,47 @@ function! s:getShortenedPath(splitted_absolute_path, previous_shortened_path, mo
     endif
   endwhile
   return l:current_directory_name . l:path_separator . l:shortened_path
+endfunction
+
+function! s:getBaseUrlImportPath(module_absolute_path)
+  let [l:tsconfig, l:tsconfig_file_path] = s:getTsconfig(a:module_absolute_path)
+
+  if empty(l:tsconfig) || l:tsconfig_file_path == ''
+    return ''
+  endif
+
+  let l:project_root_path = fnamemodify(l:tsconfig_file_path, ':h').'/'
+  " We assume that baseUrl is a path relative to tsconfig.json path.
+  let l:base_url_config = has_key(l:tsconfig.compilerOptions, 'baseUrl') ? l:tsconfig.compilerOptions.baseUrl : '.'
+  let l:base_url_path = simplify(l:project_root_path.l:base_url_config)
+
+  return s:removeTSExtensions(substitute(a:module_absolute_path, l:base_url_path, '', ''))
+endfunction
+
+let s:tsconfig = {}
+let s:tsconfig_file_path = ''
+
+function! s:getTsconfig(module_absolute_path)
+  if empty(s:tsconfig)
+    let l:project_info = tsuquyomi#tsClient#tsProjectInfo(a:module_absolute_path, 0)
+
+    if has_key(l:project_info, 'configFileName')
+      let s:tsconfig_file_path = l:project_info.configFileName
+    else
+      echom '[Tsuquyomi] Cannot find project’s tsconfig.json to compute baseUrl import path.'
+    endif
+
+    let l:json = join(readfile(s:tsconfig_file_path),'')
+
+    try
+      let s:tsconfig = s:JSON.decode(l:json)
+    catch
+      echom '[Tsuquyomi] Cannot parse project’s tsconfig.json. Does it have comments?'
+    endtry
+
+  endif
+
+  return [s:tsconfig, s:tsconfig_file_path]
 endfunction
 
 function! s:findExportingFileForModule(module, current_module_file, module_directory_path)
