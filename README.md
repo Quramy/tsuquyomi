@@ -135,6 +135,8 @@ If you want where an interface is implemented, use `:TsuImplementation`.
 #### Keyword search
 Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
 
+The search term minimum length can be configured with `let g:tsuquyomi_search_term_min_length = 3`.
+
 #### Disable default mappings
 If you do not want to use the above key mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
 

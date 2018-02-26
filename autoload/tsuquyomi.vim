@@ -857,8 +857,8 @@ endfunction
 " #### Navto {{{
 function! tsuquyomi#navto(term, kindModifiers, matchKindType)
 
-  if len(a:term) < 3
-    echom "[Tsuquyomi] search term's length should be greater than 3."
+  if len(a:term) < g:tsuquyomi_search_term_min_length
+    echom "[Tsuquyomi] search term's length should be greater than ".g:tsuquyomi_search_term_min_length."."
     return [[], 0]
   endif
 
