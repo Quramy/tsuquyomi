@@ -141,6 +141,8 @@ function! s:removeTSExtensions(path)
   let l:path = substitute(l:path, '\.d\.ts$', '', '')
   let l:path = substitute(l:path, '\.ts$', '', '')
   let l:path = substitute(l:path, '\.tsx$', '', '')
+  let l:path = substitute(l:path, '^@types/', '', '')
+  let l:path = substitute(l:path, '/index$', '', '')
   return l:path
 endfunction
 
