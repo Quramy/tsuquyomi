@@ -133,7 +133,21 @@ function! tsuquyomi#es6import#createImportBlock(text)
     call filter(l:result_list, 'v:val.identifier ==# l:identifier')
   endif
 
-  return l:result_list
+  " Make the possible imports list unique per path
+  let dictionary = {}
+  for i in l:result_list
+    let dictionary[i.path] = i
+  endfor
+
+  let l:unique_result_list = []
+
+  if (exists('a:1'))
+    let l:unique_result_list = sort(values(dictionary), a:1)
+  else
+    let l:unique_result_list = sort(values(dictionary))
+  endif
+
+  return l:unique_result_list
 endfunction
 
 function! s:removeTSExtensions(path)
@@ -141,6 +155,8 @@ function! s:removeTSExtensions(path)
   let l:path = substitute(l:path, '\.d\.ts$', '', '')
   let l:path = substitute(l:path, '\.ts$', '', '')
   let l:path = substitute(l:path, '\.tsx$', '', '')
+  let l:path = substitute(l:path, '^@types/', '', '')
+  let l:path = substitute(l:path, '/index$', '', '')
   return l:path
 endfunction
 
@@ -384,17 +400,17 @@ function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
   return [l:result_list, l:position, '']
 endfunction
 
-let s:impotable_module_list = []
+let s:importable_module_list = []
 function! tsuquyomi#es6import#moduleComplete(arg_lead, cmd_line, cursor_pos)
-  return join(s:impotable_module_list, "\n")
+  return join(s:importable_module_list, "\n")
 endfunction
 
 function! tsuquyomi#es6import#selectModule()
   echohl String
-  let l:selected_module = input('[Tsuquyomi] You can import from 2 more than modules. Select one : ', '', 'custom,tsuquyomi#es6import#moduleComplete')
-  echohl none 
+  let l:selected_module = input('[Tsuquyomi] You can import from 2 or more modules. Select one : ', '', 'custom,tsuquyomi#es6import#moduleComplete')
+  echohl none
   echo ' '
-  if len(filter(copy(s:impotable_module_list), 'v:val==#l:selected_module'))
+  if len(filter(copy(s:importable_module_list), 'v:val==#l:selected_module'))
     return [l:selected_module, 1]
   else
     echohl Error
@@ -412,7 +428,7 @@ function! tsuquyomi#es6import#complete()
   let l:identifier_info = s:get_keyword_under_cursor()
   let l:list = tsuquyomi#es6import#createImportBlock(l:identifier_info.text)
   if len(l:list) > 1
-    let s:impotable_module_list = map(copy(l:list), 'v:val.path')
+    let s:importable_module_list = map(copy(l:list), 'v:val.path')
     let [l:selected_module, l:code] = tsuquyomi#es6import#selectModule()
     if !l:code
       echohl Error
