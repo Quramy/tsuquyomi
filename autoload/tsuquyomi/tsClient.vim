@@ -444,7 +444,8 @@ endfunction
 function! tsuquyomi#tsClient#tsGeterr(files, delay)
   let l:args = {'files': a:files, 'delay': a:delay}
   let l:delaySec = a:delay * 1.0 / 1000.0
-  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', l:args, l:delaySec, len(a:files) * 2)
+  let l:typeCount =   tsuquyomi#config#isHigher(280) ? 3 : 2
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', l:args, l:delaySec, len(a:files) * l:typeCount)
   return l:result
 endfunction
 
@@ -457,7 +458,8 @@ endfunction
 function! tsuquyomi#tsClient#tsGeterrForProject(file, delay, count)
   let l:args = {'file': a:file, 'delay': a:delay}
   let l:delaySec = a:delay * 1.0 / 1000.0
-  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterrForProject', l:args, l:delaySec, a:count * 2)
+  let l:typeCount =   tsuquyomi#config#isHigher(280) ? 3 : 2
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterrForProject', l:args, l:delaySec, a:count * l:typeCount)
   return l:result
 endfunction
 
