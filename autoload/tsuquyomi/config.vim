@@ -108,11 +108,7 @@ function! tsuquyomi#config#tsscmd()
     if l:prj_dir !=# ''
       let l:searched_tsserver_path = s:Filepath.join(l:prj_dir, 'node_modules/typescript/bin/tsserver')
       if filereadable(l:searched_tsserver_path)
-        if !s:is_vim8
-          return g:tsuquyomi_nodejs_path.' "'.l:searched_tsserver_path.'"'
-        else
-          return g:tsuquyomi_nodejs_path.' '.l:searched_tsserver_path
-        endif
+        return g:tsuquyomi_nodejs_path.' "'.l:searched_tsserver_path.'"'
       endif
     endif
   endif
