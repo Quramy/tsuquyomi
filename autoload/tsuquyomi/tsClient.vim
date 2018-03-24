@@ -15,20 +15,32 @@ endif
 let s:script_dir = expand('<sfile>:p:h')
 
 let s:V = vital#of('tsuquyomi')
-let s:P = s:V.import('ProcessManager')
 let s:JSON = s:V.import('Web.JSON')
 let s:Filepath = s:V.import('System.Filepath')
-let s:tsq = 'tsuquyomiTSServer'
+
+let s:is_vim8 = !has('nvim') && has('patch-8.0.1')
+
+if !s:is_vim8 || g:tsuquyomi_use_vimproc
+  let s:P = s:V.import('ProcessManager')
+  let s:tsq = 'tsuquyomiTSServer'
+else
+  let s:tsq = {'job':0}
+endif
 
 let s:request_seq = 0
+
+let s:ignore_respons_conditions = []
+" ignore events configFileDiag triggered by reload event. See also #99
+call add(s:ignore_respons_conditions, '"type":"event","event":"configFileDiag"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"requestCompleted"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"telemetry"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"projectsUpdatedInBackground"')
+call add(s:ignore_respons_conditions, '"type":"event","event":"typingsInstallerPid"')
+call add(s:ignore_respons_conditions, 'npm notice created a lockfile')
 
 " ### Utilites {{{
 function! s:error(msg)
   echoerr (a:msg)
-endfunction
-
-function! s:waitTss(sec)
-  call s:P.read_wait(s:tsq, a:sec, [])
 endfunction
 
 function! s:debugLog(msg)
@@ -42,11 +54,11 @@ endfunction
 " ### Core Functions {{{
 "
 " If not exsiting process of TSServer, create it.
-function! tsuquyomi#tsClient#startTss()
+function! s:startTssVimproc()
   if s:P.state(s:tsq) == 'existing'
     return 'existing'
   endif
-  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g')
+  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g').' '.tsuquyomi#config#tssargs()
   let l:is_new = s:P.touch(s:tsq, l:cmd)
   if l:is_new == 'new'
     let [out, err, type] = s:P.read_wait(s:tsq, 0.1, [])
@@ -60,17 +72,69 @@ function! tsuquyomi#tsClient#startTss()
   return l:is_new
 endfunction
 
-"
-"Terminate TSServer process if it exsits.
-function! tsuquyomi#tsClient#stopTss()
-  if tsuquyomi#tsClient#statusTss() != 'undefined'
-    let l:res = s:P.term(s:tsq)
-    return l:res
+function! s:startTssVim8()
+  if type(s:tsq['job']) == 8 && job_info(s:tsq['job']).status == 'run'
+    return 'existing'
+  endif
+  let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g').' '.tsuquyomi#config#tssargs()
+  try
+    let s:tsq['job'] = job_start(l:cmd)
+    let s:tsq['channel'] = job_getchannel(s:tsq['job'])
+
+    let out =  ch_readraw(s:tsq['channel'])
+    let st = tsuquyomi#tsClient#statusTss()
+    if !g:tsuquyomi_tsserver_debug
+      if err != ''
+        call s:error('Fail to start TSServer... '.err)
+        return 0
+      endif
+    endif
+  catch
+    return 0
+  endtry
+  return 1
+endfunction
+
+function! tsuquyomi#tsClient#startTss()
+  if !s:is_vim8 || g:tsuquyomi_use_vimproc
+    return s:startTssVimproc()
+  else
+    return s:startTssVim8()
   endif
 endfunction
 
+"
+"Terminate TSServer process if it exsits.
+function! tsuquyomi#tsClient#stopTss()
+  if tsuquyomi#tsClient#statusTss() != 'dead'
+    if !s:is_vim8 || g:tsuquyomi_use_vimproc
+      let l:res = s:P.term(s:tsq)
+      return l:res
+    else
+      let l:res = job_stop(s:tsq['job'])
+      return l:res
+    endif
+  endif
+endfunction
+
+" RETURNS: {string} 'run' or 'dead'
 function! tsuquyomi#tsClient#statusTss()
-  return s:P.state(s:tsq)
+  try
+    if !s:is_vim8 || g:tsuquyomi_use_vimproc
+      let stat = s:P.state(s:tsq)
+      if stat == 'undefined'
+        return 'dead'
+      elseif stat == 'reading'
+        return 'run'
+      else
+        return stat
+      endif
+    else
+      return job_info(s:tsq['job']).status
+    endif
+  catch
+    return 'dead' 
+  endtry
 endfunction
 
 "
@@ -84,35 +148,49 @@ endfunction
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
   "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
-  call s:P.writeln(s:tsq, a:line)
+  if !s:is_vim8 || g:tsuquyomi_use_vimproc
+    call s:P.writeln(s:tsq, a:line)
+  else
+    call ch_sendraw(s:tsq['channel'], a:line."\n")
+  endif
 
   let l:retry = 0
   let response_list = []
 
   while len(response_list) < a:response_length
-    let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
-    call s:debugLog('out: '.out.', type:'.type)
-    if type == 'timedout'
-      let retry_delay = 0.05
-      while l:retry < a:retry_count
-        let [out, err, type] = s:P.read_wait(s:tsq, retry_delay, ['Content-Length: \d\+'])
-        if type == 'matched'
-          call tsuquyomi#perfLogger#record('tssMatched')
-          "call s:debugLog('retry: '.l:retry.', length: '.len(response_list))
-          break
-        endif
-        let l:retry = l:retry + 1
-        call tsuquyomi#perfLogger#record('tssRetry:'.l:retry)
-      endwhile
+    if !s:is_vim8 || g:tsuquyomi_use_vimproc
+      let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
+      call s:debugLog('out: '.out.', type:'.type)
+      if type == 'timedout'
+        let retry_delay = 0.05
+        while l:retry < a:retry_count
+          let [out, err, type] = s:P.read_wait(s:tsq, retry_delay, ['Content-Length: \d\+'])
+          if type == 'matched'
+            call tsuquyomi#perfLogger#record('tssMatched')
+            "call s:debugLog('retry: '.l:retry.', length: '.len(response_list))
+            break
+          endif
+          let l:retry = l:retry + 1
+          call tsuquyomi#perfLogger#record('tssRetry:'.l:retry)
+        endwhile
+      endif
+    else
+      let out = ch_readraw(s:tsq['channel'])
+      let type = 'matched'
     endif
-
     if type == 'matched'
       let l:tmp1 = substitute(out, 'Content-Length: \d\+', '', 'g')
       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
       let l:res_list = split(l:tmp2, '\n\+')
       for res_item in l:res_list
-        " ignore 2nd response of reload command #62
-        if res_item !~'{"reloadFinished":true}}$'
+        let l:check = 0
+        for ignore_reg in s:ignore_respons_conditions
+          let l:check = l:check || (res_item =~ ignore_reg)
+          if l:check
+            break
+          endif
+        endfor
+        if !l:check
           call add(response_list, res_item)
         endif
       endfor
@@ -123,6 +201,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
 
   endwhile
   "call s:debugLog(a:response_length.', '.len(response_list))
+  let s:request_seq = s:request_seq + 1
   return response_list
 endfunction
 
@@ -135,7 +214,7 @@ endfunction
 function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
   call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
-  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, 0.0001, 10, 1)
+  let l:stdout_list = tsuquyomi#tsClient#sendRequest(l:input, str2float("0.0001"), 1000, 1)
   call tsuquyomi#perfLogger#record('afterCmd:'.a:cmd)
   let l:length = len(l:stdout_list)
   if l:length == 1
@@ -143,7 +222,6 @@ function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
     "if res.success == 0
     "  echom '[Tsuquyomi] TSServer command fail. command: '.res.command.', message: '.res.message
     "endif
-    let s:request_seq = s:request_seq + 1
     call tsuquyomi#perfLogger#record('afterDecode:'.a:cmd)
     return [res]
   else
@@ -166,7 +244,6 @@ function! tsuquyomi#tsClient#sendCommandSyncEvents(cmd, args, delay, length)
         call add(l:result_list, res)
       endif
     endfor
-    let s:request_seq = s:request_seq + 1
     return l:result_list
   else
     return []
@@ -176,7 +253,7 @@ endfunction
 
 function! tsuquyomi#tsClient#sendCommandOneWay(cmd, args)
   let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
-  call tsuquyomi#tsClient#sendRequest(l:input, 0.01, 0, 0)
+  call tsuquyomi#tsClient#sendRequest(l:input, str2float("0.01"), 0, 0)
   return []
 endfunction
 
@@ -290,23 +367,58 @@ function! tsuquyomi#tsClient#tsCompletionEntryDetails(file, line, offset, entryN
   return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
-"Fetch method signature information from TSServer.
-function! tsuquyomi#tsClient#tsSignatureHelp(file, line, offset)
-  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('signatureHelp', l:args)
-  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
-endfunction
-
-" Configure = "configure";
-function! tsuquyomi#tsClient#tsConfigure(file, tabSize, indentSize, hostInfo)
-  call s:error('not implemented!')
+" Configure editor parameter
+" PARAM: {string} file File name.
+" PARAM: {string} hostInfo Information of Vim
+" PARAM: {dict} formatOptions Options for editor. See the following FormatCodeSetting interface.
+" PARAM: {list} extraFileExtensions List of extensions
+"
+"    interface FormatCodeSetting {
+"        baseIndentSize?: number;
+"        indentSize?: number;
+"        tabSize?: number;
+"        newLineCharacter?: string;
+"        convertTabsToSpaces?: boolean;
+"        indentStyle?: IndentStyle | ts.IndentStyle;
+"        insertSpaceAfterCommaDelimiter?: boolean;
+"        insertSpaceAfterSemicolonInForStatements?: boolean;
+"        insertSpaceBeforeAndAfterBinaryOperators?: boolean;
+"        insertSpaceAfterConstructor?: boolean;
+"        insertSpaceAfterKeywordsInControlFlowStatements?: boolean;
+"        insertSpaceAfterFunctionKeywordForAnonymousFunctions?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces?: boolean;
+"        insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces?: boolean;
+"        insertSpaceBeforeFunctionParenthesis?: boolean;
+"        placeOpenBraceOnNewLineForFunctions?: boolean;
+"        placeOpenBraceOnNewLineForControlBlocks?: boolean;
+"    }
+let s:NON_BOOLEAN_KEYS_IN_FOPT = [ 'baseIndentSize', 'indentSize', 'tabSize', 'newLineCharacter', 'convertTabsToSpaces', 'indentStyle' ]
+function! tsuquyomi#tsClient#tsConfigure(file, hostInfo, formatOptions, extraFileExtensions)
+  let fopt = { }
+  for k in keys(a:formatOptions)
+    if index(s:NON_BOOLEAN_KEYS_IN_FOPT, k) != -1
+      let fopt[k] = a:formatOptions[k]
+    else
+      let fopt[k] = a:formatOptions[k] ? s:JSON.true : s.JSON.false
+    endif
+  endfor
+  let l:args = {
+        \ 'file': a:file,
+        \ 'hostInfo': a:hostInfo,
+        \ 'formatOptions': fopt,
+        \ 'extraFileExtensions': a:extraFileExtensions
+        \ }
+  return tsuquyomi#tsClient#sendCommandOneWay('configure', l:args)
 endfunction
 
 " Fetch location where the symbol at cursor(line, offset) in file is defined.
 " PARAM: {string} file File name.
 " PARAM: {int} line The line number of location to complete.
 " PARAM: {int} offset The col number of location to complete.
-" RETURNS: {list} A list of dictionaries of definition location.
+" RETURNS: {list<dict>} A list of dictionaries of definition location.
 "   e.g. : 
 "     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
 function! tsuquyomi#tsClient#tsDefinition(file, line, offset)
@@ -332,7 +444,8 @@ endfunction
 function! tsuquyomi#tsClient#tsGeterr(files, delay)
   let l:args = {'files': a:files, 'delay': a:delay}
   let l:delaySec = a:delay * 1.0 / 1000.0
-  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', l:args, l:delaySec, len(a:files) * 2)
+  let l:typeCount =   tsuquyomi#config#isHigher(280) ? 3 : 2
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterr', l:args, l:delaySec, len(a:files) * l:typeCount)
   return l:result
 endfunction
 
@@ -345,8 +458,30 @@ endfunction
 function! tsuquyomi#tsClient#tsGeterrForProject(file, delay, count)
   let l:args = {'file': a:file, 'delay': a:delay}
   let l:delaySec = a:delay * 1.0 / 1000.0
-  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterrForProject', l:args, l:delaySec, a:count * 2)
+  let l:typeCount =   tsuquyomi#config#isHigher(280) ? 3 : 2
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('geterrForProject', l:args, l:delaySec, a:count * l:typeCount)
   return l:result
+endfunction
+
+" Fetch a list of implementations of an interface.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of the symbol's position.
+" PARAM: {int} offset The col number of the symbol's position.
+" RETURNS: {list<dict>} Reference information.
+"   e.g. :
+"     [
+"       {
+"         'file': 'SomeClass.ts',
+"         'start': {'offset': 11, 'line': 23}, 'end': {'offset': 5, 'line': 35}
+"       }, {
+"         'file': 'OtherClass.ts',
+"         'start': {'offset': 31, 'line': 26}, 'end': {'offset': 68, 'line': 26}
+"       }
+"     ]
+function! tsuquyomi#tsClient#tsImplementation(file, line, offset)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('implementation', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
 endfunction
 
 " Fetch navigation list from TSServer.
@@ -419,8 +554,8 @@ endfunction
 "       ]
 "     }
 function! tsuquyomi#tsClient#tsReferences(file, line, offset)
-  let l:arg = {'file': a:file, 'line': a:line, 'offset': a:offset}
-  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('references', l:arg)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('references', l:args)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
@@ -431,9 +566,16 @@ endfunction
 " RETURNS: {0|1} 
 function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
-  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('reload', l:arg)
+  " With ts > 2.6 and ts <=1.9, tsserver emit 2 responses by reload request.
+  " ignore 2nd response of reload command. See also #62
+  if tsuquyomi#config#isHigher(260) || !tsuquyomi#config#isHigher(190)
+    let l:res_count = 1
+  else
+    let l:res_count = 2
+  endif
+  let l:result = tsuquyomi#tsClient#sendCommandSyncEvents('reload', l:arg, 0.01, l:res_count)
   "echo l:result
-  if(len(l:result) == 1)
+  if(len(l:result) >= 1)
     if(has_key(l:result[0], 'success'))
       return l:result[0].success
     else
@@ -490,10 +632,6 @@ function! tsuquyomi#tsClient#tsBrace(file, line, offset)
   call s:error('not implemented!')
 endfunction
 
-function! tsuquyomi#tsClient#tsTypeDefinition(file, line, offset)
-  call s:error('not implemented!')
-endfunction
-
 " This command is available only at tsserver ~v.1.6
 function! tsuquyomi#tsClient#tsDocumentHighlights(file, line, offset, filesToSearch)
   call s:error('not implemented!')
@@ -520,11 +658,126 @@ function! tsuquyomi#tsClient#tsProjectInfo(file, needFileNameList)
   return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
+" Fetch method signature information from TSServer.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of the symbol's position.
+" PARAM: {int} offset The col number of the symbol's position.
+" RETURNS:  {dict}  
+"   e.g. :
+"     {
+"       'selectedItemIndex': 0,
+"       'argumentCount': 1,
+"       'argumentIndex': 0,
+"       'applicableSpan': {
+"         'start': { 'offset': 27, 'line': 25 }, 'end': { 'offset': 40, 'line': 25 }
+"       },
+"       'items': [{
+"         'tags': [],
+"         'separatorDisplayParts': [
+"           { 'kind': 'punctuation', 'text': ',' },
+"           { 'kind': 'space', 'text': ' ' }
+"         ],
+"         'prefixDisplayParts': [
+"           { 'kind': 'methodName', 'text': 'deleteTerms' },
+"           { 'kind': 'punctuation', 'text': '(' }
+"         ],
+"         'parameters': [
+"           {
+"             'isOptional': 0,
+"             'name': 'id',
+"             'documentation': [],
+"             'displayParts': [
+"               { 'kind': 'parameterName', 'text': 'id' },
+"               { 'kind': 'punctuation', 'text': ':' },
+"               { 'kind': 'space', 'text': ' ' },
+"               { 'kind': 'keyword', 'text': 'number' }
+"             ]
+"           }
+"         ],
+"         'suffixDisplayParts': [
+"           { 'kind': 'punctuation', 'text': ')' },
+"           { 'kind': 'punctuation', 'text': ':' },
+"           { 'kind': 'space', 'text': ' ' },
+"           { 'kind': 'className', 'text': 'Observable' },
+"           { 'kind': 'punctuation', 'text': '<' },
+"           { 'kind': 'interfaceName', 'text': 'ApiResponseData' },
+"           { 'kind': 'punctuation', 'text': '>' }
+"         ],
+"         'isVariadic': 0,
+"         'documentation': []
+"       }]
+"     }
+"
+" This can be combined into a simple signature like this:
+"     deleteTerms(id: number): Observable<ApiResponseData>
+function! tsuquyomi#tsClient#tsSignatureHelp(file, line, offset)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('signatureHelp', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
+endfunction
+
+" Fetch location where the type of the symbol at cursor(line, offset) in file is defined.
+" PARAM: {string} file File name.
+" PARAM: {int} line The line number of location to complete.
+" PARAM: {int} offset The col number of location to complete.
+" RETURNS: {list<dict>} A list of dictionaries of type definition location.
+"   e.g. : 
+"     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
+function! tsuquyomi#tsClient#tsTypeDefinition(file, line, offset)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('typeDefinition', l:args)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
+endfunction
+
 " Reload prjects.
 " This command is available only at tsserver ~v.1.6
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsReloadProjects()
   return tsuquyomi#tsClient#sendCommandOneWay('reloadProjects', {})
+endfunction
+
+" This command is available only at tsserver ~v.2.1
+" PARAM: {string} file File name.
+" PARAM: {number} startLine The line number for the req
+" PARAM: {number} startOffset The character offset for the req
+" PARAM: {number} endLine The line number for the req
+" PARAM: {number} endOffset The character offset for the req
+" PARAM: {list<number>} errorCodes Error codes we want to get the fixes for
+" RETURNS: {list<dict>}
+"   e.g.:
+"     [
+"       {
+"         'description': 'Add missing ''super()'' call.',
+"         'changes': [
+"           {
+"             'fileName': '/SamplePrj/codeFixesTest.ts',
+"             'textChanges': [
+"               {
+"                 'start': {'offset': 20, 'line': 6},
+"                 'end': {'offset': 20, 'line': 6},
+"                 'newText': 'super();'
+"               }
+"             ]
+"           }
+"         ]
+"       }
+"     ]
+function! tsuquyomi#tsClient#tsGetCodeFixes(file, startLine, startOffset, endLine, endOffset, errorCodes)
+  let l:arg = {
+        \ 'file': a:file,
+        \ 'startLine': a:startLine, 'startOffset': a:startOffset,
+        \ 'endLine': a:endLine, 'endOffset': a:endOffset,
+        \ 'errorCodes': a:errorCodes
+        \ }
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getCodeFixes', l:arg)
+  return tsuquyomi#tsClient#getResponseBodyAsList(l:result)
+endfunction
+
+" Get available code fixes list
+" This command is available only at tsserver ~v.2.1
+function! tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+  let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getSupportedCodeFixes', {})
+  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
 endfunction
 
 

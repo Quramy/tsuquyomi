@@ -52,6 +52,7 @@ INSTALL						*tsuquyomi-install*
 Tsuquyomi requires the following:
 * Vim (v.7.4.0 or later)
 * Shougo/vimproc.vim (https://github.com/Shougo/vimproc.vim)
+  (Not required if you use vim8 or later)
 * Node.js and TypeScript (v.1.5.0 or later)
 
 In the first, If you haven't installed |vimproc|, please install this.
@@ -75,7 +76,7 @@ If you use |NeoBundle| for plugin management, append the following to `.vimrc` .
 	\     'unix' : 'gmake',
 	\    },
 	\ }
-	
+
 	NeoBundle 'Quramy/tsuquyomi'
 >
 And execute the Ex command |:NeoBundleInstall| .
@@ -94,7 +95,7 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuquyomiStartServer*
 						*:TsuStartServer*
 :TsuquyomiStartServer
-		Start TSServer process using |vimproc|.
+		Start TSServer process.
 		If already the process is running, this command does not
 		anything.
 
@@ -107,7 +108,7 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuStatusServer*
 :TsuquyomiStatusServer
 		Show TSServer status.
-		When TSServer is running, the message 'reading' will be
+		When TSServer is running, the message "reading" will be
 		displayed.
 
 						*:TsuquyomiOpen*
@@ -149,17 +150,36 @@ COMMANDS					*tsuquyomi-commands*
 :TsuquyomiDefinition
 		Navigate to the location where the symbol is defined.
 
+						*:TsuquyomiSplitDefinition*
+						*:TsuSplitDefinition*
+:TsuquyomiSplitDefinition
+		Split current window in two. Navigate to the location where
+		the symbol is defined.
+
+						*:TsuquyomiTypeDefinition*
+						*:TsuTypeDefinition*
+:TsuquyomiTypeDefinition
+		Navigate to the location where the type of the symbol is
+		defined.
+
 						*:TsuquyomiGoBack*
 						*:TsuGoBack*
 :TsuquyomiGoBack
 		Move the cursor position to the location where
-		the last |:TsuquyomiDefinition| was called.
+		the last |:TsuquyomiDefinition| or |:TsuquyomiTypeDefinition|
+		was called.
+
+						*:TsuquyomiImplementation*
+						*:TsuImplementation*
+:TsuquyomiImplementation
+		Navigate to the locations where an interface is implemented.
+		The result is loaded into the |location-list| .
 
 						*:TsuquyomiReferences*
 						*:TsuReferences*
 :TsuquyomiReferences
 		Navigate to the locations where the symbol is referenced.
-		The result is shown to |location-list| .
+		The result is loaded into the |location-list| .
 
 						*:TsuquyomiRenameSymbol*
 						*:TsuRenameSymbol*
@@ -197,9 +217,25 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuquyomiSeaarch*
 						*:TsuSearch*
 :TsuquyomiSearch {keyword}
-		Search locations which containts {keyword} from ptoject.
+		Search locations which contain {keyword} from project.
 
-Todo
+						*:TsuquyomiQuickFix*
+						*:TsuQuickFix*
+:TsuquyomiQuickFix
+		If the cursor is on some errors and there is supported
+		quick fix, apply it.
+		This command requires TypeScript@v2.1.0 or later.
+
+						*:TsuquyomiSignatureHelp*
+						*:TsuSignatureHelp*
+:TsuquyomiSignatureHelp
+		Display signature help for the method signature the cursor is
+		currently inside, and display the output in the preview
+		window. If there are multiple overloads they will be
+		displayed, along with any documentation.
+		Note that the cursor must be between the method parentheses,
+		or at least after the opening parenthesis of a partially
+		written method call.
 
 ------------------------------------------------------------------------------
 VARIABLES					*tsuquyomi-variables*
@@ -208,7 +244,7 @@ VARIABLES					*tsuquyomi-variables*
 g:tsuquyomi_auto_open		(default 1)
 		Whether automatically TSServer opens the file of the current
 		buffer, when the buffer is opened in Vim
-		If you set this option to 0, you should manually exec the 
+		If you set this option to 0, you should manually exec the
 		|:TsuquyomiOpen| command after opening buffers.
 
 					*g:tsuquyomi_use_local_typescript*
@@ -218,10 +254,10 @@ g:tsuquyomi_use_local_typescript (default 1)
 		* 0: Tsuquyomi does not search `tsserver.js`.
 		* 1: Tsuquyomi searches the root directory(which has
 		     `package.json`) of the project from the current directory.
-		     Then, it searches 
+		     Then, it searches
 		     `node_modules/typescript/bin/tsserver.js` from the
-		     project root. 
-		     If not hit, Tsuquyomi determines `tsserver.js` path from 
+		     project root.
+		     If not hit, Tsuquyomi determines `tsserver.js` path from
 		     |g:tsuquyomi_use_dev_node_module| option.
 
 					*g:tsuquyomi_use_dev_node_module*
@@ -235,7 +271,7 @@ g:tsuquyomi_use_dev_node_module	(default 0)
 		     :cd ~/.vim/bundle/tsuquyomi
 		     :!npm install
 <
-		* 2: Tsuquyomi uses `tsserver.js` whose path is 
+		* 2: Tsuquyomi uses `tsserver.js` whose path is
 		     |g:tsuquyomi_tsserver_path| .
 
 						*g:tsuquyomi_tsserver_path*
@@ -245,32 +281,45 @@ g:tsuquyomi_tsserver_path	(default `''`)
 		For example,
 >
 		let g:tsuquyomi_use_dev_node_module = 2
-		let g:tsuquyomi_tsserver_path = 
+		let g:tsuquyomi_tsserver_path =
 		\ '~/typescript/built/local/tsserver.js'
 <
 
 						*g:tsuquyomi_nodejs_path*
-g:tsuquyomi_nodejs_path		(default 'node')
+g:tsuquyomi_nodejs_path		(default "node")
 		A path to Node.js.
 
 						*g:tsuquyomi_definition_split*
 g:tsuquyomi_definition_split	(default 0)
-		A way to open a target file when |:TsuquyomiDefinition|.
+		A way to open a target file when navigating with
+		|:TsuquyomiDefinition| or |:TsuquyomiTypeDefinition|.
 		* 0: |:edit|
 		* 1: |:split|
-		* 2: |:vplit|
+		* 2: |:vsplit|
 		* 3: |:tabedit|
 
 					*g:tsuquyomi_completion_detail*
 g:tsuquyomi_completion_detail		(default 0)
 		Whether to show details of complete menu when |tsuquyomi#complete|.
-		This options makes sence when |completeopt| includes "menu".
+		This options makes sence when 'completeopt' includes "menu".
 		NOTE: If it's set, completions gets slow.
 
 					*g:tsuquyomi_completion_case_sensitive*
 g:tsuquyomi_completion_case_sensitive	(default 0)
 		Whether to search completion case-sensitively when
 		|tsuquyomi#complete|.
+
+					*g:tsuquyomi_case_sensitive_imports*
+g:tsuquyomi_case_sensitive_imports	(default 0)
+		Whether to search imports case-sensitively when
+		|tsuquyomi#es6import#complete|.
+
+					*g:tsuquyomi_completion_preview*
+g:tsuquyomi_completion_preview		(default 0)
+		Whether to show sigunature in preview when |tsuquyomi#complete|.
+		This options makes sence when 'completeopt' includes "menu"
+		and "preview".
+		NOTE: If it's set, completions gets a little slow.
 
 						*g:tsuquyomi_disable_default_mappings*
 g:tsuquyomi_disable_default_mappings	(default 0)
@@ -282,10 +331,41 @@ g:tsuquyomi_disable_quickfix	(default 0)
 
 						*g:tsuquyomi_save_onrename*
 g:tsuquyomi_save_onrename	(default 0)
-		If set, Tsuquyomi saves arbitrarily the files which have the 
+		If set, Tsuquyomi saves arbitrarily the files which have the
 		replaced symbols by |:TsuquyomiRenameSymbol| .
 		If not set, Tsuquyomi shows replaced files with |:split|.
 		You can save them with |:wa| after your review changes.
+
+						*g:tsuquyomi_single_quote_import*
+g:tsuquyomi_single_quote_import		(default 0)
+		If set, Tsuquyomi generates import block using single quotes
+		instead of double quotes when |:TsuquyomiImport|.
+
+						*g:tsuquyomi_baseurl_import_path*
+g:tsuquyomi_baseurl_import_path		(default 0)
+		If set, |:TsuquyomiImport| will use module paths relative to
+		`baseUrl` setting in tsconfig.json.
+
+						*g:tsuquyomi_javascript_support*
+g:tsuquyomi_javascript_support	(default 0)
+		If set, Tsuquyomi will also be enabled for JavaScript files.
+		You can further configure tsserver's behavior using
+		tsconfig.json or jsconfig.json in your project.
+
+						*g:tsuquyomi_ignore_missing_modules*
+g:tsuquyomi_ignore_missing_modules (default 0)
+		If set, Tsuquyomi will ignore any error that starts with
+		"Cannot find module". Useful when you don't have type
+		definitions for all of your imports.
+
+						*g:tsuquyomi_use_vimproc*
+g:tsuquyomi_use_vimproc (default 0)
+		If set, Tsuquyomi will use vimproc instead of vim8 default
+		jobs.
+
+						*g:tsuquyomi_locale*
+g:tsuquyomi_locale (default "en")
+		LCID for deagonistics localization.
 
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*tsuquyomi-key-mappings*
@@ -294,15 +374,31 @@ Normal mode key mappings.
 
 						*<Plug>(TsuquyomiDefinition)*
 <Plug>(TsuquyomiDefinition)
-		Navigate to the location where the symbol on the cursor is
+		Navigate to the location where the symbol under the cursor is
 		defined. See |:TsuquyomiDefinition|.
+
+						*<Plug>(TsuquyomiSplitDefinition)*
+<Plug>(TsuquyomiSplitDefinition)
+		Split current window in two. Navigate to the location where
+		the symbol under the cursor is defined. See
+		|:TsuquyomiSplitDefinition|.
+
+						*<Plug>(TsuquyomiTypeDefinition)*
+<Plug>(TsuquyomiTypeDefinition)
+		Navigate to the location where the type of the symbol under the
+		cursor is defined. See |:TsuquyomiTypeDefinition|.
 
 <Plug>(TsuquyomiGoBack)				*<Plug>(TsuquyomiGoBack)*
 		See |:TsuquyomiGoBack|.
 
+						*<Plug>(TsuquyomiImplementation)*
+<Plug>(TsuquyomiImplementation)
+		Show a list of locations where the interface under the cursor is
+		implemented. See |:TsuquyomiImplementation|.
+
 						*<Plug>(TsuquyomiReferences)*
 <Plug>(TsuquyomiReferences)
-		Show a list of locations where the symbol on the cursor is
+		Show a list of locations where the symbol under the cursor is
 		referenced. See |:TsuquyomiReferences|.
 
 					*<Plug>(TsuquyomiRenameSymbol)*
@@ -315,10 +411,20 @@ Normal mode key mappings.
 		Rename the identifier under the cursor to a new name.
 		Please see |:TsuquyomiRenameSymbolC|.
 
+						*<Plug>(TsuquyomiQuickFix)*
+<Plug>(TsuquyomiQuickFix)
+		Apply quick fix under the cursor if it's available.
+		Please see |:TsuquyomiQuickFix|.
+
 						*<Plug>(TsuquyomiImport)*
 <Plug>(TsuquyomiImport)
-		Generate ES6 import declaration whose alias is under 
+		Generate ES6 import declaration whose alias is under
 		the cursor. See |:TsuquyomiImport|.
+
+						*<Plug>(TsuquyomiSignatureHelp)*
+<Plug>(TsuquyomiSignatureHelp)
+		Display signature help for the method arguments under the
+		cursor. See |:TsuquyomiSignatureHelp|.
 
 Following keymappings are default keymappings.
 
@@ -326,6 +432,8 @@ Normal mode default mappings.
 {lhs}			{rhs}
 --------		-----------------------------
 <C-]>			<Plug>(TsuquyomiDefinition)
+<C-W>]			<Plug>(TsuquyomiSplitDefinition)
+<C-W><C-]>		<Plug>(TsuquyomiSplitDefinition)
 <C-t>			<Plug>(TsuquyomiGoBack)
 <C-^>			<Plug>(TsuquyomiReferences)
 
@@ -333,44 +441,49 @@ Normal mode default mappings.
 FUNCTIONS					*tsuquyomi-functions*
 
 tsuquyomi#complete				*tsuquyomi#complete*
-		It's applicable for the |completefunc| or |omnifunc| option.
-		By the default, Tsuquyomi set this function to the |omnifunc|
+		It's applicable for the 'completefunc' or 'omnifunc' option.
+		By the default, Tsuquyomi set this function to the 'omnifunc'
 		option.
 		If you want to customize completions, see
-		|tsuquyomi-example-complete|.
+		|tsuquyomi-examples-complete|.
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		Returns information about symbol under then mouse cursor for
 		tooltip popover window.
-		This is used as the rhs for |balloon-expr|.
+		This is used as the rhs for 'balloonexpr'.
 		For example,
 >
 		set ballooneval
 		autocmd BufNewFile,BufRead *.ts
-		\ setlocal ballonexpr=tsuquyomi#balloonexpr()
+		\ setlocal balloonexpr=tsuquyomi#balloonexpr()
 <
 		Note: This function works only if your Vim is compiled with
 		      |+balloon_eval|.
 
 tsuquyomi#hint					*tsuquyomi#hint*
-		Returns information about symbol under the corsor. This
-		function is so similar to |tsuquyomi#ballonexpr|, but
+		Returns information about symbol under the cursor. This
+		function is so similar to |tsuquyomi#balloonexpr|, but
 		This function works in not only GVim but also terminal Vim.
-		
+
 		For example,
 >
 		autocmd FileType typescript nmap <buffer> <Leader>t :
 		\ <C-u>echo tsuquyomi#hint()<CR>
 <
+tsuquyomi#getSupportedCodeFixes		 *tsuquyomi#getSupportedCodeFixes*
+		Returns a list of all codes quick fix available.
+		An error whose code is in this list can be fixed via
+		|:TsuquyomiQuickFix| command.
+
 Todo
 
 ==============================================================================
 EXAMPLES					*tsuquyomi-examples*
 
 						*tsuquyomi-examples-complete*
-You can configure tsuquyomi completion, using |completeopt| .
+You can configure tsuquyomi completion, using 'completeopt' .
 
-	When completion in call of some method, show the method signature to 
+	When completion in call of some method, show the method signature to
 	the preview window.
 >
 	autocmd FileType typescript setlocal completeopt+=preview

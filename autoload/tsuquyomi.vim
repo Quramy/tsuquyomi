@@ -43,6 +43,9 @@ endfunction
 " Check whether files are opened.
 " Found not opend file, show message.
 function! s:checkOpenAndMessage(filelist)
+  if tsuquyomi#tsClient#statusTss() == 'dead'
+    return [[], a:filelist]
+  endif
   let opened = []
   let not_opend = []
   for file in a:filelist
@@ -77,6 +80,19 @@ endfunction
 
 function! s:is_valid_identifier(symbol_str)
   return a:symbol_str =~ '^[A-Za-z_\$][A-Za-z_\$0-9]*$'
+endfunction
+
+" Manually write content to the preview window.
+" Opens a preview window to a scratch buffer named '__TsuquyomiScratch__'
+function! s:writeToPreview(content)
+  silent pedit __TsuquyomiScratch__
+  silent wincmd P
+  setlocal modifiable noreadonly
+  setlocal nobuflisted buftype=nofile bufhidden=wipe ft=typescript
+  put =a:content
+  0d_
+  setlocal nomodifiable readonly
+  silent wincmd p
 endfunction
 " ### Utilites }}}
 
@@ -233,8 +249,8 @@ function! tsuquyomi#makeCompleteMenu(file, line, offset, entryNames)
   return display_texts
 endfunction
 
-" Make complete information for preview window.
-function! tsuquyomi#makeCompleteInfo(file, line, offset)
+" Get signature help information for preview window.
+function! tsuquyomi#getSignatureHelp(file, line, offset)
 
   if stridx(&completeopt, 'preview') == -1
     return [0, '']
@@ -242,7 +258,7 @@ function! tsuquyomi#makeCompleteInfo(file, line, offset)
 
   let l:sig_dict = tsuquyomi#tsClient#tsSignatureHelp(a:file, a:line, a:offset)
   let has_info = 0
-  if has_key(l:sig_dict, 'items') && len(l:sig_dict.items) 
+  if has_key(l:sig_dict, 'items') && len(l:sig_dict.items)
     let has_info = 1
     let info_lines = []
 
@@ -265,10 +281,40 @@ function! tsuquyomi#makeCompleteInfo(file, line, offset)
     endfor
 
     let sigitem = l:sig_dict.items[0]
-    return [has_info, join(info_lines, "\n")]
+    return [has_info, join(info_lines, "\n\n")]
   endif
 
   return [has_info, '']
+endfunction
+
+" Comparator comparing on TypeScript CompletionEntry's 'sortText' property
+" See https://github.com/Microsoft/TypeScript/blob/master/src/server/protocol.ts#L1483
+function! s:sortTextComparator(entry1, entry2)
+  if a:entry1.sortText < a:entry2.sortText
+    return -1
+  elseif a:entry1.sortText > a:entry2.sortText
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! tsuquyomi#signatureHelp()
+  pclose
+
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return
+  endif
+
+  call s:flush()
+
+  let l:file = expand('%:p')
+  let l:line = line('.')
+  let l:offset = col('.')
+  let [has_info, siginfo] = tsuquyomi#getSignatureHelp(l:file, l:line, l:offset)
+  if has_info
+    call s:writeToPreview(siginfo)
+  endif
 endfunction
 
 function! tsuquyomi#complete(findstart, base)
@@ -279,9 +325,9 @@ function! tsuquyomi#complete(findstart, base)
   let l:line_str = getline('.')
   let l:line = line('.')
   let l:offset = col('.')
-  
+
   " search backwards for start of identifier (iskeyword pattern)
-  let l:start = l:offset 
+  let l:start = l:offset
   while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
     let l:start -= 1
   endwhile
@@ -295,13 +341,28 @@ function! tsuquyomi#complete(findstart, base)
     let l:file = expand('%:p')
     let l:res_dict = {'words': []}
     call tsuquyomi#perfLogger#record('before_tsCompletions')
-    let l:res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
+    " By default the result list will be sorted by the 'name' properly alphabetically
+    let l:alpha_sorted_res_list = tsuquyomi#tsClient#tsCompletions(l:file, l:line, l:start, a:base)
     call tsuquyomi#perfLogger#record('after_tsCompletions')
+
+    let is_javascript = (&filetype == 'javascript') || (&filetype == 'jsx') || (&filetype == 'javascript.jsx')
+    if is_javascript
+      " Sort the result list according to how TypeScript suggests entries to be sorted
+      let l:res_list = sort(copy(l:alpha_sorted_res_list), 's:sortTextComparator')
+    else
+      let l:res_list = l:alpha_sorted_res_list
+    endif
+
     let enable_menu = stridx(&completeopt, 'menu') != -1
     let length = strlen(a:base)
     if enable_menu
       call tsuquyomi#perfLogger#record('start_menu')
-      let [has_info, siginfo] = tsuquyomi#makeCompleteInfo(l:file, l:line, l:start)
+      if g:tsuquyomi_completion_preview
+        let [has_info, siginfo] = tsuquyomi#getSignatureHelp(l:file, l:line, l:start)
+      else
+        let [has_info, siginfo] = [0, '']
+      endif
+
       let size = g:tsuquyomi_completion_chunk_size
       let j = 0
       while j * size < len(l:res_list)
@@ -310,14 +371,26 @@ function! tsuquyomi#complete(findstart, base)
         let upper = min([(j + 1) * size, len(l:res_list)])
         for i in range(j * size, upper - 1)
           let info = l:res_list[i]
-          if !length 
+          if !length
                 \ || !g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] == a:base
                 \ || g:tsuquyomi_completion_case_sensitive && info.name[0:length - 1] ==# a:base
             let l:item = {'word': info.name, 'menu': info.kind }
+            if has_info
+              let l:item.info = siginfo
+            endif
+            if is_javascript && info.kind == 'warning'
+              let l:item.menu = '' " Make display cleaner by not showing 'warning' as the type
+            endif
             if !g:tsuquyomi_completion_detail
               call complete_add(l:item)
             else
-              call add(entries, info.name)
+              " if file is TypeScript, then always add to entries list to
+              " fetch details. Or in the case of JavaScript, avoid adding to
+              " entries list if ScriptElementKind is 'warning'. Because those
+              " entries are just random identifiers that occur in the file.
+              if !is_javascript || info.kind != 'warning'
+                call add(entries, info.name)
+              endif
               call add(items, l:item)
             endif
           endif
@@ -329,11 +402,14 @@ function! tsuquyomi#complete(findstart, base)
           let idx = 0
           for menu in menus
             let items[idx].menu = menu
-            if has_info
-              let items[idx].info = siginfo
-            endif
             call complete_add(items[idx])
             let idx = idx + 1
+          endfor
+          " For JavaScript completion, there are entries whose
+          " ScriptElementKind is 'warning'. tsserver won't have any details
+          " returned for them, but they still need to be added at the end.
+          for i in range(idx, len(items) - 1)
+            call complete_add(items[i])
           endfor
         endif
         if complete_check()
@@ -351,8 +427,7 @@ endfunction
 " ### Complete }}}
 
 " #### Definition {{{
-function! tsuquyomi#definition()
-
+function! tsuquyomi#gotoDefinition(tsClientFunction, splitMode)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -362,29 +437,41 @@ function! tsuquyomi#definition()
   let l:file = s:normalizePath(expand('%:p'))
   let l:line = line('.')
   let l:offset = col('.')
-  let l:res_list = tsuquyomi#tsClient#tsDefinition(l:file, l:line, l:offset)
+  let l:res_list = a:tsClientFunction(l:file, l:line, l:offset)
+  let l:definition_split = a:splitMode > 0 ? a:splitMode : g:tsuquyomi_definition_split
 
   if(len(l:res_list) == 1)
     " If get result, go to the location.
     let l:info = l:res_list[0]
-    if l:file == l:info.file
-      " Same file
+    if a:splitMode == 0 && l:file == l:info.file
+      " Same file without split
       call tsuquyomi#bufManager#winPushNavDef(bufwinnr(bufnr('%')), l:file, {'line': l:line, 'col': l:offset})
       call cursor(l:info.start.line, l:info.start.offset)
-    elseif g:tsuquyomi_definition_split == 0
+    elseif l:definition_split == 0
       call tsuquyomi#bufManager#winPushNavDef(bufwinnr(bufnr('%')), l:file, {'line': l:line, 'col': l:offset})
       execute 'edit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
-    elseif g:tsuquyomi_definition_split == 1
-      " If other file, split window
+    elseif l:definition_split == 1
       execute 'split +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
-    elseif g:tsuquyomi_definition_split == 2
+    elseif l:definition_split == 2
       execute 'vsplit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
-    elseif g:tsuquyomi_definition_split == 3
+    elseif l:definition_split == 3
       execute 'tabedit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
     endif
   else
     " If don't get result, do nothing.
   endif
+endfunction
+
+function! tsuquyomi#definition()
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsDefinition'), 0)
+endfunction
+
+function! tsuquyomi#splitDefinition()
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsDefinition'), 1)
+endfunction
+
+function! tsuquyomi#typeDefinition()
+  call tsuquyomi#gotoDefinition(function('tsuquyomi#tsClient#tsTypeDefinition'), 0)
 endfunction
 
 function! tsuquyomi#goBack()
@@ -405,8 +492,7 @@ endfunction
 
 " #### References {{{
 " Show reference on a location window.
-function! tsuquyomi#references()
-
+function! tsuquyomi#getLocations(tsClientFunction, functionTitle)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -418,29 +504,53 @@ function! tsuquyomi#references()
   let l:offset = col('.')
 
   " 1. Fetch reference information.
-  let l:res = tsuquyomi#tsClient#tsReferences(l:file, l:line, l:offset)
+  let l:res = a:tsClientFunction(l:file, l:line, l:offset)
 
-  if(has_key(l:res, 'refs') && len(l:res.refs) != 0)
+  let l:references = []
+  if type(l:res) == v:t_dict && has_key(l:res, 'refs')
+    let l:references = l:res.refs
+  elseif type(l:res) == v:t_list
+    let l:references = l:res
+  endif
+
+  if len(l:references) != 0
     let l:location_list = []
     " 2. Make a location list for `setloclist`
-    for reference in res.refs
-      let l:location_info = {
-            \'filename': reference.file,
-            \'lnum': reference.start.line,
-            \'col': reference.start.offset,
-            \'text': reference.lineText
-            \}
+    for reference in l:references
+      if has_key(reference, 'lineText')
+        let l:location_info = {
+              \'filename': fnamemodify(reference.file, ':~:.'),
+              \'lnum': reference.start.line,
+              \'col': reference.start.offset,
+              \'text': reference.lineText
+              \}
+      else
+        let l:location_info = {
+              \'filename': fnamemodify(reference.file, ':~:.'),
+              \'lnum': reference.start.line,
+              \'col': reference.start.offset
+              \}
+      endif
       call add(l:location_list, l:location_info)
     endfor
-    if(len(l:location_list) > 0)
+    if len(l:location_list) > 0
       call setloclist(0, l:location_list, 'r')
       "3. Open location window.
       lwindow
     endif
   else
-    echom '[Tsuquyomi] References: Not found...'
+    echom '[Tsuquyomi] '.a:functionTitle.': Not found...'
   endif
 endfunction
+
+function! tsuquyomi#references()
+  call tsuquyomi#getLocations(function('tsuquyomi#tsClient#tsReferences'), 'References')
+endfunction
+
+function! tsuquyomi#implementation()
+  call tsuquyomi#getLocations(function('tsuquyomi#tsClient#tsImplementation'), 'Implementation')
+endfunction
+
 " #### References }}}
 
 " #### Geterr {{{
@@ -450,9 +560,13 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
     return []
   endif
   let quickfix_list = []
+  let supportedCodes = tsuquyomi#getSupportedCodeFixes()
   for event_item in a:event_list
     if has_key(event_item, 'type') && event_item.type ==# 'event' && (event_item.event ==# 'syntaxDiag' || event_item.event ==# 'semanticDiag')
       for diagnostic in event_item.body.diagnostics
+        if diagnostic.text =~ "Cannot find module" && g:tsuquyomi_ignore_missing_modules == 1
+          continue
+        endif
         let item = {}
         let item.filename = event_item.body.file
         let item.lnum = diagnostic.start.line
@@ -460,6 +574,14 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
           let item.col = diagnostic.start.offset
         endif
         let item.text = diagnostic.text
+        if !has_key(diagnostic, 'code')
+          continue
+        endif
+        let item.code = diagnostic.code
+        let l:cfidx = index(supportedCodes, (diagnostic.code.''))
+        let l:qfmark = l:cfidx >= 0 ? '[QF available]' : ''
+        let item.text = diagnostic.code.l:qfmark.': '.item.text
+        let item.availableCodeFix = l:cfidx >= 0
         let item.type = 'E'
         call add(quickfix_list, item)
       endfor
@@ -531,7 +653,7 @@ function! tsuquyomi#geterrProject()
 endfunction
 
 function! tsuquyomi#reloadAndGeterr()
-  if tsuquyomi#tsClient#statusTss() != 'undefined'
+  if tsuquyomi#tsClient#statusTss() != 'dead'
     return tsuquyomi#geterr()
   endif
 endfunction
@@ -540,21 +662,25 @@ endfunction
 
 " #### Balloon {{{
 function! tsuquyomi#balloonexpr()
-
-  "if tsuquyomi#tsClient#tsReload() != 'undefined'
   call s:flush()
-  let l:filename = buffer_name(v:beval_bufnr)
-  let res = tsuquyomi#tsClient#tsQuickinfo(l:filename, v:beval_lnum, v:beval_col)
+  let res = tsuquyomi#tsClient#tsQuickinfo(fnamemodify(buffer_name(v:beval_bufnr),":p"), v:beval_lnum, v:beval_col)
   if has_key(res, 'displayString')
+    if (has_key(res, 'documentation') && res.documentation != '')
+      return join([res.documentation, res.displayString], "\n\n")
+    endif
+
     return res.displayString
   endif
-  "endif
 endfunction
 
 function! tsuquyomi#hint()
   call s:flush()
   let res = tsuquyomi#tsClient#tsQuickinfo(expand('%:p'), line('.'), col('.'))
   if has_key(res, 'displayString')
+    if (has_key(res, 'documentation') && res.documentation != '')
+      return join([res.documentation, res.displayString], "\n\n")
+    endif
+
     return res.displayString
   else
     return '[Tsuquyomi] There is no hint at the cursor.'
@@ -596,7 +722,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   let l:res_dict = tsuquyomi#tsClient#tsRename(l:filename, l:line, l:offset, a:findInComments, a:findInString)
 
   " * Check the symbol is renameable
-  if !has_key(l:res_dict, 'info') 
+  if !has_key(l:res_dict, 'info')
     echom '[Tsuquyomi] No symbol to be rename'
     return
   elseif !l:res_dict.info.canRename
@@ -614,7 +740,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   " * Question user what new symbol name.
   echohl String
   let renameTo = input('[Tsuquyomi] New symbol name : ')
-  echohl none 
+  echohl none
   if !s:is_valid_identifier(renameTo)
     echo ' '
     echom '[Tsuquyomi] It is a not valid identifer.'
@@ -628,7 +754,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
   " * Execute to replace symbols by location, by buffer
   for fileLoc in l:res_dict.locs
     let is_open = tsuquyomi#bufManager#isOpened(fileLoc.file)
-    if !is_open 
+    if !is_open
       let s:locs_dict[s:normalizePath(fileLoc.file)] = fileLoc.locs
       call add(s:other_buf_list, s:normalizePath(fileLoc.file))
       continue
@@ -648,14 +774,14 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
     echohl String
     echo ' '
     echo 'Changed '.changed_count.' locations.'
-    echohl none 
+    echohl none
     for otherbuf in s:other_buf_list
       execute('silent split +call\ s:renameLocal(0) '.otherbuf)
     endfor
   else
     echohl String
     let l:confirm = input('[Tsuquyomi] The symbol is located in '.(len(s:other_buf_list) + 1).' files. Really replace them? [Y/n]')
-    echohl none 
+    echohl none
     if l:confirm != 'n' && l:confirm != 'no'
       call s:renameLocalSeq(-1)
     endif
@@ -702,7 +828,7 @@ function! s:renameLocalSeq(index)
     echohl String
     echo ' '
     echo 'Changed '.(a:index + 2).' files successfuly.'
-    echohl none 
+    echohl none
   endif
 endfunction
 " #### Rename }}}
@@ -731,8 +857,8 @@ endfunction
 " #### Navto {{{
 function! tsuquyomi#navto(term, kindModifiers, matchKindType)
 
-  if len(a:term) < 3
-    echom "[Tsuquyomi] search term's length should be greater than 3."
+  if len(a:term) < g:tsuquyomi_search_term_min_length
+    echom "[Tsuquyomi] search term's length should be greater than ".g:tsuquyomi_search_term_min_length."."
     return [[], 0]
   endif
 
@@ -816,6 +942,159 @@ function! tsuquyomi#navtoByLoclistExact(term)
 endfunction
 
 " #### Navto }}}
+
+" #### Configure {{{
+function! tsuquyomi#sendConfigure()
+  let l:file = expand('%:p')
+  let l:hostInfo = &viminfo
+  let l:formatOptions = { }
+  let l:extraFileExtensions = []
+  if exists('&shiftwidth')
+    let l:formatOptions.baseIndentSize = &shiftwidth
+    let l:formatOptions.indentSize = &shiftwidth
+  endif
+  if exists('&expandtab')
+    let l:formatOptions.convertTabsToSpaces = &expandtab
+  endif
+  call tsuquyomi#tsClient#tsConfigure(l:file, l:hostInfo, l:formatOptions, l:extraFileExtensions)
+endfunction
+" #### }}}
+
+" #### CodeFixes {{{
+
+function! s:sortQfItemByColdiff(a, b)
+  if a:a.coldiff < a:b.coldiff
+    return -1
+  endif
+  if a:a.coldiff == a:b.coldiff
+    return 0
+  endif
+  if a:a.coldiff > a:b.coldiff
+    return 1
+  endif
+endfunction
+
+let s:supportedCodeFixes = []
+function! tsuquyomi#getSupportedCodeFixes()
+  if !tsuquyomi#config#isHigher(210)
+    return []
+  endif
+  if len(s:supportedCodeFixes)
+    return s:supportedCodeFixes
+  endif
+  let s:supportedCodeFixes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+  return s:supportedCodeFixes
+endfunction
+
+function! tsuquyomi#quickFix()
+  if !tsuquyomi#config#isHigher(210)
+    echom '[Tsuquyomi] This feature requires TypeScript@2.1.0 or higher'
+    return
+  endif
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return
+  endif
+  call s:flush()
+  let l:file = expand('%:p')
+  let l:line = line('.')
+  let l:col = col('.')
+  let l:qfList = tsuquyomi#createFixlist()
+  call filter(l:qfList, 'v:val.lnum == l:line')
+  if !len(l:qfList)
+    echom '[Tsuquyomi] There is no error to fix'
+    return
+  endif
+  if len(l:qfList) > 1
+    let l:temp = []
+    for qfItem in qfList
+      let qfItem.coldiff = abs(qfItem.col - l:col)
+      call add(l:temp, qfItem)
+    endfor
+    call sort(l:temp, function('s:sortQfItemByColdiff'))
+    let l:target = l:temp[0]
+  else
+    let l:target = l:qfList[0]
+  endif
+  let l:supportedCodes = copy(tsuquyomi#getSupportedCodeFixes())
+  call filter(l:supportedCodes, 'v:val == l:target.code')
+  if !len(l:supportedCodes)
+    echom '[Tsuquyomi] '.l:target.code.' has no quick fixes...'
+    return
+  endif
+  let l:result_list = tsuquyomi#tsClient#tsGetCodeFixes(file, l:target.lnum, l:target.col, l:target.lnum, l:target.col, [l:target.code])
+  if !len(l:result_list)
+    echom '[Tsuquyomi] '.l:target.code.' has no quick fixes...'
+    return
+  endif
+  let s:available_qf_descriptions = map(copy(l:result_list), 'v:val.description')
+  let [description, isSelect] = tsuquyomi#selectQfDescription()
+  if !isSelect
+    return
+  endif
+  let l:changes = filter(l:result_list, 'v:val.description ==# description')[0].changes
+  " TODO
+  " allow other file
+  for fileChange in l:changes
+    if tsuquyomi#bufManager#normalizePath(l:file) !=# fileChange.fileName
+      echom '[Tsuquyomi] Tsuquyomi does not support this code fix...'
+      return
+    endif
+  endfor
+  call tsuquyomi#applyQfChanges(l:changes)
+endfunction
+
+function! tsuquyomi#applyQfChanges(changes)
+  for fileChange in a:changes
+    " TODO
+    " allow fileChange.fileName
+    for textChange in fileChange.textChanges
+      let linesCountForReplacement = textChange.end.line - textChange.start.line + 1
+      let preSpan = strpart(getline(textChange.start.line), 0, textChange.start.offset - 1)
+      let postSpan = strpart(getline(textChange.end.line), textChange.end.offset - 1)
+      let repList = split(preSpan.textChange.newText.postSpan, '\n')
+      let l:count = textChange.start.line
+      for rLine in repList
+        if l:count <= textChange.end.line
+          call setline(l:count, rLine)
+        else
+          call append(l:count - 1, rLine)
+        endif
+        let l:count = l:count + 1
+      endfor
+    endfor
+  endfor
+endfunction
+
+let s:available_qf_descriptions = []
+function! tsuquyomi#selectQfComplete(arg_lead, cmd_line, cursor_pos)
+  return join(s:available_qf_descriptions, "\n")
+endfunction
+
+function! tsuquyomi#selectQfDescription()
+  echohl String
+  if len(s:available_qf_descriptions) == 1
+    let l:yn = input('[Tsuquyomi] Apply: "'.s:available_qf_descriptions[0].'" [y/N]')
+    echohl none
+    echo ' '
+    if l:yn =~ 'N'
+      return ['', 0]
+    else
+      return [s:available_qf_descriptions[0], 1]
+    endif
+  endif
+  let l:selected_desc = input('[Tsuquyomi] You can apply 2 more than quick fixes. Select one (candidates are shown using TAB): ', '', 'custom,tsuquyomi#selectQfComplete')
+  echohl none
+  echo ' '
+  if len(filter(copy(s:available_qf_descriptions), 'v:val==#l:selected_desc'))
+    return [l:selected_desc, 1]
+  else
+    echohl Error
+    echom '[Tsuquyomi] Invalid selection.'
+    echohl none
+    return ['', 0]
+  endif
+endfunction
+"#### CodeFixes }}}
 
 " ### Public functions }}}
 

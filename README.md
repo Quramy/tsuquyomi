@@ -1,11 +1,12 @@
-# Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi)
+# Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/tsuquyomi.svg)](https://greenkeeper.io/)
+
 
 Make your Vim a TypeScript IDE.
 
 ![capture](screen.gif)
 ## Features
 
-Tsuquyomi works as a client for **TSServer**(which is an editor service bundled into TypeScript).
+Tsuquyomi works as a client for **TSServer** (which is an editor service bundled into TypeScript).
 So, installing Tsuquyomi, your vim gets the following features provided by TSServer:
 
 + Completion (omni-completion)
@@ -20,15 +21,15 @@ Tsuquyomi does not provide syntax-highlight nor indentation. You can use the fol
 * [leafgarland/typescript-vim](https://github.com/leafgarland/typescript-vim) provides syntax highlight.
 * [Quramy/vim-js-pretty-template](https://github.com/Quramy/vim-js-pretty-template) provides syntax highlight for contents in Template Strings.
 * [jason0x43/vim-js-indent](https://github.com/jason0x43/vim-js-indent) provides function of indent for both JavaScript and TypeScript.
-* [Quramy/vim-dtsm](https://github.com/Quramy/vim-dtsm) provides `.d.ts` management for [dtsm](with [https://github.com/vvakame/dtsm) users.
+* [Quramy/vim-dtsm](https://github.com/Quramy/vim-dtsm) provides `.d.ts` management for [dtsm](https://github.com/vvakame/dtsm) users.
 * [mhartington/vim-typings](https://github.com/mhartington/vim-typings) provides `.d.ts` management for [typings](https://github.com/typings/typings) users.
 
 ## How to install
 Tsuquyomi requires the following:
 
-+ [Vim](http://www.vim.org/) (v7.4.0 or later)
-+ [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim)
-+ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript) (v1.5.3 or later)
++ [Vim](http://www.vim.org/) (vim7.4 or later)
++ [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript)
++ [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim) (Not required if you use vim8 or later)
 
 ### Install TypeScript
 
@@ -97,13 +98,13 @@ If you don't want the popup menu:
 autocmd FileType typescript setlocal completeopt-=menu
 ```
 
-If you want details of popup menu, set `g:tsuquyomi_completion_detail`. **Remarks: This option makes completion slow**
+If you want to show a method's signature in the popup menu, set `g:tsuquyomi_completion_detail`. **Remarks: This option makes completion slow**
 
 ```vim
 let g:tsuquyomi_completion_detail = 1
 ```
 
-If you want to show a method's signature in the preview window when you complete this method's arguments:
+If you want to show a method's signature in the preview window when you complete this method's arguments (default):
 
 (The preview window isn't shown when completion properties or variables)
 
@@ -121,23 +122,34 @@ Alternatively, call the Ex command `:TsuquyomiDefinition` or `:TsuDefinition`.
 
 And type `<C-t>` , Tsuquyomi moves the cursor to the location where the last `<C-]>` was typed.
 
+#### Type Definition
+`:TsuTypeDefinition` command is similar to `:TsuDefinition`. `:TsuTypeDefinition` navigates to the location where the type of the symbol under the cursor is defined.
+
 #### References
 Type `<C-^>` in normal mode or visual mode, Tsuquyomi shows a list of location where the symbol under the cursor is referenced.
 
-Alternatively, call the Ex command `:TsuReferences`.
+Alternatively, call the Ex command `:TsuReferences`. 
+
+If you want where an interface is implemented, use `:TsuImplementation`.
 
 #### Keyword search
-Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project. Alternatively call the Ex command `:TsuGeterr`.
+Call the Ex command `:TsuSearch {keyword}` to get the list of locations which contain the keyword. This command searches the keyword from opened or referenced files in your project.
+
+The search term minimum length can be configured with `let g:tsuquyomi_search_term_min_length = 3`.
 
 #### Disable default mappings
 If you do not want to use the above key mappings please add `let g:tsuquyomi_disable_default_mappings = 1` to your `.vimrc` file.
 
 ### Show compile errors
-When a buffer is saved, Tsuquyomi checks syntax and semantics.
+When a buffer is saved, Tsuquyomi checks syntax and semantics. Alternatively call the Ex command `:TsuGeterr`.
 And if it contains errors, Tsuquyomi shows them to Vim quickfix window.
 
 If your use TypeScript v1.6.0 or later, you can use `:TsuGeterrProject` command.
 This command shows all compilation errors contained in your project to quickfix window.
+
+#### Quick fix
+If the cursor is on an error and TypeScript's LanguageService has a code fix for this error, call `:TsuQuickFix`.
+The code fix will be applied.
 
 #### Configure compile options
 Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
@@ -270,12 +282,12 @@ readFile('hoge', 'utf-8', (err, content) => {
 });
 ```
 
-This command has the following limitation:
+To allow Tsuquyomi to import the shortest path instead of the complete one (where the initial module declaration is) one, put this in your .vimrc:
+```
+let g:tsuquyomi_shortest_import_path = 1
+```
 
-* This command searches aliases from only files already opened or referenced
-* This command searches aliases which are exported explicitly.
-
-In other words, if your project has the following 2 files, `import { foo } from './lib';` is a valid declaration, but Tsuquyomi can create only `import { foo } from './lib/foo';`.
+For example, if your project has the following 2 files, the plugin will use: `import { foo } from './lib';` instead of: `import { foo } from './lib/foo';`.
 
 ```ts
 /* lib/index.ts */

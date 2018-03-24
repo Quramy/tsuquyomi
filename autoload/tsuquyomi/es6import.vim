@@ -10,6 +10,7 @@ set cpo&vim
 
 let s:V = vital#of('tsuquyomi')
 let s:Filepath = s:V.import('System.Filepath')
+let s:JSON = s:V.import('Web.JSON')
 
 function! s:normalizePath(path)
   return substitute(a:path, '\\', '/', 'g')
@@ -110,17 +111,178 @@ function! tsuquyomi#es6import#createImportBlock(text)
       if !l:result
         return []
       endif
-      let l:relative_path = substitute(l:relative_path, '\.d\.ts$', '', '')
-      let l:relative_path = substitute(l:relative_path, '\.ts$', '', '')
+      let l:relative_path = s:removeTSExtensions(l:relative_path)
+      if g:tsuquyomi_shortest_import_path == 1
+        let l:path = s:getShortestImportPath(l:to, l:identifier, l:relative_path)
+      elseif g:tsuquyomi_baseurl_import_path == 1
+        let l:base_url_import_path = s:getBaseUrlImportPath(nav.file)
+        let l:path = l:base_url_import_path != '' ? l:base_url_import_path : l:relative_path
+      else
+        let l:path = l:relative_path
+      endif
       let l:importDict = {
             \ 'identifier': nav.name,
-            \ 'path': l:relative_path,
+            \ 'path': l:path,
             \ 'nav': nav
             \ }
       call add(l:result_list, l:importDict)
     endif
   endfor
-  return l:result_list
+
+  if g:tsuquyomi_case_sensitive_imports == 1
+    call filter(l:result_list, 'v:val.identifier ==# l:identifier')
+  endif
+
+  " Make the possible imports list unique per path
+  let dictionary = {}
+  for i in l:result_list
+    let dictionary[i.path] = i
+  endfor
+
+  let l:unique_result_list = []
+
+  if (exists('a:1'))
+    let l:unique_result_list = sort(values(dictionary), a:1)
+  else
+    let l:unique_result_list = sort(values(dictionary))
+  endif
+
+  return l:unique_result_list
+endfunction
+
+function! s:removeTSExtensions(path)
+  let l:path = a:path
+  let l:path = substitute(l:path, '\.d\.ts$', '', '')
+  let l:path = substitute(l:path, '\.ts$', '', '')
+  let l:path = substitute(l:path, '\.tsx$', '', '')
+  let l:path = substitute(l:path, '^@types/', '', '')
+  let l:path = substitute(l:path, '/index$', '', '')
+  return l:path
+endfunction
+
+function! s:getShortestImportPath(absolute_path, module_identifier, relative_path)
+  let l:splitted_relative_path = split(a:relative_path, '/')
+  if l:splitted_relative_path[0] == '..'
+    let l:paths_to_visit = substitute(a:relative_path, '\.\.\/', '', 'g')
+    let l:path_moves_to_do = len(split(l:paths_to_visit, '/'))
+  else
+    let l:path_moves_to_do = len(l:splitted_relative_path) - 1
+  endif
+  let l:shortened_path = l:splitted_relative_path[len(l:splitted_relative_path) - 1]
+  let l:path_move_count = 0
+  let l:splitted_absolute_path = split(a:absolute_path, '/')
+  while l:path_move_count != l:path_moves_to_do
+    let l:splitted_absolute_path = l:splitted_absolute_path[0:len(splitted_absolute_path) - 2]
+    let l:shortened_path = s:getShortenedPath(l:splitted_absolute_path, l:shortened_path, a:module_identifier)
+    let l:path_move_count += 1
+  endwhile
+    let l:shortened_path = substitute(l:shortened_path, '\[\/\]\*\[\index\]\*', '', 'g')
+    if l:splitted_relative_path[0] == '.'
+      return './' . s:getPathWithSkippedRoot(l:shortened_path)
+    elseif l:splitted_relative_path[0] == '..'
+      let l:count = 0
+      let l:current = '..'
+      let l:prefix = ''
+      while l:current == '..' || l:count == len(l:splitted_relative_path) - 1
+        let l:current = l:splitted_relative_path[l:count]
+        if l:current == '..'
+          let l:prefix = l:prefix . l:current . '/'
+        endif
+        let l:count += 1
+      endwhile
+      return l:prefix . s:getPathWithSkippedRoot(l:shortened_path)
+    endif
+    return l:shortened_path
+endfunction
+
+function! s:getPathWithSkippedRoot(path)
+  return join(split(a:path, '/')[1:len(a:path) -1], '/')
+endfunction
+
+function! s:getShortenedPath(splitted_absolute_path, previous_shortened_path, module_identifier)
+  let l:shortened_path = a:previous_shortened_path
+  let l:absolute_path_to_search_in = '/' . join(a:splitted_absolute_path, '/') . '/'
+  let l:found_module_reference = s:findExportingFileForModule(a:module_identifier, l:shortened_path, l:absolute_path_to_search_in)
+  let l:current_directory_name = a:splitted_absolute_path[len(a:splitted_absolute_path) -1]
+  let l:path_separator = '/'
+  while l:found_module_reference != ''
+    if l:found_module_reference == 'index'
+      let l:found_module_reference = '[index]*'
+      let l:path_separator = '[/]*'
+    else 
+      let l:path_separator = '/'
+    endif
+    let l:shortened_path = l:found_module_reference
+    let l:found_module_reference = s:findExportingFileForModule(a:module_identifier, l:found_module_reference, l:absolute_path_to_search_in)
+    if l:found_module_reference != ''
+      let l:shortened_path = l:found_module_reference
+    endif
+  endwhile
+  return l:current_directory_name . l:path_separator . l:shortened_path
+endfunction
+
+function! s:getBaseUrlImportPath(module_absolute_path)
+  let [l:tsconfig, l:tsconfig_file_path] = s:getTsconfig(a:module_absolute_path)
+
+  if empty(l:tsconfig) || l:tsconfig_file_path == ''
+    return ''
+  endif
+
+  let l:project_root_path = fnamemodify(l:tsconfig_file_path, ':h').'/'
+  " We assume that baseUrl is a path relative to tsconfig.json path.
+  let l:base_url_config = has_key(l:tsconfig.compilerOptions, 'baseUrl') ? l:tsconfig.compilerOptions.baseUrl : '.'
+  let l:base_url_path = simplify(l:project_root_path.l:base_url_config)
+
+  return s:removeTSExtensions(substitute(a:module_absolute_path, l:base_url_path, '', ''))
+endfunction
+
+let s:tsconfig = {}
+let s:tsconfig_file_path = ''
+
+function! s:getTsconfig(module_absolute_path)
+  if empty(s:tsconfig)
+    let l:project_info = tsuquyomi#tsClient#tsProjectInfo(a:module_absolute_path, 0)
+
+    if has_key(l:project_info, 'configFileName')
+      let s:tsconfig_file_path = l:project_info.configFileName
+    else
+      echom '[Tsuquyomi] Cannot find project’s tsconfig.json to compute baseUrl import path.'
+    endif
+
+    let l:json = join(readfile(s:tsconfig_file_path),'')
+
+    try
+      let s:tsconfig = s:JSON.decode(l:json)
+    catch
+      echom '[Tsuquyomi] Cannot parse project’s tsconfig.json. Does it have comments?'
+    endtry
+
+  endif
+
+  return [s:tsconfig, s:tsconfig_file_path]
+endfunction
+
+function! s:findExportingFileForModule(module, current_module_file, module_directory_path)
+  execute 
+        \"silent! noautocmd vimgrep /export\\s*\\({.*\\(\\s\\|,\\)"
+        \. a:module 
+        \."\\(\\s\\|,\\)*.*}\\|\\*\\)\\s\\+from\\s\\+\\(\\'\\|\\\"\\)\\.\\\/"
+        \. substitute(a:current_module_file, '\/', '\\/', '') 
+        \."[\\/]*\\(\\'\\|\\\"\\)[;]*/j "
+        \. a:module_directory_path 
+        \. "*.ts"
+  redir => l:grep_result
+  silent! clist
+  redir END
+  if l:grep_result =~ 'No Errors'
+    return ''
+  endif
+  let l:raw_result = split(l:grep_result, ' ')[2]
+  let l:raw_result = split(l:raw_result, ':')[0]
+  let l:raw_result_parts = split(l:raw_result, '/')
+  let l:extracted_file_name = l:raw_result_parts[len(l:raw_result_parts) -1 ]
+  let l:extracted_file_name = s:removeTSExtensions(l:extracted_file_name)
+  return l:extracted_file_name
 endfunction
 
 function! s:comp_alias(alias1, alias2)
@@ -145,8 +307,8 @@ function! tsuquyomi#es6import#createImportPosition(nav_bar_list)
       let l:end_line = l:start_line
     endif
   elseif len(a:nav_bar_list) > 1
-      let l:start_line = a:nav_bar_list[0].spans[0].start.line
-      let l:end_line = a:nav_bar_list[1].spans[0].start.line - 1
+    let l:start_line = a:nav_bar_list[0].spans[0].start.line
+    let l:end_line = a:nav_bar_list[1].spans[0].start.line - 1
   endif
   return { 'start': { 'line': l:start_line }, 'end': { 'line': l:end_line } }
 endfunction
@@ -238,17 +400,17 @@ function! tsuquyomi#es6import#getImportDeclarations(fileName, content_list)
   return [l:result_list, l:position, '']
 endfunction
 
-let s:impotable_module_list = []
+let s:importable_module_list = []
 function! tsuquyomi#es6import#moduleComplete(arg_lead, cmd_line, cursor_pos)
-  return join(s:impotable_module_list, "\n")
+  return join(s:importable_module_list, "\n")
 endfunction
 
 function! tsuquyomi#es6import#selectModule()
   echohl String
-  let l:selected_module = input('[Tsuquyomi] You can import from 2 more than modules. Select one : ', '', 'custom,tsuquyomi#es6import#moduleComplete')
-  echohl none 
+  let l:selected_module = input('[Tsuquyomi] You can import from 2 or more modules. Select one : ', '', 'custom,tsuquyomi#es6import#moduleComplete')
+  echohl none
   echo ' '
-  if len(filter(copy(s:impotable_module_list), 'v:val==#l:selected_module'))
+  if len(filter(copy(s:importable_module_list), 'v:val==#l:selected_module'))
     return [l:selected_module, 1]
   else
     echohl Error
@@ -266,7 +428,7 @@ function! tsuquyomi#es6import#complete()
   let l:identifier_info = s:get_keyword_under_cursor()
   let l:list = tsuquyomi#es6import#createImportBlock(l:identifier_info.text)
   if len(l:list) > 1
-    let s:impotable_module_list = map(copy(l:list), 'v:val.path')
+    let s:importable_module_list = map(copy(l:list), 'v:val.path')
     let [l:selected_module, l:code] = tsuquyomi#es6import#selectModule()
     if !l:code
       echohl Error
@@ -299,21 +461,41 @@ function! tsuquyomi#es6import#complete()
   let l:new_line = l:new_line.l:line[l:identifier_info.end.offset: -1]
   call setline(l:identifier_info.start.line, l:new_line)
 
+  if g:tsuquyomi_import_curly_spacing == 0
+    let l:curly_spacing = ''
+  else
+    let l:curly_spacing = ' '
+  end
+
   "Add import declaration
   if !len(l:same_path_import_list)
-    let l:expression = 'import { '.l:block.identifier.' } from "'.l:block.path.'";'
+    if g:tsuquyomi_single_quote_import
+      let l:expression = "import {".l:curly_spacing.l:block.identifier.l:curly_spacing."} from '".l:block.path."';"
+    else
+      let l:expression = 'import {'.l:curly_spacing.l:block.identifier.l:curly_spacing.'} from "'.l:block.path.'";'
+    endif
     call append(l:module_end_line, l:expression)
   else
     let l:target_import = l:same_path_import_list[0]
     if l:target_import.is_oneliner
       let l:line = getline(l:target_import.brace.end.line)
-      let l:expression = l:line[0:l:target_import.brace.end.offset - 2].', '.l:block.identifier.' '.l:line[l:target_import.brace.end.offset - 1: -1]
+      let l:injection_position = target_import.brace.end.offset - 2 - strlen(l:curly_spacing)
+      let l:expression = l:line[0:l:injection_position].', '.l:block.identifier.l:curly_spacing.l:line[l:target_import.brace.end.offset - 1: -1]
       call setline(l:target_import.brace.end.line, l:expression)
     else
       let l:before_line = getline(l:target_import.brace.end.line - 1)
       let l:indent = matchstr(l:before_line, '\m^\s*')
-      call setline(l:target_import.brace.end.line - 1, l:before_line.',')
-      call append(l:target_import.brace.end.line - 1, l:indent.l:block.identifier)
+      let l:before_has_trailing_comma = matchstr(l:before_line, ',\s*$')
+      if l:before_has_trailing_comma !=# ''
+        let l:prev_trailing_comma = ''
+        let l:new_trailing_comma = ','
+      else
+        let l:prev_trailing_comma = ','
+        let l:new_trailing_comma = ''
+      endif
+
+      call setline(l:target_import.brace.end.line - 1, l:before_line.l:prev_trailing_comma)
+      call append(l:target_import.brace.end.line - 1, l:indent.l:block.identifier.l:new_trailing_comma)
     endif
   endif
 endfunction

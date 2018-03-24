@@ -34,7 +34,6 @@ Context Vesting.run()
     call tsuquyomi#tsClient#tsOpen(fileA)
     call tsuquyomi#tsClient#tsOpen(fileB)
     let res_reference_list = tsuquyomi#tsClient#tsReferences(fileA, 2, 16) 
-    "echo res_reference_list
     Should has_key(res_reference_list, 'refs')
     " res_reference_list.refs contains self definition , fileA reference and fileB reference.
     Should len(res_reference_list.refs) == 3

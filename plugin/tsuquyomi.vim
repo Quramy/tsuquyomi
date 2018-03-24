@@ -35,19 +35,41 @@ let g:tsuquyomi_tsserver_debug =
 let g:tsuquyomi_nodejs_path = 
       \ get(g:, 'tsuquyomi_nodejs_path', 'node')
 let g:tsuquyomi_waittime_after_open = 
-      \ get(g:, 'tsuquyomi_waittime_after_open', 0.01)
+      \ get(g:, 'tsuquyomi_waittime_after_open', str2float("0.01"))
 let g:tsuquyomi_completion_chunk_size = 
       \ get(g:, 'tsuquyomi_completion_chunk_size', 20)
 let g:tsuquyomi_completion_detail = 
       \ get(g:, 'tsuquyomi_completion_detail', 0)
 let g:tsuquyomi_completion_case_sensitive = 
       \ get(g:, 'tsuquyomi_completion_case_sensitive', 0)
+let g:tsuquyomi_case_sensitive_imports =
+      \ get(g:, 'tsuquyomi_case_sensitive_imports', 0)
+let g:tsuquyomi_completion_preview = 
+      \ get(g:, 'tsuquyomi_completion_preview', 0)
 let g:tsuquyomi_definition_split =
       \ get(g:, 'tsuquyomi_definition_split', 0)
 let g:tsuquyomi_disable_quickfix =
       \ get(g:, 'tsuquyomi_disable_quickfix', 0)
 let g:tsuquyomi_save_onrename =
       \ get(g:, 'tsuquyomi_save_onrename', 0)
+let g:tsuquyomi_single_quote_import =
+      \ get(g:, 'tsuquyomi_single_quote_import', 0)
+let g:tsuquyomi_import_curly_spacing =
+      \ get(g:, 'tsuquyomi_import_curly_spacing', 1)
+let g:tsuquyomi_javascript_support =
+      \ get(g:, 'tsuquyomi_javascript_support', 0)
+let g:tsuquyomi_ignore_missing_modules =
+      \ get(g:, 'tsuquyomi_ignore_missing_modules', 0)
+let g:tsuquyomi_shortest_import_path = 
+      \ get(g:, 'tsuquyomi_shortest_import_path', 0)
+let g:tsuquyomi_baseurl_import_path = 
+      \ get(g:, 'tsuquyomi_baseurl_import_path', 0)
+let g:tsuquyomi_use_vimproc =
+      \ get(g:, 'tsuquyomi_use_vimproc', 0)
+let g:tsuquyomi_locale =
+      \ get(g:, 'tsuquyomi_locale', 'en')
+let g:tsuquyomi_search_term_min_length =
+      \ get(g:, 'tsuquyomi_search_term_min_length', 3)
 " Global options defintion. }}}
 
 " augroup tsuquyomi_global_command_group
