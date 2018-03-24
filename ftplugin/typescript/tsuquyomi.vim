@@ -9,4 +9,6 @@ if !tsuquyomi#config#preconfig()
   finish
 endif
 
+setlocal suffixesadd+=.ts
+
 call tsuquyomi#config#initBuffer({ 'pattern': '*.ts,*.tsx' })
