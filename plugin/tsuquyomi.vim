@@ -54,6 +54,8 @@ let g:tsuquyomi_save_onrename =
       \ get(g:, 'tsuquyomi_save_onrename', 0)
 let g:tsuquyomi_single_quote_import =
       \ get(g:, 'tsuquyomi_single_quote_import', 0)
+let g:tsuquyomi_semicolon_import =
+      \ get(g:, 'tsuquyomi_semicolon_import', 1)
 let g:tsuquyomi_import_curly_spacing =
       \ get(g:, 'tsuquyomi_import_curly_spacing', 1)
 let g:tsuquyomi_javascript_support =
