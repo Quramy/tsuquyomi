@@ -440,9 +440,9 @@ function! tsuquyomi#gotoDefinition(tsClientFunction, splitMode)
   let l:res_list = a:tsClientFunction(l:file, l:line, l:offset)
   let l:definition_split = a:splitMode > 0 ? a:splitMode : g:tsuquyomi_definition_split
 
-  if(len(l:res_list) == 1)
-    " If get result, go to the location.
-    let l:info = l:res_list[0]
+  if(len(l:res_list) > 0)
+    " If get result, go to last location.
+    let l:info = l:res_list[len(l:res_list) - 1]
     if a:splitMode == 0 && l:file == l:info.file
       " Same file without split
       call tsuquyomi#bufManager#winPushNavDef(bufwinnr(bufnr('%')), l:file, {'line': l:line, 'col': l:offset})
