@@ -469,10 +469,15 @@ function! tsuquyomi#es6import#complete()
 
   "Add import declaration
   if !len(l:same_path_import_list)
-    if g:tsuquyomi_single_quote_import
-      let l:expression = "import {".l:curly_spacing.l:block.identifier.l:curly_spacing."} from '".l:block.path."';"
+    if g:tsuquyomi_semicolon_import
+      let l:semicolon = ';'
     else
-      let l:expression = 'import {'.l:curly_spacing.l:block.identifier.l:curly_spacing.'} from "'.l:block.path.'";'
+      let l:semicolon = ''
+    endif
+    if g:tsuquyomi_single_quote_import
+      let l:expression = "import {".l:curly_spacing.l:block.identifier.l:curly_spacing."} from '".l:block.path."'".l:semicolon
+    else
+      let l:expression = 'import {'.l:curly_spacing.l:block.identifier.l:curly_spacing.'} from "'.l:block.path.'"'.l:semicolon
     endif
     call append(l:module_end_line, l:expression)
   else
