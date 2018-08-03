@@ -982,8 +982,12 @@ function! tsuquyomi#getSupportedCodeFixes()
   if len(s:supportedCodeFixes)
     return s:supportedCodeFixes
   endif
-  let s:supportedCodeFixes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
-  return s:supportedCodeFixes
+  try
+    let s:supportedCodeFixes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+    return s:supportedCodeFixes
+  catch
+    return []
+  endtry
 endfunction
 
 function! tsuquyomi#quickFix()
