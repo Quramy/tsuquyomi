@@ -777,7 +777,12 @@ endfunction
 " This command is available only at tsserver ~v.2.1
 function! tsuquyomi#tsClient#tsGetSupportedCodeFixes()
   let l:result = tsuquyomi#tsClient#sendCommandSyncResponse('getSupportedCodeFixes', {})
-  return tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
+  let l:body = tsuquyomi#tsClient#getResponseBodyAsDict(l:result)
+  if (type(l:body) != v:t_list)
+    return []
+  else
+    return l:body
+  endif
 endfunction
 
 
