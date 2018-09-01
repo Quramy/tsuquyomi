@@ -152,7 +152,7 @@ If the cursor is on an error and TypeScript's LanguageService has a code fix for
 The code fix will be applied.
 
 #### Configure compile options
-Make [tsconfig.json](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
+Make [tsconfig.json](http://www.typescriptlang.org/docs/handbook/tsconfig-json.html).
 
 For example:
 
