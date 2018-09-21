@@ -402,6 +402,7 @@ function! tsuquyomi#complete(findstart, base)
           let idx = 0
           for menu in menus
             let items[idx].menu = menu
+            let items[idx].info = menu
             call complete_add(items[idx])
             let idx = idx + 1
           endfor
