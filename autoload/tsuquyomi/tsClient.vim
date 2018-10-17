@@ -190,6 +190,8 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
             break
           endif
         endfor
+        let l:decoded_res_item = s:JSON.decode(res_item)
+        let l:check = l:check || l:decoded_res_item.request_seq != s:request_seq
         if !l:check
           call add(response_list, res_item)
         endif
