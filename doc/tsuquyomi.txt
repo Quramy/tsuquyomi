@@ -55,16 +55,16 @@ Tsuquyomi requires the following:
   (Not required if you use vim8 or later)
 * Node.js and TypeScript (v.1.5.0 or later)
 
-In the first, If you haven't installed |vimproc|, please install this.
+First of all, if you haven't installed |vimproc|, please install it.
 (Please see https://github.com/Shougo/vimproc.vim)
 
-Second, install the latest version TypeScript.
+Secondly, install the latest version of TypeScript.
 
 Prompt:
 >
     	$ npm -g install typescript
 <
-Third, locate Tsuquyomi to your Vim plugin directory.
+Thirdly, locate Tsuquyomi to your Vim plugin directory.
 If you use |NeoBundle| for plugin management, append the following to `.vimrc` .
 >
 	NeoBundle 'Shougo/vimproc.vim', {
@@ -96,8 +96,8 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuStartServer*
 :TsuquyomiStartServer
 		Start TSServer process.
-		If already the process is running, this command does not
-		anything.
+		If the process is already running, this command doesn't
+		do anything.
 
 						*:TsuquyomiStopServer*
 						*:TsuStopServer*
@@ -119,8 +119,8 @@ COMMANDS					*tsuquyomi-commands*
 		operations on them.
 		If you omit the argument {file}, TSServer opens the current
 		buffer.
-		By the default, |g:tsuquyomi_auto_open| is enable.
-		So, usually user don't need to exec this command manually.
+		By default, |g:tsuquyomi_auto_open| is enabled,
+		so usually users don't need to exec this command manually.
 
 						*:TsuquyomiClose*
 						*:TsuClose*
@@ -140,7 +140,7 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuDump*
 :TsuquyomiDump [{file} ...]
 		Save TSServer's buffer to files.
-		This command can be execute for only debug purpose.
+		This command can be executed only for debugging purposes.
 		If you omit the argument {file}, TSServer saves the file
 		related to the current buffer.
 		Note: Dumped filename is `originalFileName` + `'.dump'` .
@@ -197,11 +197,10 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuquyomiReloadProject*
 						*:TsuReloadProject*
 :TsuquyomiReloadProject
-		Let close and re-open all files opened by |:TsuquyomiOpen|.
-		When you change `tsconfig.json` after open some `*.ts` files,
-		you should execute this command.
-		So, the changes of `tsconfig.json` are reflected in the
-		TSServer
+		Close and re-open all files opened by |:TsuquyomiOpen|.
+		If you change your `tsconfig.json` after opening any `*.ts` files,
+		you should execute this command so the changes of `tsconfig.json`
+		are reflected in the TSServer.
 
 						*:TsuquyomiGeterr*
 						*:TsuGeterr*
@@ -222,8 +221,8 @@ COMMANDS					*tsuquyomi-commands*
 						*:TsuquyomiQuickFix*
 						*:TsuQuickFix*
 :TsuquyomiQuickFix
-		If the cursor is on some errors and there is supported
-		quick fix, apply it.
+		If the cursor is over an error and there is a  quick fix is
+		for it, apply it.
 		This command requires TypeScript@v2.1.0 or later.
 
 						*:TsuquyomiSignatureHelp*
@@ -231,8 +230,8 @@ COMMANDS					*tsuquyomi-commands*
 :TsuquyomiSignatureHelp
 		Display signature help for the method signature the cursor is
 		currently inside, and display the output in the preview
-		window. If there are multiple overloads they will be
-		displayed, along with any documentation.
+		window. If there are multiple, overloads they will be
+		displayed along with any documentation.
 		Note that the cursor must be between the method parentheses,
 		or at least after the opening parenthesis of a partially
 		written method call.
@@ -242,8 +241,8 @@ VARIABLES					*tsuquyomi-variables*
 
 						*g:tsuquyomi_auto_open*
 g:tsuquyomi_auto_open		(default 1)
-		Whether automatically TSServer opens the file of the current
-		buffer, when the buffer is opened in Vim
+		Whether TSServer automatically opens the file of the current
+		buffer when the buffer is opened in Vim.
 		If you set this option to 0, you should manually exec the
 		|:TsuquyomiOpen| command after opening buffers.
 
@@ -301,8 +300,8 @@ g:tsuquyomi_definition_split	(default 0)
 					*g:tsuquyomi_completion_detail*
 g:tsuquyomi_completion_detail		(default 0)
 		Whether to show details of complete menu when |tsuquyomi#complete|.
-		This options makes sence when 'completeopt' includes "menu".
-		NOTE: If it's set, completions gets slow.
+		This option makes sense when 'completeopt' includes "menu".
+		NOTE: If it's set, completions get slow.
 
 					*g:tsuquyomi_completion_case_sensitive*
 g:tsuquyomi_completion_case_sensitive	(default 0)
@@ -316,10 +315,10 @@ g:tsuquyomi_case_sensitive_imports	(default 0)
 
 					*g:tsuquyomi_completion_preview*
 g:tsuquyomi_completion_preview		(default 0)
-		Whether to show sigunature in preview when |tsuquyomi#complete|.
-		This options makes sence when 'completeopt' includes "menu"
+		Whether to show signature in preview when |tsuquyomi#complete|.
+		This option makes sense when 'completeopt' includes "menu"
 		and "preview".
-		NOTE: If it's set, completions gets a little slow.
+		NOTE: If it's set, completions get a little slow.
 
 						*g:tsuquyomi_disable_default_mappings*
 g:tsuquyomi_disable_default_mappings	(default 0)
@@ -331,14 +330,14 @@ g:tsuquyomi_disable_quickfix	(default 0)
 
 						*g:tsuquyomi_save_onrename*
 g:tsuquyomi_save_onrename	(default 0)
-		If set, Tsuquyomi saves arbitrarily the files which have the
-		replaced symbols by |:TsuquyomiRenameSymbol| .
+		If set, Tsuquyomi automatically saves files in which symbols
+		are replaced when |:TsuquyomiRenameSymbol| is used.
 		If not set, Tsuquyomi shows replaced files with |:split|.
 		You can save them with |:wa| after your review changes.
 
 						*g:tsuquyomi_single_quote_import*
 g:tsuquyomi_single_quote_import		(default 0)
-		If set, Tsuquyomi generates import block using single quotes
+		If set, Tsuquyomi generates import blocks using single quotes
 		instead of double quotes when |:TsuquyomiImport|.
 
 						*g:tsuquyomi_semicolon_import*
@@ -409,17 +408,17 @@ Normal mode key mappings.
 					*<Plug>(TsuquyomiRenameSymbol)*
 <Plug>(TsuquyomiRenameSymbol)
 		Rename the identifier under the cursor to a new name.
-		Please see |:TsuquyomiRenameSymbol|.
+		See |:TsuquyomiRenameSymbol|.
 
 					*<Plug>(TsuquyomiRenameSymbolC)*
 <Plug>(TsuquyomiRenameSymbolC)
 		Rename the identifier under the cursor to a new name.
-		Please see |:TsuquyomiRenameSymbolC|.
+		See |:TsuquyomiRenameSymbolC|.
 
 						*<Plug>(TsuquyomiQuickFix)*
 <Plug>(TsuquyomiQuickFix)
 		Apply quick fix under the cursor if it's available.
-		Please see |:TsuquyomiQuickFix|.
+		See |:TsuquyomiQuickFix|.
 
 						*<Plug>(TsuquyomiImport)*
 <Plug>(TsuquyomiImport)
@@ -431,7 +430,7 @@ Normal mode key mappings.
 		Display signature help for the method arguments under the
 		cursor. See |:TsuquyomiSignatureHelp|.
 
-Following keymappings are default keymappings.
+The following keymappings are default keymappings.
 
 Normal mode default mappings.
 {lhs}			{rhs}
@@ -447,13 +446,13 @@ FUNCTIONS					*tsuquyomi-functions*
 
 tsuquyomi#complete				*tsuquyomi#complete*
 		It's applicable for the 'completefunc' or 'omnifunc' option.
-		By the default, Tsuquyomi set this function to the 'omnifunc'
+		By default, Tsuquyomi sets this function to the 'omnifunc'
 		option.
 		If you want to customize completions, see
 		|tsuquyomi-examples-complete|.
 
 tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
-		Returns information about symbol under then mouse cursor for
+		Returns information about the symbol under the mouse cursor for
 		tooltip popover window.
 		This is used as the rhs for 'balloonexpr'.
 		For example,
@@ -466,9 +465,9 @@ tsuquyomi#balloonexpr	 			*tsuquyomi#balloonexpr*
 		      |+balloon_eval|.
 
 tsuquyomi#hint					*tsuquyomi#hint*
-		Returns information about symbol under the cursor. This
-		function is so similar to |tsuquyomi#balloonexpr|, but
-		This function works in not only GVim but also terminal Vim.
+		Returns information about the symbol under the cursor. This
+		function is similar to |tsuquyomi#balloonexpr|, but
+		works not only in GVim but also in terminal Vim.
 
 		For example,
 >
@@ -476,7 +475,7 @@ tsuquyomi#hint					*tsuquyomi#hint*
 		\ <C-u>echo tsuquyomi#hint()<CR>
 <
 tsuquyomi#getSupportedCodeFixes		 *tsuquyomi#getSupportedCodeFixes*
-		Returns a list of all codes quick fix available.
+		Returns a list of all code quick fixes available.
 		An error whose code is in this list can be fixed via
 		|:TsuquyomiQuickFix| command.
 
