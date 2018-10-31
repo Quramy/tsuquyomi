@@ -183,16 +183,16 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
       let l:res_list = split(l:tmp2, '\n\+')
       for res_item in l:res_list
-        let l:check = 0
+        let l:to_be_ignored = 0
         for ignore_reg in s:ignore_respons_conditions
-          let l:check = l:check || (res_item =~ ignore_reg)
-          if l:check
+          let l:to_be_ignored = l:to_be_ignored || (res_item =~ ignore_reg)
+          if l:to_be_ignored
             break
           endif
         endfor
         let l:decoded_res_item = s:JSON.decode(res_item)
-        let l:check = l:check || l:decoded_res_item.request_seq != s:request_seq
-        if !l:check
+        let l:to_be_ignored = l:to_be_ignored || (has_key(l:decoded_res_item, 'request_seq') && l:decoded_res_item.request_seq != s:request_seq)
+        if !l:to_be_ignored
           call add(response_list, decoded_res_item)
         endif
       endfor
