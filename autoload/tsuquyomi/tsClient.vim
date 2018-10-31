@@ -144,7 +144,7 @@ endfunction
 " PARAM: {float} delay Wait time(sec) after request, until response.
 " PARAM: {int} retry_count Retry count.
 " PARAM: {int} response_length The number of JSONs contained by this response.
-" RETURNS: {list<string>} A list of response string (content-type=json).
+" RETURNS: {list<dict>} A list of response.
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
   "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
@@ -190,8 +190,10 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
             break
           endif
         endfor
+        let l:decoded_res_item = s:JSON.decode(res_item)
+        let l:check = l:check || l:decoded_res_item.request_seq != s:request_seq
         if !l:check
-          call add(response_list, res_item)
+          call add(response_list, decoded_res_item)
         endif
       endfor
     else
@@ -218,12 +220,11 @@ function! tsuquyomi#tsClient#sendCommandSyncResponse(cmd, args)
   call tsuquyomi#perfLogger#record('afterCmd:'.a:cmd)
   let l:length = len(l:stdout_list)
   if l:length == 1
-    let res = s:JSON.decode(l:stdout_list[0])
     "if res.success == 0
     "  echom '[Tsuquyomi] TSServer command fail. command: '.res.command.', message: '.res.message
     "endif
     call tsuquyomi#perfLogger#record('afterDecode:'.a:cmd)
-    return [res]
+    return l:stdout_list
   else
     return []
   endif
@@ -236,10 +237,9 @@ function! tsuquyomi#tsClient#sendCommandSyncEvents(cmd, args, delay, length)
   let l:length = len(l:stdout_list)
   let l:result_list = []
   if l:length > 0
-    for out_str in l:stdout_list
-      let res = s:JSON.decode(out_str)
+    for res in l:stdout_list
       if res.type != 'event'
-        "echom '[Tsuquyomi] TSServer return invalid response: '.out_str
+        "echom '[Tsuquyomi] TSServer return invalid response: '.string(res)
       else
         call add(l:result_list, res)
       endif
