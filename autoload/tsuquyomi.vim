@@ -556,37 +556,69 @@ endfunction
 
 " #### Geterr {{{
 
+function! tsuquyomi#parseDiagnosticEvent(event)
+  let quickfix_list = []
+  let supportedCodes = tsuquyomi#getSupportedCodeFixes()
+  if has_key(a:event, 'type') && a:event.type ==# 'event' && (a:event.event ==# 'syntaxDiag' || a:event.event ==# 'semanticDiag')
+    for diagnostic in a:event.body.diagnostics
+      if diagnostic.text =~ "Cannot find module" && g:tsuquyomi_ignore_missing_modules == 1
+        continue
+      endif
+      let item = {}
+      let item.filename = a:event.body.file
+      let item.lnum = diagnostic.start.line
+      if(has_key(diagnostic.start, 'offset'))
+        let item.col = diagnostic.start.offset
+      endif
+      let item.text = diagnostic.text
+      if !has_key(diagnostic, 'code')
+        continue
+      endif
+      let item.code = diagnostic.code
+      let l:cfidx = index(supportedCodes, (diagnostic.code . ''))
+      let l:qfmark = l:cfidx >= 0 ? '[QF available]' : ''
+      let item.text = diagnostic.code . l:qfmark . ': ' . item.text
+      let item.availableCodeFix = l:cfidx >= 0
+      let item.type = 'E'
+      call add(quickfix_list, item)
+    endfor
+  endif
+  return quickfix_list
+endfunction
+
+function! tsuquyomi#emitChange()
+  let l:bufnum = bufnr('%')
+  let l:inputs = getbufline(l:bufnum, 1, '$')
+  let l:input = join(l:inputs, "\n") . "\n"
+  let l:file = expand('%:p')
+
+  " file, line, offset, endLine, endOffset, insertString
+  call tsuquyomi#tsClient#tsAsyncChange(l:file, 1, 1, len(l:input), 1, l:input)
+endfunction
+
+function! tsuquyomi#createAsyncFixlist()
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return []
+  endif
+  call s:flush()
+
+  " Tell TSServer to change.
+  call tsuquyomi#emitChange()
+
+  let l:files = [expand('%:p')]
+  let l:delayMsec = 50 "TODO export global option
+
+  call tsuquyomi#tsClient#tsAsyncGeterr(l:files, l:delayMsec)
+endfunction
+
 function! tsuquyomi#createQuickFixListFromEvents(event_list)
   if !len(a:event_list)
     return []
   endif
   let quickfix_list = []
-  let supportedCodes = tsuquyomi#getSupportedCodeFixes()
   for event_item in a:event_list
-    if has_key(event_item, 'type') && event_item.type ==# 'event' && (event_item.event ==# 'syntaxDiag' || event_item.event ==# 'semanticDiag')
-      for diagnostic in event_item.body.diagnostics
-        if diagnostic.text =~ "Cannot find module" && g:tsuquyomi_ignore_missing_modules == 1
-          continue
-        endif
-        let item = {}
-        let item.filename = event_item.body.file
-        let item.lnum = diagnostic.start.line
-        if(has_key(diagnostic.start, 'offset'))
-          let item.col = diagnostic.start.offset
-        endif
-        let item.text = diagnostic.text
-        if !has_key(diagnostic, 'code')
-          continue
-        endif
-        let item.code = diagnostic.code
-        let l:cfidx = index(supportedCodes, (diagnostic.code.''))
-        let l:qfmark = l:cfidx >= 0 ? '[QF available]' : ''
-        let item.text = diagnostic.code.l:qfmark.': '.item.text
-        let item.availableCodeFix = l:cfidx >= 0
-        let item.type = 'E'
-        call add(quickfix_list, item)
-      endfor
-    endif
+    let items = tsuquyomi#parseDiagnosticEvent(event_item)
+    let quickfix_list = quickfix_list + items
   endfor
   return quickfix_list
 endfunction

@@ -38,6 +38,9 @@ call add(s:ignore_respons_conditions, '"type":"event","event":"projectsUpdatedIn
 call add(s:ignore_respons_conditions, '"type":"event","event":"typingsInstallerPid"')
 call add(s:ignore_respons_conditions, 'npm notice created a lockfile')
 
+" Async callbacks
+let s:callback_list = []
+
 " ### Utilites {{{
 function! s:error(msg)
   echoerr (a:msg)
@@ -78,10 +81,12 @@ function! s:startTssVim8()
   endif
   let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g').' '.tsuquyomi#config#tssargs()
   try
-    let s:tsq['job'] = job_start(l:cmd)
+    let s:tsq['job'] = job_start(l:cmd,
+      \ {'out_cb': {ch, msg -> tsuquyomi#tsClient#handleMessage(ch, msg)}})
+
     let s:tsq['channel'] = job_getchannel(s:tsq['job'])
 
-    let out =  ch_readraw(s:tsq['channel'])
+    let out = ch_readraw(s:tsq['channel'])
     let st = tsuquyomi#tsClient#statusTss()
     if !g:tsuquyomi_tsserver_debug
       if err != ''
@@ -158,6 +163,61 @@ function! tsuquyomi#tsClient#statusTss()
   catch
     return 'dead' 
   endtry
+endfunction
+
+"
+"Read diagnostics and add to QuickList.
+"
+" PARAM: {dict} response
+function! tsuquyomi#tsClient#readDiagnostics(response)
+  let item = json_decode(a:response)
+  if item.type == 'event' && item.event == 'semanticDiag'
+    let qflist = tsuquyomi#parseDiagnosticEvent(item)
+    call setqflist(qflist, 'r')
+  endif
+endfunction
+
+"
+" Handle TSServer responses.
+"
+function! tsuquyomi#tsClient#handleMessage(ch, msg)
+  if type(a:msg) != 1 || a:msg == ''
+    " Not a string or blank message.
+    return
+  endif
+  let l:res_item = substitute(a:msg, 'Content-Length: \d\+', '', 'g')
+  if l:res_item == ''
+    " Ignore content-length.
+    return
+  endif
+  " Ignore messages.
+  let l:to_be_ignored = 0
+  for ignore_reg in s:ignore_respons_conditions
+    let l:to_be_ignored = l:to_be_ignored || (l:res_item =~ ignore_reg)
+    if l:to_be_ignored
+      return
+    endif
+  endfor
+  for callback in s:callback_list
+    " Run registerd commands
+    let Callback = function(callback, [l:res_item])
+    call Callback()
+  endfor
+endfunction
+
+function! tsuquyomi#tsClient#clearCallbacks()
+  let s:callback_list = []
+endfunction
+
+function! tsuquyomi#tsClient#registerCallback(callback)
+  call uniq(add(s:callback_list, a:callback))
+endfunction
+
+function! tsuquyomi#tsClient#sendAsyncRequest(line)
+  if s:is_vim8 || g:tsuquyomi_use_vimproc == 0
+    call tsuquyomi#tsClient#startTss()
+    call ch_sendraw(s:tsq['channel'], a:line . "\n")
+  endif
 endfunction
 
 "
@@ -302,6 +362,17 @@ function! tsuquyomi#tsClient#getResponseBodyAsDict(responses)
   else
     return {}
   endif
+endfunction
+
+"
+" Send a command to TSServer.
+" This function is called asynchronously.
+" PARAM: {string} cmd Command type. e.g. 'completion', etc...
+" PARAM: {dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
+function! tsuquyomi#tsClient#sendCommandAsyncEvents(cmd, args)
+  let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
+  " call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
+  call tsuquyomi#tsClient#sendAsyncRequest(l:input)
 endfunction
 
 "
@@ -808,6 +879,30 @@ function! tsuquyomi#tsClient#tsGetSupportedCodeFixes()
   endif
 endfunction
 
+"
+" Emmit to change file to TSServer.
+" Param: {string} file File name to change.
+" Param: {int} line The line number of starting point of range to change.
+" Param: {int} offset The col number of starting point of range to change.
+" Param: {int} endLine The line number of end point of range to change.
+" Param: {int} endOffset The col number of end point of range to change.
+" Param: {string} insertString String after replacing
+" This command does not return any response.
+function! tsuquyomi#tsClient#tsAsyncChange(file, line, offset, endLine, endOffset, insertString)
+  let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'endLine': a:endLine, 'endOffset': a:endOffset, 'insertString': a:insertString}
+  call tsuquyomi#tsClient#sendCommandAsyncEvents('change', l:args)
+endfunction
+
+"
+" Get error for files.
+" PARAM: {list<string>} files List of filename
+" PARAM: {int} delay Delay time [msec].
+function! tsuquyomi#tsClient#tsAsyncGeterr(files, delay)
+  let l:args = {'files': a:files, 'delay': a:delay}
+  let l:delaySec = a:delay * 1.0 / 1000.0
+  let l:typeCount = tsuquyomi#config#isHigher(280) ? 3 : 2
+  call tsuquyomi#tsClient#sendCommandAsyncEvents('geterr', l:args)
+endfunction
 
 " ### TSServer command wrappers }}}
 

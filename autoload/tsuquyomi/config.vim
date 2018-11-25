@@ -287,6 +287,10 @@ function! tsuquyomi#config#applyBufLocalFunctions()
   endif
 endfunction
 
+function! tsuquyomi#config#registerInitialCallback()
+  call tsuquyomi#tsClient#registerCallback('tsuquyomi#tsClient#readDiagnostics')
+endfunction
+
 function! tsuquyomi#config#initBuffer(opt)
   if !has_key(a:opt, 'pattern')
     echom '[Tsuquyomi] missing options. "pattern"'
@@ -301,6 +305,9 @@ function! tsuquyomi#config#initBuffer(opt)
   if g:tsuquyomi_auto_open
     silent! call tsuquyomi#open()
     silent! call tsuquyomi#sendConfigure()
+  endif
+  if s:is_vim8 && g:tsuquyomi_use_vimproc == 0
+    call tsuquyomi#config#registerInitialCallback()
   endif
   return 1
 endfunction
