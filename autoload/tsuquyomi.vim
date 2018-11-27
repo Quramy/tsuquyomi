@@ -94,6 +94,16 @@ function! s:writeToPreview(content)
   setlocal nomodifiable readonly
   silent wincmd p
 endfunction
+
+function! s:setqflist(quickfix_list) abort
+  call setqflist(a:quickfix_list, 'r')
+  if len(a:quickfix_list) > 0
+    cwindow
+  else
+    cclose
+  endif
+endfunction
+
 " ### Utilites }}}
 
 " ### Public functions {{{
@@ -556,6 +566,11 @@ endfunction
 
 " #### Geterr {{{
 
+function! tsuquyomi#asyncGeterr()
+  call tsuquyomi#registerNotify(function('s:setqflist'))
+  call tsuquyomi#asyncCreateFixlist()
+endfunction
+
 function! tsuquyomi#parseDiagnosticEvent(event)
   let quickfix_list = []
   let supportedCodes = tsuquyomi#getSupportedCodeFixes()
@@ -584,6 +599,10 @@ function! tsuquyomi#parseDiagnosticEvent(event)
     endfor
   endif
   return quickfix_list
+endfunction
+
+function! tsuquyomi#registerNotify(callback)
+  call tsuquyomi#tsClient#registerNotify(a:callback)
 endfunction
 
 function! tsuquyomi#emitChange()
@@ -642,12 +661,7 @@ endfunction
 function! tsuquyomi#geterr()
   let quickfix_list = tsuquyomi#createFixlist()
 
-  call setqflist(quickfix_list, 'r')
-  if len(quickfix_list) > 0
-    cwindow
-  else
-    cclose
-  endif
+  call s:setqflist(quickfix_list)
 endfunction
 
 function! tsuquyomi#geterrProject()
@@ -677,12 +691,7 @@ function! tsuquyomi#geterrProject()
   " 3. Make a quick fix list for `setqflist`.
   let quickfix_list = tsuquyomi#createQuickFixListFromEvents(result)
 
-  call setqflist(quickfix_list, 'r')
-  if len(quickfix_list) > 0
-    cwindow
-  else
-    cclose
-  endif
+  call s:setqflist(quickfix_list)
 endfunction
 
 function! tsuquyomi#reloadAndGeterr()

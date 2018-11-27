@@ -40,6 +40,7 @@ call add(s:ignore_respons_conditions, 'npm notice created a lockfile')
 
 " Async callbacks
 let s:callback_list = []
+let s:notify_callback = ''
 
 " ### Utilites {{{
 function! s:error(msg)
@@ -81,8 +82,9 @@ function! s:startTssVim8()
   endif
   let l:cmd = substitute(tsuquyomi#config#tsscmd(), '\\', '\\\\', 'g').' '.tsuquyomi#config#tssargs()
   try
-    let s:tsq['job'] = job_start(l:cmd,
-      \ {'out_cb': {ch, msg -> tsuquyomi#tsClient#handleMessage(ch, msg)}})
+    let s:tsq['job'] = job_start(l:cmd, {
+      \ 'out_cb': {ch, msg -> tsuquyomi#tsClient#handleMessage(ch, msg)},
+      \ })
 
     let s:tsq['channel'] = job_getchannel(s:tsq['job'])
 
@@ -170,11 +172,19 @@ endfunction
 "
 " PARAM: {dict} response
 function! tsuquyomi#tsClient#readDiagnostics(response)
-  let item = json_decode(a:response)
-  if item.type == 'event' && item.event == 'semanticDiag'
-    let qflist = tsuquyomi#parseDiagnosticEvent(item)
-    call setqflist(qflist, 'r')
+  let l:item = json_decode(a:response)
+  if l:item.type == 'event' && l:item.event == 'semanticDiag'
+    let l:qflist = tsuquyomi#parseDiagnosticEvent(l:item)
+
+    if s:notify_callback != '' " && type(s:notify_callback) == 2
+      let Callback = function(s:notify_callback, [l:qflist])
+      call Callback()
+    endif
   endif
+endfunction
+
+function! tsuquyomi#tsClient#registerNotify(callback)
+  let s:notify_callback = a:callback
 endfunction
 
 "

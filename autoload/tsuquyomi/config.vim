@@ -212,6 +212,8 @@ function! tsuquyomi#config#createBufLocalCommand()
   command! -buffer TsuQuickFix              :call tsuquyomi#quickFix()
   command! -buffer TsuquyomiSignatureHelp   :call tsuquyomi#signatureHelp()
   command! -buffer TsuSignatureHelp         :call tsuquyomi#signatureHelp()
+  command! -buffer TsuAsyncGeterr           :call tsuquyomi#asyncGeterr()
+  command! -buffer TsuquyomiAsyncGeterr     :call tsuquyomi#asyncGeterr()
 
   " TODO These commands don't work correctly.
   command! -buffer TsuquyomiRenameSymbolS   :call tsuquyomi#renameSymbolWithStrings()
