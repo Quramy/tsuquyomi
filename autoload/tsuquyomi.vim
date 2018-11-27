@@ -596,7 +596,7 @@ function! tsuquyomi#emitChange()
   call tsuquyomi#tsClient#tsAsyncChange(l:file, 1, 1, len(l:input), 1, l:input)
 endfunction
 
-function! tsuquyomi#createAsyncFixlist()
+function! tsuquyomi#asyncCreateFixlist()
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return []
   endif
