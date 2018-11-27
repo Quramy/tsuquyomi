@@ -163,7 +163,7 @@ function! tsuquyomi#tsClient#statusTss()
       return job_info(s:tsq['job']).status
     endif
   catch
-    return 'dead' 
+    return 'dead'
   endtry
 endfunction
 
@@ -439,7 +439,7 @@ endfunction
 " Param: {int} offset The col number of starting point of range to change.
 " Param: {int} endLine The line number of end point of range to change.
 " Param: {int} endOffset The col number of end point of range to change.
-" Param: {string} insertString String after replacing 
+" Param: {string} insertString String after replacing
 " This command does not return any response.
 function! tsuquyomi#tsClient#tsChange(file, line, offset, endLine, endOffset, insertString)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset, 'endLine': a:endLine, 'endOffset': a:endOffset, 'insertString': a:insertString}
@@ -523,7 +523,7 @@ endfunction
 " PARAM: {int} line The line number of location to complete.
 " PARAM: {int} offset The col number of location to complete.
 " RETURNS: {list<dict>} A list of dictionaries of definition location.
-"   e.g. : 
+"   e.g. :
 "     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
 function! tsuquyomi#tsClient#tsDefinition(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
@@ -621,7 +621,7 @@ endfunction
 " PARAM: {string} file File name.
 " PARAM: {int} line The line number of the symbol's position.
 " PARAM: {int} offset The col number of the symbol's position.
-" RETURNS:  {dict}  
+" RETURNS:  {dict}
 "   e.g. :
 "     {
 "       'kind': 'method',
@@ -647,11 +647,11 @@ endfunction
 "       'symbolDisplayString': 'SomeModule.SomeClass',
 "       'refs': [
 "         {
-"           'file': 'SomeClass.ts', 'isWriteAccess': 1, 
+"           'file': 'SomeClass.ts', 'isWriteAccess': 1,
 "           'start': {'line': 3', 'offset': 2}, 'end': {'line': 3, 'offset': 20},
 "           'lineText': 'export class SomeClass {'
 "         }, {
-"           'file': 'OtherClass.ts', 'isWriteAccess': 0, 
+"           'file': 'OtherClass.ts', 'isWriteAccess': 0,
 "           'start': {'line': 5', 'offset': 2}, 'end': {'line': 5, 'offset': 20},
 "           'lineText': 'export class OtherClass extends SomeClass{'
 "         }
@@ -665,9 +665,9 @@ endfunction
 
 " Reload an opend file.
 " It can be used for telling change of buffer to TSServer.
-" PARAM: {string} file File name 
+" PARAM: {string} file File name
 " PARAM: {string} tmpfile
-" RETURNS: {0|1} 
+" RETURNS: {0|1}
 function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
   " With ts > 2.6 and ts <=1.9, tsserver emit 2 responses by reload request.
@@ -711,7 +711,7 @@ endfunction
 "         },
 "       },
 "       'locs': [{
-"         'file': 'hoge.ts'', 
+"         'file': 'hoge.ts'',
 "         'locs': [
 "           {'start':{'line': 3, 'offset': 4}, 'end':{'line': 3, 'offset': 12}},
 "           ...
@@ -766,7 +766,7 @@ endfunction
 " PARAM: {string} file File name.
 " PARAM: {int} line The line number of the symbol's position.
 " PARAM: {int} offset The col number of the symbol's position.
-" RETURNS:  {dict}  
+" RETURNS:  {dict}
 "   e.g. :
 "     {
 "       'selectedItemIndex': 0,
@@ -825,7 +825,7 @@ endfunction
 " PARAM: {int} line The line number of location to complete.
 " PARAM: {int} offset The col number of location to complete.
 " RETURNS: {list<dict>} A list of dictionaries of type definition location.
-"   e.g. : 
+"   e.g. :
 "     [{'file': 'hogehoge.ts', 'start': {'line': 3, 'offset': 2}, 'end': {'line': 3, 'offset': 10}}]
 function! tsuquyomi#tsClient#tsTypeDefinition(file, line, offset)
   let l:args = {'file': a:file, 'line': a:line, 'offset': a:offset}
