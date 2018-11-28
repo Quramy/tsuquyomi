@@ -95,7 +95,7 @@ function! s:writeToPreview(content)
   silent wincmd p
 endfunction
 
-function! s:setqflist(quickfix_list) abort
+function! s:setqflist(quickfix_list)
   call setqflist(a:quickfix_list, 'r')
   if len(a:quickfix_list) > 0
     cwindow
