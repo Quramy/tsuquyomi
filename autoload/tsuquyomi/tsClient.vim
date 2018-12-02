@@ -41,6 +41,8 @@ call add(s:ignore_respons_conditions, 'npm notice created a lockfile')
 " Async callbacks
 let s:callback_list = []
 let s:notify_callback = ''
+let s:quickfix_list = []
+" ### }}}
 
 " ### Utilites {{{
 function! s:error(msg)
@@ -173,12 +175,20 @@ endfunction
 " PARAM: {dict} response
 function! tsuquyomi#tsClient#readDiagnostics(response)
   let l:item = json_decode(a:response)
-  if l:item.type == 'event' && l:item.event == 'semanticDiag'
-    let l:qflist = tsuquyomi#parseDiagnosticEvent(l:item)
+  if has_key(l:item, 'type')
+    \ && l:item.type ==# 'event'
+    \ && (l:item.event ==# 'syntaxDiag' || l:item.event ==# 'semanticDiag' || l:item.event ==# 'requestCompleted')
 
-    if s:notify_callback != '' " && type(s:notify_callback) == 2
-      let Callback = function(s:notify_callback, [l:qflist])
-      call Callback()
+    if l:item.event == 'requestCompleted'
+      " Request was completed run callback
+      if s:notify_callback != ''
+        let Callback = function(s:notify_callback, [s:quickfix_list])
+        call Callback()
+        let s:quickfix_list = []
+      endif
+    else
+      let l:qflist = tsuquyomi#parseDiagnosticEvent(l:item, [])
+      let s:quickfix_list += l:qflist
     endif
   endif
 endfunction
