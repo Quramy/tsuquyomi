@@ -29,16 +29,15 @@ endif
 
 let s:request_seq = 0
 
-let s:ignore_respons_conditions = []
+let s:ignore_response_conditions = []
 " ignore events configFileDiag triggered by reload event. See also #99
-call add(s:ignore_respons_conditions, '"type":"event","event":"configFileDiag"')
-call add(s:ignore_respons_conditions, '"type":"event","event":"requestCompleted"')
-call add(s:ignore_respons_conditions, '"type":"event","event":"telemetry"')
-call add(s:ignore_respons_conditions, '"type":"event","event":"projectsUpdatedInBackground"')
-call add(s:ignore_respons_conditions, '"type":"event","event":"typingsInstallerPid"')
-call add(s:ignore_respons_conditions, 'npm notice created a lockfile')
+call add(s:ignore_response_conditions, '"type":"event","event":"configFileDiag"')
+call add(s:ignore_response_conditions, '"type":"event","event":"telemetry"')
+call add(s:ignore_response_conditions, '"type":"event","event":"projectsUpdatedInBackground"')
+call add(s:ignore_response_conditions, '"type":"event","event":"typingsInstallerPid"')
+call add(s:ignore_response_conditions, 'npm notice created a lockfile')
 
-" Async callbacks
+" ### Async variables
 let s:callback_list = []
 let s:notify_callback = ''
 let s:quickfix_list = []
@@ -212,7 +211,7 @@ function! tsuquyomi#tsClient#handleMessage(ch, msg)
   endif
   " Ignore messages.
   let l:to_be_ignored = 0
-  for ignore_reg in s:ignore_respons_conditions
+  for ignore_reg in s:ignore_response_conditions
     let l:to_be_ignored = l:to_be_ignored || (l:res_item =~ ignore_reg)
     if l:to_be_ignored
       return
@@ -287,7 +286,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
       let l:res_list = split(l:tmp2, '\n\+')
       for res_item in l:res_list
         let l:to_be_ignored = 0
-        for ignore_reg in s:ignore_respons_conditions
+        for ignore_reg in s:ignore_response_conditions + ['"type":"event","event":"requestCompleted"']
           let l:to_be_ignored = l:to_be_ignored || (res_item =~ ignore_reg)
           if l:to_be_ignored
             break
