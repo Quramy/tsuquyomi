@@ -174,18 +174,19 @@ endfunction
 " PARAM: {dict} response
 function! tsuquyomi#tsClient#readDiagnostics(response)
   let l:item = json_decode(a:response)
-  if has_key(l:item, 'type')
-    \ && l:item.type ==# 'event'
-    \ && (l:item.event ==# 'syntaxDiag' || l:item.event ==# 'semanticDiag' || l:item.event ==# 'requestCompleted')
+  if has_key(l:item, 'type') && l:item.type ==# 'event'
+    \ && (l:item.event ==# 'syntaxDiag'
+      \ || l:item.event ==# 'semanticDiag'
+      \ || l:item.event ==# 'requestCompleted')
 
     if l:item.event == 'requestCompleted'
-      " Request was completed run callback
       if s:notify_callback != ''
         let Callback = function(s:notify_callback, [s:quickfix_list])
         call Callback()
         let s:quickfix_list = []
       endif
     else
+      " Cache syntaxDiag and semanticDiag messages until request was completed.
       let l:qflist = tsuquyomi#parseDiagnosticEvent(l:item, [])
       let s:quickfix_list += l:qflist
     endif
@@ -233,7 +234,7 @@ function! tsuquyomi#tsClient#registerCallback(callback)
 endfunction
 
 function! tsuquyomi#tsClient#sendAsyncRequest(line)
-  if s:is_vim8 || g:tsuquyomi_use_vimproc == 0
+  if s:is_vim8 && g:tsuquyomi_use_vimproc == 0
     call tsuquyomi#tsClient#startTss()
     call ch_sendraw(s:tsq['channel'], a:line . "\n")
   endif
@@ -389,7 +390,7 @@ endfunction
 " PARAM: {string} cmd Command type. e.g. 'completion', etc...
 " PARAM: {dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
 function! tsuquyomi#tsClient#sendCommandAsyncEvents(cmd, args)
-  let l:input = s:JSON.encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
+  let l:input = json_encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
   " call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
   call tsuquyomi#tsClient#sendAsyncRequest(l:input)
 endfunction
