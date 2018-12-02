@@ -571,9 +571,9 @@ function! tsuquyomi#asyncGeterr()
   call tsuquyomi#asyncCreateFixlist()
 endfunction
 
-function! tsuquyomi#parseDiagnosticEvent(event)
+function! tsuquyomi#parseDiagnosticEvent(event, supportedCodes)
   let quickfix_list = []
-  let supportedCodes = tsuquyomi#getSupportedCodeFixes()
+  let codes = len(a:supportedCodes) > 0 ? a:supportedCodes : s:supportedCodeFixes
   if has_key(a:event, 'type') && a:event.type ==# 'event' && (a:event.event ==# 'syntaxDiag' || a:event.event ==# 'semanticDiag')
     for diagnostic in a:event.body.diagnostics
       if diagnostic.text =~ "Cannot find module" && g:tsuquyomi_ignore_missing_modules == 1
@@ -590,9 +590,11 @@ function! tsuquyomi#parseDiagnosticEvent(event)
         continue
       endif
       let item.code = diagnostic.code
-      let l:cfidx = index(supportedCodes, (diagnostic.code . ''))
-      let l:qfmark = l:cfidx >= 0 ? '[QF available]' : ''
-      let item.text = diagnostic.code . l:qfmark . ': ' . item.text
+      let l:cfidx = index(codes, (diagnostic.code . ''))
+      if l:cfidx >= 0
+        let l:qfmark = '[QF available]'
+        let item.text = diagnostic.code . l:qfmark . ': ' . item.text
+      endif
       let item.availableCodeFix = l:cfidx >= 0
       let item.type = 'E'
       call add(quickfix_list, item)
@@ -635,8 +637,9 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
     return []
   endif
   let quickfix_list = []
+  let supportedCodes = tsuquyomi#getSupportedCodeFixes()
   for event_item in a:event_list
-    let items = tsuquyomi#parseDiagnosticEvent(event_item)
+    let items = tsuquyomi#parseDiagnosticEvent(event_item, supportedCodes)
     let quickfix_list = quickfix_list + items
   endfor
   return quickfix_list
