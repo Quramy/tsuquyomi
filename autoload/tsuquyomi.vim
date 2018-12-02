@@ -609,8 +609,7 @@ endfunction
 
 function! tsuquyomi#emitChange()
   let l:bufnum = bufnr('%')
-  let l:inputs = getbufline(l:bufnum, 1, '$')
-  let l:input = join(l:inputs, "\n") . "\n"
+  let l:input = join(getbufline(l:bufnum, 1, '$'), "\n") . "\n"
   let l:file = expand('%:p')
 
   " file, line, offset, endLine, endOffset, insertString
@@ -618,12 +617,17 @@ function! tsuquyomi#emitChange()
 endfunction
 
 function! tsuquyomi#asyncCreateFixlist()
+  " Works only Vim8(+channel, +job)
+  " We must register callbacks(handler and callback) before execute this.
+  " See `tsuquyomi#config#initBuffer()`
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return []
   endif
   call s:flush()
+  " `tsuquyomi#getSupportedCodeFixes()` is too slow and block Vim's ui.
+  " call tsuquyomi#getSupportedCodeFixes()
 
-  " Tell TSServer to change.
+  " Tell TSServer to change for get syntaxDiag and semanticDiag errors.
   call tsuquyomi#emitChange()
 
   let l:files = [expand('%:p')]
