@@ -293,6 +293,7 @@ function! tsuquyomi#config#registerInitialCallback()
   call tsuquyomi#tsClient#registerCallback('tsuquyomi#tsClient#readDiagnostics')
 endfunction
 
+let s:async_initialized = 0
 function! tsuquyomi#config#initBuffer(opt)
   if !has_key(a:opt, 'pattern')
     echom '[Tsuquyomi] missing options. "pattern"'
@@ -308,8 +309,9 @@ function! tsuquyomi#config#initBuffer(opt)
     silent! call tsuquyomi#open()
     silent! call tsuquyomi#sendConfigure()
   endif
-  if s:is_vim8 && g:tsuquyomi_use_vimproc == 0
+  if s:is_vim8 && g:tsuquyomi_use_vimproc == 0 && s:async_initialized == 0
     call tsuquyomi#config#registerInitialCallback()
+    let s:async_initialized = 1
   endif
   return 1
 endfunction
