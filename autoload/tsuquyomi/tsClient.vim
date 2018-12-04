@@ -172,14 +172,13 @@ endfunction
 "Read diagnostics and add to QuickList.
 "
 " PARAM: {dict} response
-function! tsuquyomi#tsClient#readDiagnostics(response)
-  let l:item = json_decode(a:response)
-  if has_key(l:item, 'type') && l:item.type ==# 'event'
-    \ && (l:item.event ==# 'syntaxDiag'
-      \ || l:item.event ==# 'semanticDiag'
-      \ || l:item.event ==# 'requestCompleted')
+function! tsuquyomi#tsClient#readDiagnostics(item)
+  if has_key(a:item, 'type') && a:item.type ==# 'event'
+    \ && (a:item.event ==# 'syntaxDiag'
+      \ || a:item.event ==# 'semanticDiag'
+      \ || a:item.event ==# 'requestCompleted')
 
-    if l:item.event == 'requestCompleted'
+    if a:item.event == 'requestCompleted'
       if s:notify_callback != ''
         let Callback = function(s:notify_callback, [s:quickfix_list])
         call Callback()
@@ -187,7 +186,7 @@ function! tsuquyomi#tsClient#readDiagnostics(response)
       endif
     else
       " Cache syntaxDiag and semanticDiag messages until request was completed.
-      let l:qflist = tsuquyomi#parseDiagnosticEvent(l:item, [])
+      let l:qflist = tsuquyomi#parseDiagnosticEvent(a:item, [])
       let s:quickfix_list += l:qflist
     endif
   endif
@@ -218,9 +217,10 @@ function! tsuquyomi#tsClient#handleMessage(ch, msg)
       return
     endif
   endfor
+  let item = json_decode(l:res_item)
   for callback in s:callback_list
     " Run registerd commands
-    let Callback = function(callback, [l:res_item])
+    let Callback = function(callback, [l:item])
     call Callback()
   endfor
 endfunction
