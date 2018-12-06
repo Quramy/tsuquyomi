@@ -290,7 +290,7 @@ function! tsuquyomi#config#applyBufLocalFunctions()
 endfunction
 
 function! tsuquyomi#config#registerInitialCallback()
-  call tsuquyomi#tsClient#registerCallback('tsuquyomi#tsClient#readDiagnostics')
+  call tsuquyomi#tsClient#registerCallback('tsuquyomi#tsClient#readDiagnostics', 'diagnostics')
 endfunction
 
 let s:async_initialized = 0

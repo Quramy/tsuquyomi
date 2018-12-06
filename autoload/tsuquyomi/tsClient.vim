@@ -38,8 +38,8 @@ call add(s:ignore_response_conditions, '"type":"event","event":"typingsInstaller
 call add(s:ignore_response_conditions, 'npm notice created a lockfile')
 
 " ### Async variables
-let s:callback_list = []
-let s:notify_callback = ''
+let s:callbacks = {}
+let s:notify_callback = {}
 let s:quickfix_list = []
 " ### }}}
 
@@ -102,6 +102,17 @@ function! s:startTssVim8()
   endtry
   return 1
 endfunction
+
+function! s:getEventType(item)
+  if has_key(a:item, 'type') && a:item.type ==# 'event'
+    \ && (a:item.event ==# 'syntaxDiag'
+      \ || a:item.event ==# 'semanticDiag'
+      \ || a:item.event ==# 'requestCompleted')
+    return 'diagnostics'
+  endif
+  return 0
+endfunction
+
 
 function! tsuquyomi#tsClient#startTss()
   if !s:is_vim8 || g:tsuquyomi_use_vimproc
@@ -173,27 +184,21 @@ endfunction
 "
 " PARAM: {dict} response
 function! tsuquyomi#tsClient#readDiagnostics(item)
-  if has_key(a:item, 'type') && a:item.type ==# 'event'
-    \ && (a:item.event ==# 'syntaxDiag'
-      \ || a:item.event ==# 'semanticDiag'
-      \ || a:item.event ==# 'requestCompleted')
-
-    if a:item.event == 'requestCompleted'
-      if s:notify_callback != ''
-        let Callback = function(s:notify_callback, [s:quickfix_list])
-        call Callback()
-        let s:quickfix_list = []
-      endif
-    else
-      " Cache syntaxDiag and semanticDiag messages until request was completed.
-      let l:qflist = tsuquyomi#parseDiagnosticEvent(a:item, [])
-      let s:quickfix_list += l:qflist
+  if a:item.event == 'requestCompleted'
+    if has_key(s:notify_callback, 'diagnostics')
+      let Callback = function(s:notify_callback['diagnostics'], [s:quickfix_list])
+      call Callback()
+      let s:quickfix_list = []
     endif
+  else
+    " Cache syntaxDiag and semanticDiag messages until request was completed.
+    let l:qflist = tsuquyomi#parseDiagnosticEvent(a:item, [])
+    let s:quickfix_list += l:qflist
   endif
 endfunction
 
-function! tsuquyomi#tsClient#registerNotify(callback)
-  let s:notify_callback = a:callback
+function! tsuquyomi#tsClient#registerNotify(callback, key)
+  let s:notify_callback[a:key] = a:callback
 endfunction
 
 "
@@ -217,20 +222,27 @@ function! tsuquyomi#tsClient#handleMessage(ch, msg)
       return
     endif
   endfor
-  let item = json_decode(l:res_item)
-  for callback in s:callback_list
-    " Run registerd commands
-    let Callback = function(callback, [l:item])
+  let l:item = json_decode(l:res_item)
+  let l:eventName = s:getEventType(l:item)
+
+  if(has_key(s:callbacks, l:eventName))
+    let Callback = function(s:callbacks[l:eventName], [l:item])
     call Callback()
-  endfor
+  endif
+
+  " for callback in s:callback_list
+  "   " Run registerd commands
+  "   let Callback = function(callback, [l:item])
+  "   call Callback()
+  " endfor
 endfunction
 
 function! tsuquyomi#tsClient#clearCallbacks()
-  let s:callback_list = []
+  let s:callback_list = {}
 endfunction
 
-function! tsuquyomi#tsClient#registerCallback(callback)
-  call uniq(add(s:callback_list, a:callback))
+function! tsuquyomi#tsClient#registerCallback(callback, eventName)
+  let s:callbacks[a:eventName] = a:callback
 endfunction
 
 function! tsuquyomi#tsClient#sendAsyncRequest(line)

@@ -567,8 +567,10 @@ endfunction
 " #### Geterr {{{
 
 function! tsuquyomi#asyncGeterr()
-  call tsuquyomi#registerNotify(function('s:setqflist'))
-  call tsuquyomi#asyncCreateFixlist()
+  let g:tsuquyomi_is_available == 1
+    call tsuquyomi#registerNotify(function('s:setqflist'), 'diagnostics')
+    call tsuquyomi#asyncCreateFixlist()
+  endif
 endfunction
 
 function! tsuquyomi#parseDiagnosticEvent(event, supportedCodes)
@@ -603,8 +605,8 @@ function! tsuquyomi#parseDiagnosticEvent(event, supportedCodes)
   return quickfix_list
 endfunction
 
-function! tsuquyomi#registerNotify(callback)
-  call tsuquyomi#tsClient#registerNotify(a:callback)
+function! tsuquyomi#registerNotify(callback, eventName)
+  call tsuquyomi#tsClient#registerNotify(a:callback, a:eventName)
 endfunction
 
 function! tsuquyomi#emitChange()
