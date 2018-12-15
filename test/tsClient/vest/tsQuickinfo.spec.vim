@@ -20,7 +20,7 @@ Context Vesting.run()
     Should has_key(res_dict, 'kind')
     Should has_key(res_dict, 'kindModifiers')
     Should res_dict.displayString == '(method) SimpleModule.MyClass.say(): string'
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

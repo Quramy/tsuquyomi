@@ -12,7 +12,7 @@ Context Vesting.run()
     let res_list = tsuquyomi#tsClient#tsCompletions(file, 17, 0, 'classDe') 
     Should len(res_list) == 1
     Should res_list[0].name == 'ClassDecorator'
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It checks interface of responce of 'completions' command with non-existing keyword.
@@ -20,7 +20,7 @@ Context Vesting.run()
     call tsuquyomi#tsClient#tsOpen(file)
     let res_list = tsuquyomi#tsClient#tsCompletions(file, 11, 0, 'NO_EXSIT_KEYWORD_XXXXXXX') 
     Should len(res_list) == 0
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
 End

@@ -27,7 +27,7 @@ Context Vesting.run()
     Should has_key(res_list[0].spans[0].end, 'offset')
     Should has_key(res_list[0], 'childItems')
     Should len(res_list[0].childItems) > 0
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

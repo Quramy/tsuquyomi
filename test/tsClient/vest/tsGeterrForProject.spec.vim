@@ -13,7 +13,7 @@ Context Vesting.run()
     let result_list = tsuquyomi#tsClient#tsGeterrForProject(file, 10, 2)
     Should len(result_list) == 4
     Should sort(map(copy(result_list), 'v:val.body.file')) == [file, file, sub_file, sub_file]
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

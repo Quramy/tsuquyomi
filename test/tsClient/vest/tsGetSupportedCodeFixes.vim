@@ -11,7 +11,7 @@ Context Vesting.run()
     call tsuquyomi#tsClient#tsOpen(file)
     let result_list = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
     Should len(result_list)
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

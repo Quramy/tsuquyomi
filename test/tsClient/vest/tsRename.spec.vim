@@ -33,7 +33,7 @@ Context Vesting.run()
     Should has_key(result_rename_dict.locs[0].locs[0], 'end')
     Should has_key(result_rename_dict.locs[0].locs[0].end, 'line')
     Should has_key(result_rename_dict.locs[0].locs[0].end, 'offset')
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It checks rename command within symbol occurred across multiple files.
@@ -47,7 +47,7 @@ Context Vesting.run()
     Should stridx(result_rename_dict.locs[0].file, 'test/tsClient/vest/resources/referencesTestA.ts')
     Should stridx(result_rename_dict.locs[1].file, 'test/tsClient/vest/resources/referencesTestB.ts')
 
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It can rename when a line has two symbols. Should to that the result is sorted by reverse order.
@@ -61,7 +61,7 @@ Context Vesting.run()
     Should result_rename_dict.locs[0].locs[1].start.offset == 25 
     Should result_rename_dict.locs[0].locs[2].start.line == 3
     Should result_rename_dict.locs[0].locs[2].start.offset == 9 
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It can rename variables in comments.

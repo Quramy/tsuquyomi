@@ -12,7 +12,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
   "   call tsuquyomi#tsClient#tsOpen(s:file)
   "   let [result_list, position, reason] = tsuquyomi#es6import#getImportDeclarations(s:file, readfile(s:file))
   "   Should reason ==# 'no_module_info'
-  "   call tsuquyomi#tsClient#stopTss()
+  "   call tsuquyomi#tsClient#stopTssSync()
   " End
 
   " It returns 'no_module_info' reason and position info when input file doesn't have aliases
@@ -22,7 +22,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
   "   Should reason ==# 'no_module_info'
   "   Should position.start.line == 1
   "   Should position.end.line == 3
-  "   call tsuquyomi#tsClient#stopTss()
+  "   call tsuquyomi#tsClient#stopTssSync()
   " End
 
   It returns position when input file has import declaration and other declarations
@@ -32,7 +32,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     Should reason ==# ''
     Should position.start.line == 1
     Should position.end.line == 1
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It returns position when input file has import declaration and expression
@@ -42,7 +42,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     Should reason ==# ''
     Should position.start.line == 1
     Should position.end.line == 1
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It returns declaration_info list
@@ -65,7 +65,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     Should result_list[0].from_span.start.line == 1
     Should result_list[0].from_span.end.offset == 23 
     Should result_list[0].from_span.end.line == 1
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It returns a info whose 'is_oneliner' is 0 when input declaration contains multipule lines
@@ -86,7 +86,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     Should result_list[0].from_span.start.line == 5
     Should result_list[0].from_span.end.offset == 4
     Should result_list[0].from_span.end.line == 5
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It returns the list whoes has multiple module infos when input declaration contains multiple aliases in one module
@@ -96,7 +96,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     Should len(result_list) == 2
     Should result_list[0].alias_info.text ==# 'altVar'
     Should result_list[1].alias_info.text ==# 'someVar'
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It returns the list whoes has multiple module infos when input has 2 declaration
@@ -106,7 +106,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     Should len(result_list) == 2
     Should result_list[0].alias_info.text ==# 'altVar'
     Should result_list[1].alias_info.text ==# 'someVar'
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It returns explict alias info when declarations use 'as' keyword
@@ -118,7 +118,7 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
     Should result_list[0].has_brace == 0
     Should result_list[1].alias_info.text ==# '_var'
     Should result_list[1].has_brace == 1
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
 End

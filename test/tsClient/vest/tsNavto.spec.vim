@@ -19,7 +19,7 @@ Context Vesting.run()
     Should res_list[0].kind == 'function'
     Should has_key(res_list[0], 'matchKind')
     Should res_list[0].matchKind == 'exact'
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

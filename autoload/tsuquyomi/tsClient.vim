@@ -117,6 +117,29 @@ function! tsuquyomi#tsClient#stopTss()
   endif
 endfunction
 
+function! tsuquyomi#tsClient#stopTssSync() abort
+  let res = tsuquyomi#tsClient#stopTss()
+  call s:ensureStatus('dead')
+  return res
+endfunction
+
+" Wait for the status to become the argument.
+" Note: It throws an error to avoid infinite loop after 1s.
+function! s:ensureStatus(expected) abort
+  let cnt = 0
+  while v:true
+    let got = tsuquyomi#tsClient#statusTss()
+    if got ==# a:expected
+      return
+    endif
+    if cnt > 100
+      throw "TSServer status does not become " . a:expected . " in 1s. It is " . got . "."
+    endif
+    let cnt += 1
+    sleep 10m
+  endwhile
+endfunction
+
 " RETURNS: {string} 'run' or 'dead'
 function! tsuquyomi#tsClient#statusTss()
   try

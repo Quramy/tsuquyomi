@@ -25,7 +25,7 @@ Context Vesting.run()
     Should has_key(semanticDiagDict.diagnostics[0], 'end')
     Should has_key(semanticDiagDict.diagnostics[0].end, 'line')
     Should has_key(semanticDiagDict.diagnostics[0].end, 'offset')
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

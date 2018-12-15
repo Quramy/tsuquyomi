@@ -12,7 +12,7 @@ Context Vesting.run()
     let res_projectInfo_dict = tsuquyomi#tsClient#tsProjectInfo(file, 1)
     Should has_key(res_projectInfo_dict, 'configFileName')
     Should has_key(res_projectInfo_dict, 'fileNames')
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
 End

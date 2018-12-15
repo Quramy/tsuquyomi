@@ -25,7 +25,7 @@ Context Vesting.run()
     Should has_key(res_reference_list, 'symbolName')
     Should res_reference_list.symbolName == 'SomeClass'
     Should has_key(res_reference_list, 'symbolDisplayString')
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It checks the reference from other files
@@ -49,7 +49,7 @@ Context Vesting.run()
     Should has_key(res_reference_list, 'symbolName')
     Should res_reference_list.symbolName == 'SomeClass'
     Should has_key(res_reference_list, 'symbolDisplayString')
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

@@ -10,7 +10,7 @@ Context Vesting.run()
     let file = s:Filepath.join(s:script_dir, 'test/tsClient/vest/resources/SimpleModule.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     Should tsuquyomi#tsClient#tsReload(file, file) == 1
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
     End
 End
 Fin

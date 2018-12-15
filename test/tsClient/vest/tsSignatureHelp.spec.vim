@@ -53,7 +53,7 @@ Context Vesting.run()
     Should len(res_signatureHelp_dict.items[0].documentation)
     Should has_key(res_signatureHelp_dict.items[0].documentation[0], 'kind')
     Should has_key(res_signatureHelp_dict.items[0].documentation[0], 'text')
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It returns two items when the method is overridden.
@@ -63,7 +63,7 @@ Context Vesting.run()
     let res_signatureHelp_dict  = tsuquyomi#tsClient#tsSignatureHelp(file, 9, 19) 
     "echo res_signatureHelp_dict
     Should len(res_signatureHelp_dict.items) == 2
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin
