@@ -49,6 +49,10 @@ fi
 
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Run vesting."
 ${VIM_CMD} -u ${VIMRC_FILE} -s ${DRIVER_FILE}
+if [ $? -ne 0 ]; then
+  echo "Vim exited with non-zero status."
+  exit 1
+fi
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Done."
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Result: (${RESULT_FILE})"
 cat ${RESULT_FILE}
