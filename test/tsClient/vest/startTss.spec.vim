@@ -4,7 +4,7 @@ Context Vesting.run()
 
   It checks TSServer's status after startTss.
     call tsuquyomi#tsClient#startTss()
-    Should tsuquyomi#tsClient#statusTss() == 'reading'
+    Should tsuquyomi#tsClient#statusTss() == 'run'
     call tsuquyomi#tsClient#stopTssSync()
   End
 
@@ -12,7 +12,7 @@ Context Vesting.run()
     call tsuquyomi#tsClient#startTss()
     call tsuquyomi#tsClient#startTss()
     call tsuquyomi#tsClient#stopTssSync()
-    Should tsuquyomi#tsClient#statusTss() == 'undefined'
+    Should tsuquyomi#tsClient#statusTss() == 'dead'
   End
 
 End
