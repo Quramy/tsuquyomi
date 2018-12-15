@@ -12,21 +12,21 @@ Context Vesting.run()
     let res_list = tsuquyomi#tsClient#tsNavBar(file)
     " echo res_list
     Should len(res_list) > 0
-    Should has_key(res_list[0], 'text')
-    Should res_list[0].text == '<global>'
-    Should has_key(res_list[0], 'kind')
-    Should res_list[0].kind == 'module'
-    Should has_key(res_list[0], 'kindModifiers')
-    Should has_key(res_list[0], 'spans')
-    Should len(res_list[0].spans) > 0
-    Should has_key(res_list[0].spans[0], 'start')
-    Should has_key(res_list[0].spans[0].start, 'line')
-    Should has_key(res_list[0].spans[0].start, 'offset')
-    Should has_key(res_list[0].spans[0], 'end')
-    Should has_key(res_list[0].spans[0].end, 'line')
-    Should has_key(res_list[0].spans[0].end, 'offset')
-    Should has_key(res_list[0], 'childItems')
-    Should len(res_list[0].childItems) > 0
+    Should has_key(res_list[1], 'text')
+    Should res_list[1].text == 'SimpleModule'
+    Should has_key(res_list[1], 'kind')
+    Should res_list[1].kind == 'module'
+    Should has_key(res_list[1], 'kindModifiers')
+    Should has_key(res_list[1], 'spans')
+    Should len(res_list[1].spans) > 0
+    Should has_key(res_list[1].spans[0], 'start')
+    Should has_key(res_list[1].spans[0].start, 'line')
+    Should has_key(res_list[1].spans[0].start, 'offset')
+    Should has_key(res_list[1].spans[0], 'end')
+    Should has_key(res_list[1].spans[0].end, 'line')
+    Should has_key(res_list[1].spans[0].end, 'offset')
+    Should has_key(res_list[1], 'childItems')
+    Should len(res_list[1].childItems) > 0
     call tsuquyomi#tsClient#stopTssSync()
   End
 End
