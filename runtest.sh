@@ -5,6 +5,12 @@ DRIVER_FILE="test/_runner"
 RESULT_FILE="test/test_result.log"
 VIM_BUILD=1
 VIM_INSTALL_DIR=`pwd`/local
+if [ "${VERSION}" == "" ]; then
+  VERSION=3.2
+fi
+TSSERVER_PATH="$(pwd)/test/node_modules/typescript-${VERSION}/bin/tsserver"
+
+echo "Run test with ${TSSERVER_PATH}"
 
 if [ "${VIM_BUILD}" -eq 1 ]; then
   echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Use local Vim."
@@ -48,7 +54,11 @@ if [ -f "${RESULT_FILE}" ]; then
 fi
 
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Run vesting."
-${VIM_CMD} -u ${VIMRC_FILE} -s ${DRIVER_FILE}
+${VIM_CMD} \
+  -c 'let g:tsuquyomi_use_dev_node_module = 2' \
+  -c "let g:tsuquyomi_tsserver_path = \"${TSSERVER_PATH}\""  \
+  -u ${VIMRC_FILE} \
+  -s ${DRIVER_FILE}
 if [ $? -ne 0 ]; then
   echo "Vim exited with non-zero status."
   exit 1

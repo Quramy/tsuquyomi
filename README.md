@@ -305,9 +305,31 @@ If you want more details, please see [doc](doc/tsuquyomi.txt).
 ## Contribute
 ### How to test
 
+Prepare test
+
 ```sh
-npm install
+cd test/
+yarn install
+cd ..
+```
+
+Run test cases
+
+```sh
+# Run all test cases with all supported TypeScript version
+./runtest-all-ts.sh
+
+# Run all test cases with the latest TypeScript version
 ./runtest.sh
+
+# Run all test cases with the specified TypeScript version
+VERSION=2.3 ./runtest.sh
+
+# Run a test file
+./run-one-test.sh test/path/to/test.spec.vim
+
+# Run a test file with the specified TypeScript version
+VERSION=2.3 ./run-one-test.sh
 ```
 
 ## License
