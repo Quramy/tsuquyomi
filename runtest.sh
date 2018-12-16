@@ -49,6 +49,12 @@ if [ ! -d "./neobundle.vim" ]; then
   git clone https://github.com/Shougo/neobundle.vim
 fi
 
+if [ "${HIDE_VIM}" == "" ]; then
+  ${VIM_CMD} -u ${VIMRC_FILE} -c NeoBundleInstall -c q
+else
+  ${VIM_CMD} -u ${VIMRC_FILE} -c NeoBundleInstall -c q > /dev/null
+fi
+
 if [ -f "${RESULT_FILE}" ]; then
   rm ${RESULT_FILE}
 fi
