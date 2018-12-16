@@ -55,6 +55,7 @@ fi
 
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Run vesting."
 ${VIM_CMD} \
+  -c 'let g:tsuquyomi_use_local_typescript = 0' \
   -c 'let g:tsuquyomi_use_dev_node_module = 2' \
   -c "let g:tsuquyomi_tsserver_path = \"${TSSERVER_PATH}\""  \
   -u ${VIMRC_FILE} \
