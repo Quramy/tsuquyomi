@@ -11,6 +11,6 @@ node_js:
 before_install:
 - 'pushd test/ && yarn install && popd'
 script:
-- sh runtest-all-ts.sh
+- bash runtest-all-ts.sh
 cache:
   yarn: true

@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/bash
 
 VIMRC_FILE="test/.vimrc"
 DRIVER_FILE="test/_runner"

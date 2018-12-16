@@ -1,4 +1,4 @@
-#!/bin/sh -xe
+#!/bin/bash -xe
 
 if [ "${VERSION}" == "" ]; then
   VERSION=3.2

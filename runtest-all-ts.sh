@@ -1,4 +1,4 @@
-#!/bin/sh -xe
+#!/bin/bash -xe
 VERSION=2.0 ./runtest.sh
 VERSION=2.1 ./runtest.sh
 VERSION=2.2 ./runtest.sh
