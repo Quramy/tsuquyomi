@@ -54,12 +54,23 @@ if [ -f "${RESULT_FILE}" ]; then
 fi
 
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Run vesting."
-${VIM_CMD} \
-  -c 'let g:tsuquyomi_use_local_typescript = 0' \
-  -c 'let g:tsuquyomi_use_dev_node_module = 2' \
-  -c "let g:tsuquyomi_tsserver_path = \"${TSSERVER_PATH}\""  \
-  -u ${VIMRC_FILE} \
-  -s ${DRIVER_FILE}
+# In CI, displaying Vim UI is meaningless and it makes CI logs dirty.
+# So hide Vim UI.
+if [ "${HIDE_VIM}" == "" ]; then
+  ${VIM_CMD} \
+    -c 'let g:tsuquyomi_use_local_typescript = 0' \
+    -c 'let g:tsuquyomi_use_dev_node_module = 2' \
+    -c "let g:tsuquyomi_tsserver_path = \"${TSSERVER_PATH}\""  \
+    -u ${VIMRC_FILE} \
+    -s ${DRIVER_FILE}
+else
+  ${VIM_CMD} \
+    -c 'let g:tsuquyomi_use_local_typescript = 0' \
+    -c 'let g:tsuquyomi_use_dev_node_module = 2' \
+    -c "let g:tsuquyomi_tsserver_path = \"${TSSERVER_PATH}\""  \
+    -u ${VIMRC_FILE} \
+    -s ${DRIVER_FILE} > /dev/null
+fi
 if [ $? -ne 0 ]; then
   echo "Vim exited with non-zero status."
   exit 1
