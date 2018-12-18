@@ -18,7 +18,7 @@ if [ "${VIM_BUILD}" -eq 1 ]; then
     echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Installing Vim"
     if [ ! -d "./vim" ]; then
       echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Clonning Vim source from Github"
-      git clone https://github.com/vim-jp/vim.git
+      git clone --depth 1 https://github.com/vim/vim.git
     fi
     cd vim
     ./configure --prefix=${VIM_INSTALL_DIR}
@@ -46,7 +46,7 @@ ${VIM_CMD} --version
 
 if [ ! -d "./neobundle.vim" ]; then
   echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Installing neobundle"
-  git clone https://github.com/Shougo/neobundle.vim
+  git clone --depth 1 https://github.com/Shougo/neobundle.vim
 fi
 
 if [ "${HIDE_VIM}" == "" ]; then
