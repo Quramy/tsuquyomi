@@ -567,7 +567,7 @@ endfunction
 " #### Geterr {{{
 
 function! tsuquyomi#asyncGeterr()
-  let g:tsuquyomi_is_available == 1
+  if g:tsuquyomi_is_available == 1
     call tsuquyomi#registerNotify(function('s:setqflist'), 'diagnostics')
     call tsuquyomi#asyncCreateFixlist()
   endif
