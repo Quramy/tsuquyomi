@@ -229,12 +229,6 @@ function! tsuquyomi#tsClient#handleMessage(ch, msg)
     let Callback = function(s:callbacks[l:eventName], [l:item])
     call Callback()
   endif
-
-  " for callback in s:callback_list
-  "   " Run registerd commands
-  "   let Callback = function(callback, [l:item])
-  "   call Callback()
-  " endfor
 endfunction
 
 function! tsuquyomi#tsClient#clearCallbacks()
