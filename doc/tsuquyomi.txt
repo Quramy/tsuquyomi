@@ -364,7 +364,7 @@ g:tsuquyomi_ignore_missing_modules (default 0)
 
 						*g:tsuquyomi_use_vimproc*
 g:tsuquyomi_use_vimproc (default 0)
-		If set, Tsuquyomi will use vimproc instead of vim8 default
+		If set, Tsuquyomi will use |vimproc| instead of vim8 default
 		jobs.
 
 						*g:tsuquyomi_locale*

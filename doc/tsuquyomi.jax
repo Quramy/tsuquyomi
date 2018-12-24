@@ -229,6 +229,16 @@ Prompt:
 		存在する場合に、このQuickFixを適用します.
 		このコマンドにはTypeScript@v2.1.0以上が必要です.
 
+						*:TsuquyomiSignatureHelp*
+						*:TsuSignatureHelp*
+:TsuquyomiSignatureHelp
+		カーソル上のメソッドのシグネチャを、プレビューウィンドウへ表示
+		します。もし複数のオーバーロードされた候補が存在する場合は、
+		それらをドキュメントと共に表示します。
+		Note
+		カーソルはメソッド呼び出しのカッコの間にあるか、少なくとも書き
+		かけのメソッド呼び出しの開きカッコの後になければいけません。
+
 ------------------------------------------------------------------------------
 オプション						*tsuquyomi-variables*
 
@@ -303,6 +313,11 @@ g:tsuquyomi_completion_case_sensitive	(デフォルト値 0)
 		|tsuquyomi#complete|実行時に補完候補をcase-sensitiveに
 		探索するかどうか.
 
+					*g:tsuquyomi_case_sensitive_imports*
+g:tsuquyomi_case_sensitive_imports	(default 0)
+		|tsuquyomi#es6import#complete|実行時に補完候補をcase-sensitive
+		に探索するかどうか.
+
 					*g:tsuquyomi_completion_preview*
 g:tsuquyomi_completion_preview		(デフォルト値 0)
 		|tsuquyomi#complete|実行時にシグネチャの情報をプレビューに表示
@@ -330,8 +345,18 @@ g:tsuquyomi_save_onrename	(デフォルト値 0)
 
 						*g:tsuquyomi_single_quote_import*
 g:tsuquyomi_single_quote_import		(デフォルト値 0)
-		値をセットすると、|:TsuImport| 利用時にダブルクォートではなく
-		シングルクォートを使って import blockが生成される.
+		値をセットすると、|:TsuquyomiImport| 利用時にダブルクォートで
+		はなくシングルクォートを使って import blockが生成される.
+
+g:tsuquyomi_semicolon_import		(default 1)
+		値をセットすると、|:TsuquyomiImport| 利用時に行末にセミコロン
+		を追加して import blockが生成される.
+
+						*g:tsuquyomi_baseurl_import_path*
+g:tsuquyomi_baseurl_import_path		(default 0)
+		値をセットすると、|:TsuquyomiImport|が tsconfig.jsonで指定され
+		た`baseUrl`からの相対パスをモジュールのパスとして使用するよう
+		になる.
 
 						*g:tsuquyomi_javascript_support*
 g:tsuquyomi_javascript_support	(デフォルト値 0)
@@ -343,6 +368,10 @@ g:tsuquyomi_ignore_missing_modules (デフォルト値 0)
 		値をセットすると、"Cannot find module"で始まる
 		エラーメッセージを無視するようになる。
 		import対象の型定義ファイルが存在していないケースで有用。
+
+						*g:tsuquyomi_use_vimproc*
+g:tsuquyomi_use_vimproc (default 0)
+		値をセットすると、Vim8のjob機能の代わりに |vimproc| を使用する.
 
 						*g:tsuquyomi_locale*
 g:tsuquyomi_locale (デフォルト値 "en")
@@ -402,6 +431,11 @@ g:tsuquyomi_locale (デフォルト値 "en")
 <Plug>(TsuquyomiImport)
 		カーソル直下のシンボルに対応するES6 import文を生成する.
 		|:TsuquyomiImport|を参照のこと.
+
+						*<Plug>(TsuquyomiSignatureHelp)*
+<Plug>(TsuquyomiSignatureHelp)
+		カーソル下のメソッド引数のシグネチャを表示.
+		|:TsuquyomiSignatureHelp|を参照のこと.
 
 デフォルトキーマップは下記の通り:
 
