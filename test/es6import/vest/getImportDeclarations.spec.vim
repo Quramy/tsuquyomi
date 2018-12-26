@@ -1,18 +1,17 @@
 scriptencoding utf-8
 
-let s:V = vital#of('tsuquyomi')
-let s:Filepath = s:V.import('System.Filepath')
-let s:script_dir = s:Filepath.join(tsuquyomi#rootDir(), 'test/es6import/vest')
-
-" FIXME
 Context tsuquyomi#es6import#getImportDeclarations(file)
+
+  let s:V = vital#of('tsuquyomi')
+  let s:Filepath = s:V.import('System.Filepath')
+  let s:script_dir = s:Filepath.join(tsuquyomi#rootDir(), 'test/es6import/vest')
   let s:resource_dir = s:Filepath.join(s:script_dir, 'resources/importDecPatterns')
-" 
+ 
   It returns 'no_nav_bar' reason when input files is empty
     let file = s:Filepath.join(s:resource_dir, 'empty.ts')
     call tsuquyomi#tsClient#tsOpen(file)
     let [result_list, position, reason] = tsuquyomi#es6import#getImportDeclarations(file, readfile(file))
-    Should reason ==# 'no_module_info'
+    Should reason == 'no_nav_bar'
     call tsuquyomi#tsClient#stopTssSync()
   End
 " 
@@ -123,3 +122,4 @@ Context tsuquyomi#es6import#getImportDeclarations(file)
 "   End
 " 
 End
+Fin
