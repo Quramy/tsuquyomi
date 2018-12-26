@@ -1,0 +1,22 @@
+{
+  "name": "tsuquyomi-test",
+  "version": "0.0.0",
+  "description": "package.json file for testing tsuquyomi",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "typescript-2.0": "npm:typescript@2.0",
+    "typescript-2.1": "npm:typescript@2.1",
+    "typescript-2.2": "npm:typescript@2.2",
+    "typescript-2.3": "npm:typescript@2.3",
+    "typescript-2.4": "npm:typescript@2.4",
+    "typescript-2.5": "npm:typescript@2.5",
+    "typescript-2.6": "npm:typescript@2.6",
+    "typescript-2.7": "npm:typescript@2.7",
+    "typescript-2.8": "npm:typescript@2.8",
+    "typescript-2.9": "npm:typescript@2.9",
+    "typescript-3.0": "npm:typescript@3.0",
+    "typescript-3.1": "npm:typescript@3.1",
+    "typescript-3.2": "npm:typescript@3.2"
+  }
+}

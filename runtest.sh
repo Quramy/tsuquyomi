@@ -1,10 +1,16 @@
-#/bin/sh
+#!/bin/bash
 
 VIMRC_FILE="test/.vimrc"
 DRIVER_FILE="test/_runner"
 RESULT_FILE="test/test_result.log"
 VIM_BUILD=1
 VIM_INSTALL_DIR=`pwd`/local
+if [ "${VERSION}" == "" ]; then
+  VERSION=3.2
+fi
+TSSERVER_PATH="$(pwd)/test/node_modules/typescript-${VERSION}/bin/tsserver"
+
+echo "Run test with ${TSSERVER_PATH}"
 
 if [ "${VIM_BUILD}" -eq 1 ]; then
   echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Use local Vim."
@@ -12,7 +18,7 @@ if [ "${VIM_BUILD}" -eq 1 ]; then
     echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Installing Vim"
     if [ ! -d "./vim" ]; then
       echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Clonning Vim source from Github"
-      git clone https://github.com/vim-jp/vim.git
+      git clone --depth 1 https://github.com/vim/vim.git
     fi
     cd vim
     ./configure --prefix=${VIM_INSTALL_DIR}
@@ -40,7 +46,13 @@ ${VIM_CMD} --version
 
 if [ ! -d "./neobundle.vim" ]; then
   echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Installing neobundle"
-  git clone https://github.com/Shougo/neobundle.vim
+  git clone --depth 1 https://github.com/Shougo/neobundle.vim
+fi
+
+if [ "${HIDE_VIM}" == "" ]; then
+  ${VIM_CMD} -u ${VIMRC_FILE} -c NeoBundleInstall -c q
+else
+  ${VIM_CMD} -u ${VIMRC_FILE} -c NeoBundleInstall -c q > /dev/null
 fi
 
 if [ -f "${RESULT_FILE}" ]; then
@@ -48,7 +60,27 @@ if [ -f "${RESULT_FILE}" ]; then
 fi
 
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Run vesting."
-${VIM_CMD} -u ${VIMRC_FILE} -s ${DRIVER_FILE}
+# In CI, displaying Vim UI is meaningless and it makes CI logs dirty.
+# So hide Vim UI.
+if [ "${HIDE_VIM}" == "" ]; then
+  ${VIM_CMD} \
+    -c 'let g:tsuquyomi_use_local_typescript = 0' \
+    -c 'let g:tsuquyomi_use_dev_node_module = 2' \
+    -c "let g:tsuquyomi_tsserver_path = \"${TSSERVER_PATH}\""  \
+    -u ${VIMRC_FILE} \
+    -s ${DRIVER_FILE}
+else
+  ${VIM_CMD} \
+    -c 'let g:tsuquyomi_use_local_typescript = 0' \
+    -c 'let g:tsuquyomi_use_dev_node_module = 2' \
+    -c "let g:tsuquyomi_tsserver_path = \"${TSSERVER_PATH}\""  \
+    -u ${VIMRC_FILE} \
+    -s ${DRIVER_FILE} > /dev/null
+fi
+if [ $? -ne 0 ]; then
+  echo "Vim exited with non-zero status."
+  exit 1
+fi
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Done."
 echo "`date "+[%Y-%m-%dT%H:%M:%S]"` Result: (${RESULT_FILE})"
 cat ${RESULT_FILE}

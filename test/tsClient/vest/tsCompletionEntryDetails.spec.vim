@@ -22,7 +22,7 @@ Context Vesting.run()
     endfor
     Should display_texts[0] == '(method) SimpleModule.MyClass.say(): string'
     Should display_texts[1] == '(property) SimpleModule.MyClass.greeting: string'
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 End
 Fin

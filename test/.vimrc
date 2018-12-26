@@ -20,7 +20,6 @@ NeoBundle 'Shougo/vimproc.vim', {
       \ }
 
 call neobundle#end()
-silent NeoBundleInstall
 
 let g:tsuquyomi_use_dev_node_module = 1
 source plugin/tsuquyomi.vim

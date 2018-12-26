@@ -10,7 +10,7 @@
     "typescript": "~3.0.1"
   },
   "scripts": {
-    "test": "sh runtest.sh"
+    "test": "bash runtest.sh"
   },
   "author": "Quramy",
   "license": "MIT"

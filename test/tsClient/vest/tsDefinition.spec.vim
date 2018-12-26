@@ -19,7 +19,7 @@ Context Vesting.run()
     Should has_key(b:result[0], 'end') != 0 
     Should has_key(b:result[0].end, 'line') != 0 
     Should has_key(b:result[0].end, 'offset') != 0 
-    call tsuquyomi#tsClient#stopTss()
+    call tsuquyomi#tsClient#stopTssSync()
   End
 
   It checkes no definition at no symbol

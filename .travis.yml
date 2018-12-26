@@ -4,10 +4,13 @@ env:
   - GIT_COMMITTER_EMAIL=yosuke.kurami@gmail.com
   - GIT_AUTHOR_NAME=Quramy
   - GIT_AUTHOR_EMAIL=yosuke.kurami@gmail.com
+  - HIDE_VIM=1
 language: node_js
 node_js:
-- '0.10'
+- '11'
 before_install:
-- npm install
+- 'pushd test/ && yarn install && popd'
 script:
-- sh runtest.sh
+- bash runtest-all-ts.sh
+cache:
+  yarn: true
