@@ -217,6 +217,12 @@ Prompt:
 		表示します.
 		このコマンドにはTypeScript@v1.6.0以上が必要です.
 
+						*:TsuquyomiAsyncGeterr*
+						*:TsuAsyncGeterr*
+:TsuquyomiAsyncGeterr
+		カレントバッファのコンパイルエラー情報を非同期で
+		QuickFixウィンドウへ表示します.
+
 						*:TsuquyomiSeaarch*
 						*:TsuSearch*
 :TsuquyomiSearch {keyword}
@@ -500,6 +506,14 @@ EXAMPLES					*tsuquyomi-examples*
 	補完時, ポップアップメニューを表示しない.
 >
 	autocmd FileType typescript setlocal completeopt-=menu
+<
+
+						*tsuquyomi-examples-async*
+Vim8 の Job / Channel を利用し非同期でカレントバッファのコンパイルエラー情報を
+QuickFixウィンドウへ表示します.
+
+>
+	autocmd InsertLeave,BufWritePost *.ts,*.tsx call tsuquyomi#asyncGeterr()
 <
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:
