@@ -95,12 +95,17 @@ function! s:writeToPreview(content)
   silent wincmd p
 endfunction
 
-function! s:setqflist(quickfix_list)
+function! s:setqflist(quickfix_list, ...)
+  " 0: Do not close cwindow automatically
+  " 1: Close cwindow automatically
+  let auto_close = len(a:000) ? a:0 : 0
   call setqflist(a:quickfix_list, 'r')
   if len(a:quickfix_list) > 0
     cwindow
   else
-    cclose
+    if auto_close != 0
+      cclose
+    endif
   endif
 endfunction
 
@@ -609,16 +614,15 @@ function! tsuquyomi#registerNotify(callback, eventName)
   call tsuquyomi#tsClient#registerNotify(a:callback, a:eventName)
 endfunction
 
-function! tsuquyomi#emitChange()
-  let l:bufnum = bufnr('%')
-  let l:input = join(getbufline(l:bufnum, 1, '$'), "\n") . "\n"
+function! tsuquyomi#emitChange(bufnum)
+  let l:input = join(getbufline(a:bufnum, 1, '$'), "\n") . "\n"
   let l:file = expand('%:p')
 
   " file, line, offset, endLine, endOffset, insertString
   call tsuquyomi#tsClient#tsAsyncChange(l:file, 1, 1, len(l:input), 1, l:input)
 endfunction
 
-function! tsuquyomi#asyncCreateFixlist()
+function! tsuquyomi#asyncCreateFixlist(...)
   " Works only Vim8(+channel, +job)
   " We must register callbacks(handler and callback) before execute this.
   " See `tsuquyomi#config#initBuffer()`
@@ -629,7 +633,7 @@ function! tsuquyomi#asyncCreateFixlist()
   " call tsuquyomi#getSupportedCodeFixes()
 
   " Tell TSServer to change for get syntaxDiag and semanticDiag errors.
-  call tsuquyomi#emitChange()
+  call tsuquyomi#emitChange(bufnr('%'))
 
   let l:files = [expand('%:p')]
   let l:delayMsec = 50 "TODO export global option
@@ -669,7 +673,7 @@ endfunction
 function! tsuquyomi#geterr()
   let quickfix_list = tsuquyomi#createFixlist()
 
-  call s:setqflist(quickfix_list)
+  call s:setqflist(quickfix_list, 1)
 endfunction
 
 function! tsuquyomi#geterrProject()
@@ -699,7 +703,7 @@ function! tsuquyomi#geterrProject()
   " 3. Make a quick fix list for `setqflist`.
   let quickfix_list = tsuquyomi#createQuickFixListFromEvents(result)
 
-  call s:setqflist(quickfix_list)
+  call s:setqflist(quickfix_list, 1)
 endfunction
 
 function! tsuquyomi#reloadAndGeterr()
