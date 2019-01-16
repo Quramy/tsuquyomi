@@ -212,6 +212,8 @@ function! tsuquyomi#config#createBufLocalCommand()
   command! -buffer TsuQuickFix              :call tsuquyomi#quickFix()
   command! -buffer TsuquyomiSignatureHelp   :call tsuquyomi#signatureHelp()
   command! -buffer TsuSignatureHelp         :call tsuquyomi#signatureHelp()
+  command! -buffer TsuAsyncGeterr           :call tsuquyomi#asyncGeterr()
+  command! -buffer TsuquyomiAsyncGeterr     :call tsuquyomi#asyncGeterr()
 
   " TODO These commands don't work correctly.
   command! -buffer TsuquyomiRenameSymbolS   :call tsuquyomi#renameSymbolWithStrings()
@@ -287,6 +289,11 @@ function! tsuquyomi#config#applyBufLocalFunctions()
   endif
 endfunction
 
+function! tsuquyomi#config#registerInitialCallback()
+  call tsuquyomi#tsClient#registerCallback('tsuquyomi#tsClient#readDiagnostics', 'diagnostics')
+endfunction
+
+let s:async_initialized = 0
 function! tsuquyomi#config#initBuffer(opt)
   if !has_key(a:opt, 'pattern')
     echom '[Tsuquyomi] missing options. "pattern"'
@@ -301,6 +308,10 @@ function! tsuquyomi#config#initBuffer(opt)
   if g:tsuquyomi_auto_open
     silent! call tsuquyomi#open()
     silent! call tsuquyomi#sendConfigure()
+  endif
+  if s:is_vim8 && g:tsuquyomi_use_vimproc == 0 && s:async_initialized == 0
+    call tsuquyomi#config#registerInitialCallback()
+    let s:async_initialized = 1
   endif
   return 1
 endfunction

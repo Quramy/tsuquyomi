@@ -94,6 +94,21 @@ function! s:writeToPreview(content)
   setlocal nomodifiable readonly
   silent wincmd p
 endfunction
+
+function! s:setqflist(quickfix_list, ...)
+  " 0: Do not close cwindow automatically
+  " 1: Close cwindow automatically
+  let auto_close = len(a:000) ? a:0 : 0
+  call setqflist(a:quickfix_list, 'r')
+  if len(a:quickfix_list) > 0
+    cwindow
+  else
+    if auto_close != 0
+      cclose
+    endif
+  endif
+endfunction
+
 " ### Utilites }}}
 
 " ### Public functions {{{
@@ -556,6 +571,76 @@ endfunction
 
 " #### Geterr {{{
 
+function! tsuquyomi#asyncGeterr(...)
+  if g:tsuquyomi_is_available == 1
+    call tsuquyomi#registerNotify(function('s:setqflist'), 'diagnostics')
+    call tsuquyomi#asyncCreateFixlist()
+  endif
+endfunction
+
+function! tsuquyomi#parseDiagnosticEvent(event, supportedCodes)
+  let quickfix_list = []
+  let codes = len(a:supportedCodes) > 0 ? a:supportedCodes : s:supportedCodeFixes
+  if has_key(a:event, 'type') && a:event.type ==# 'event' && (a:event.event ==# 'syntaxDiag' || a:event.event ==# 'semanticDiag')
+    for diagnostic in a:event.body.diagnostics
+      if diagnostic.text =~ "Cannot find module" && g:tsuquyomi_ignore_missing_modules == 1
+        continue
+      endif
+      let item = {}
+      let item.filename = a:event.body.file
+      let item.lnum = diagnostic.start.line
+      if(has_key(diagnostic.start, 'offset'))
+        let item.col = diagnostic.start.offset
+      endif
+      let item.text = diagnostic.text
+      if !has_key(diagnostic, 'code')
+        continue
+      endif
+      let item.code = diagnostic.code
+      let l:cfidx = index(codes, (diagnostic.code . ''))
+      if l:cfidx >= 0
+        let l:qfmark = '[QF available]'
+        let item.text = diagnostic.code . l:qfmark . ': ' . item.text
+      endif
+      let item.availableCodeFix = l:cfidx >= 0
+      let item.type = 'E'
+      call add(quickfix_list, item)
+    endfor
+  endif
+  return quickfix_list
+endfunction
+
+function! tsuquyomi#registerNotify(callback, eventName)
+  call tsuquyomi#tsClient#registerNotify(a:callback, a:eventName)
+endfunction
+
+function! tsuquyomi#emitChange(bufnum)
+  let l:input = join(getbufline(a:bufnum, 1, '$'), "\n") . "\n"
+  let l:file = expand('%:p')
+
+  " file, line, offset, endLine, endOffset, insertString
+  call tsuquyomi#tsClient#tsAsyncChange(l:file, 1, 1, len(l:input), 1, l:input)
+endfunction
+
+function! tsuquyomi#asyncCreateFixlist(...)
+  " Works only Vim8(+channel, +job)
+  " We must register callbacks(handler and callback) before execute this.
+  " See `tsuquyomi#config#initBuffer()`
+  if len(s:checkOpenAndMessage([expand('%:p')])[1])
+    return []
+  endif
+  " `tsuquyomi#getSupportedCodeFixes()` is too slow and block Vim's ui.
+  " call tsuquyomi#getSupportedCodeFixes()
+
+  " Tell TSServer to change for get syntaxDiag and semanticDiag errors.
+  call tsuquyomi#emitChange(bufnr('%'))
+
+  let l:files = [expand('%:p')]
+  let l:delayMsec = 50 "TODO export global option
+
+  call tsuquyomi#tsClient#tsAsyncGeterr(l:files, l:delayMsec)
+endfunction
+
 function! tsuquyomi#createQuickFixListFromEvents(event_list)
   if !len(a:event_list)
     return []
@@ -563,30 +648,8 @@ function! tsuquyomi#createQuickFixListFromEvents(event_list)
   let quickfix_list = []
   let supportedCodes = tsuquyomi#getSupportedCodeFixes()
   for event_item in a:event_list
-    if has_key(event_item, 'type') && event_item.type ==# 'event' && (event_item.event ==# 'syntaxDiag' || event_item.event ==# 'semanticDiag')
-      for diagnostic in event_item.body.diagnostics
-        if diagnostic.text =~ "Cannot find module" && g:tsuquyomi_ignore_missing_modules == 1
-          continue
-        endif
-        let item = {}
-        let item.filename = event_item.body.file
-        let item.lnum = diagnostic.start.line
-        if(has_key(diagnostic.start, 'offset'))
-          let item.col = diagnostic.start.offset
-        endif
-        let item.text = diagnostic.text
-        if !has_key(diagnostic, 'code')
-          continue
-        endif
-        let item.code = diagnostic.code
-        let l:cfidx = index(supportedCodes, (diagnostic.code.''))
-        let l:qfmark = l:cfidx >= 0 ? '[QF available]' : ''
-        let item.text = diagnostic.code.l:qfmark.': '.item.text
-        let item.availableCodeFix = l:cfidx >= 0
-        let item.type = 'E'
-        call add(quickfix_list, item)
-      endfor
-    endif
+    let items = tsuquyomi#parseDiagnosticEvent(event_item, supportedCodes)
+    let quickfix_list = quickfix_list + items
   endfor
   return quickfix_list
 endfunction
@@ -610,12 +673,7 @@ endfunction
 function! tsuquyomi#geterr()
   let quickfix_list = tsuquyomi#createFixlist()
 
-  call setqflist(quickfix_list, 'r')
-  if len(quickfix_list) > 0
-    cwindow
-  else
-    cclose
-  endif
+  call s:setqflist(quickfix_list, 1)
 endfunction
 
 function! tsuquyomi#geterrProject()
@@ -645,12 +703,7 @@ function! tsuquyomi#geterrProject()
   " 3. Make a quick fix list for `setqflist`.
   let quickfix_list = tsuquyomi#createQuickFixListFromEvents(result)
 
-  call setqflist(quickfix_list, 'r')
-  if len(quickfix_list) > 0
-    cwindow
-  else
-    cclose
-  endif
+  call s:setqflist(quickfix_list, 1)
 endfunction
 
 function! tsuquyomi#reloadAndGeterr()
