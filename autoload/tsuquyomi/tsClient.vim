@@ -232,7 +232,7 @@ function! tsuquyomi#tsClient#handleMessage(ch, msg)
 endfunction
 
 function! tsuquyomi#tsClient#clearCallbacks()
-  let s:callback_list = {}
+  let s:callbacks = {}
 endfunction
 
 function! tsuquyomi#tsClient#registerCallback(callback, eventName)
