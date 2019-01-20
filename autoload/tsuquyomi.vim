@@ -109,6 +109,40 @@ function! s:setqflist(quickfix_list, ...)
   endif
 endfunction
 
+let s:event_queue = {}
+let s:event_timer = -1
+function! s:addQueue(delay, bufnum, key, ...)
+  if s:event_timer != -1
+    call timer_stop(s:event_timer)
+    let s:event_timer = -1
+  endif
+  let s:event_queue[a:bufnum . '_' . a:key] = len(a:000)
+        \ ? { 'bufnum': a:bufnum, 'callback': a:1 }
+        \ : { 'bufnum': a:bufnum }
+
+  let s:event_timer = timer_start(a:delay, function('s:sendQueue'))
+endfunction
+
+function! s:sendQueue(timer)
+  for l:queue in values(s:event_queue)
+    if has_key(l:queue, 'bufnum') && !bufexists(l:queue['bufnum'])
+      continue
+    endif
+    let l:file = tsuquyomi#emitChange(l:queue['bufnum'])
+    if has_key(l:queue, 'callback')
+      let Callback = function(l:queue['callback'], [l:file])
+      call Callback()
+    endif
+  endfor
+  let s:event_queue = {}
+endfunction
+
+" Callback for TsuGetErr
+function! s:getErrCallback(file)
+  let l:delayMsec = 50 "TODO export global option
+  call tsuquyomi#tsClient#tsAsyncGeterr([a:file], l:delayMsec)
+endfunction
+
 " ### Utilites }}}
 
 " ### Public functions {{{
@@ -620,6 +654,8 @@ function! tsuquyomi#emitChange(bufnum)
 
   " file, line, offset, endLine, endOffset, insertString
   call tsuquyomi#tsClient#tsAsyncChange(l:file, 1, 1, len(l:input), 1, l:input)
+
+  return l:file
 endfunction
 
 function! tsuquyomi#asyncCreateFixlist(...)
@@ -629,16 +665,17 @@ function! tsuquyomi#asyncCreateFixlist(...)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return []
   endif
-  " `tsuquyomi#getSupportedCodeFixes()` is too slow and block Vim's ui.
-  " call tsuquyomi#getSupportedCodeFixes()
+
+  let delay = len(a:000) ? a:1 : 0
 
   " Tell TSServer to change for get syntaxDiag and semanticDiag errors.
-  call tsuquyomi#emitChange(bufnr('%'))
-
-  let l:files = [expand('%:p')]
-  let l:delayMsec = 50 "TODO export global option
-
-  call tsuquyomi#tsClient#tsAsyncGeterr(l:files, l:delayMsec)
+  if delay > 0
+    call s:addQueue(delay, bufnr('%'), 'geterr', 's:getErrCallback')
+  else
+    let l:file = tsuquyomi#emitChange(bufnr('%'))
+    let l:delayMsec = 50 "TODO export global option
+    call tsuquyomi#tsClient#tsAsyncGeterr([l:file], l:delayMsec)
+  endif
 endfunction
 
 function! tsuquyomi#createQuickFixListFromEvents(event_list)
