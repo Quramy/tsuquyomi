@@ -672,6 +672,13 @@ function! tsuquyomi#asyncCreateFixlist(...)
   if delay > 0
     call s:addQueue(delay, bufnr('%'), 'geterr', 's:getErrCallback')
   else
+    " Stop current timer
+    if s:event_timer != -1
+      call timer_stop(s:event_timer)
+      let s:event_queue = {}
+      let s:event_timer = -1
+    endif
+
     let l:file = tsuquyomi#emitChange(bufnr('%'))
     let l:delayMsec = 50 "TODO export global option
     call tsuquyomi#tsClient#tsAsyncGeterr([l:file], l:delayMsec)
