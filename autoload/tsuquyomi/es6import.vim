@@ -407,7 +407,7 @@ endfunction
 
 function! tsuquyomi#es6import#selectModule()
   echohl String
-  let l:selected_module = input('[Tsuquyomi] You can import from 2 or more modules. Select one : ', '', 'custom,tsuquyomi#es6import#moduleComplete')
+  let l:selected_module = input("[Tsuquyomi] You can import from 2 or more modules.\n" . join(s:importable_module_list, "\n") . "\nSelect one: ", '', 'custom,tsuquyomi#es6import#moduleComplete')
   echohl none
   echo ' '
   if len(filter(copy(s:importable_module_list), 'v:val==#l:selected_module'))
