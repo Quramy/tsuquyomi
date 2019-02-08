@@ -777,7 +777,7 @@ function! s:renameSymbolWithOptions(findInComments, findInString)
 
   " * Check the symbol is renameable
   if !has_key(l:res_dict, 'info')
-    echom '[Tsuquyomi] No symbol to be rename'
+    echom '[Tsuquyomi] No symbol to be renamed'
     return
   elseif !l:res_dict.info.canRename
     echom '[Tsuquyomi] '.l:res_dict.info.localizedErrorMessage
