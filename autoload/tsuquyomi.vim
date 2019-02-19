@@ -109,38 +109,74 @@ function! s:setqflist(quickfix_list, ...)
   endif
 endfunction
 
-let s:event_queue = {}
-let s:event_timer = -1
-function! s:addQueue(delay, bufnum, key, ...)
-  if s:event_timer != -1
-    call timer_stop(s:event_timer)
-    let s:event_timer = -1
-  endif
-  let s:event_queue[a:bufnum . '_' . a:key] = len(a:000)
-        \ ? { 'bufnum': a:bufnum, 'callback': a:1 }
-        \ : { 'bufnum': a:bufnum }
+" let s:event_queue = {}
+" let s:event_timer = -1
+" function! s:addQueue(delay, bufnum, key, ...)
+"   if s:event_timer != -1
+"     call timer_stop(s:event_timer)
+"     let s:event_timer = -1
+"   endif
+"   let s:event_queue[a:bufnum . '_' . a:key] = len(a:000)
+"         \ ? { 'bufnum': a:bufnum, 'callback': a:1 }
+"         \ : { 'bufnum': a:bufnum }
+"
+"   let s:event_timer = timer_start(a:delay, function('s:sendQueue'))
+" endfunction
+"
+" function! s:sendQueue(timer)
+"   for l:queue in values(s:event_queue)
+"     if !has_key(l:queue, 'bufnum')
+"       continue
+"     endif
+"     if !bufexists(l:queue['bufnum'])
+"       continue
+"     endif
+"     let l:file = tsuquyomi#emitChange(l:queue['bufnum'])
+"     if has_key(l:queue, 'callback')
+"       let Callback = function(l:queue['callback'], [l:file])
+"       call Callback()
+"     endif
+"   endfor
+"   let s:event_queue = {}
+" endfunction
 
-  let s:event_timer = timer_start(a:delay, function('s:sendQueue'))
+let s:diagnostics_queue = []
+let s:diagnostics_timer = -1
+
+function! s:addDiagnosticsQueue(delay, bufnum)
+  " if index(s:diagnostics_queue, a:bufnum) != -1
+  "   return
+  " endif
+
+  if s:diagnostics_timer != -1
+    call timer_stop(s:diagnostics_timer)
+    let s:diagnostics_timer = -1
+  endif
+  call add(s:diagnostics_queue, a:bufnum)
+
+  let s:diagnostics_timer = timer_start(a:delay, function('s:sendDiagnosticsQueue'))
 endfunction
 
-function! s:sendQueue(timer)
-  for l:queue in values(s:event_queue)
-    if has_key(l:queue, 'bufnum') && !bufexists(l:queue['bufnum'])
+function! s:sendDiagnosticsQueue(timer) abort
+  " Debunce
+  let l:queue = uniq(s:diagnostics_queue)
+  for l:bufnum in l:queue
+    if !bufexists(l:bufnum)
       continue
     endif
-    let l:file = tsuquyomi#emitChange(l:queue['bufnum'])
-    if has_key(l:queue, 'callback')
-      let Callback = function(l:queue['callback'], [l:file])
-      call Callback()
-    endif
+    let l:file = tsuquyomi#emitChange(l:bufnum)
+    call s:getErrCallback(l:file)
   endfor
-  let s:event_queue = {}
+  let s:diagnostics_queue = []
 endfunction
 
 " Callback for TsuGetErr
 function! s:getErrCallback(file)
   let l:delayMsec = 50 "TODO export global option
   call tsuquyomi#tsClient#tsAsyncGeterr([a:file], l:delayMsec)
+  if len(s:diagnostics_queue) == 0
+    call s:addDiagnosticsQueue(0, bufnum)
+  endif
 endfunction
 
 " ### Utilites }}}
@@ -667,19 +703,23 @@ function! tsuquyomi#asyncCreateFixlist(...)
   endif
 
   let delay = len(a:000) ? a:1 : 0
+  let bufnum = bufnr('%')
 
   " Tell TSServer to change for get syntaxDiag and semanticDiag errors.
   if delay > 0
-    call s:addQueue(delay, bufnr('%'), 'geterr', 's:getErrCallback')
+    " call s:addQueue(delay, bufnum, 'geterr', 's:getErrCallback')
+    call s:addDiagnosticsQueue(delay, bufnum)
   else
     " Stop current timer
-    if s:event_timer != -1
-      call timer_stop(s:event_timer)
-      let s:event_queue = {}
-      let s:event_timer = -1
-    endif
+    " if s:event_timer != -1
+    "   call timer_stop(s:event_timer)
+    "   let s:event_timer = -1
+    " endif
+    " if has_key(s:event_queue, bufnum . '_geterr')
+    "   call remove(s:event_queue, bufnum . '_geterr')
+    " endif
 
-    let l:file = tsuquyomi#emitChange(bufnr('%'))
+    let l:file = tsuquyomi#emitChange(bufnum)
     let l:delayMsec = 50 "TODO export global option
     call tsuquyomi#tsClient#tsAsyncGeterr([l:file], l:delayMsec)
   endif
