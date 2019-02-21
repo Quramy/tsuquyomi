@@ -189,6 +189,7 @@ function! tsuquyomi#tsClient#readDiagnostics(item)
       let Callback = function(s:notify_callback['diagnostics'], [s:quickfix_list])
       call Callback()
       let s:quickfix_list = []
+      let s:request_seq = s:request_seq + 1
     endif
   else
     " Cache syntaxDiag and semanticDiag messages until request was completed.
@@ -396,6 +397,7 @@ endfunction
 " PARAM: {string} cmd Command type. e.g. 'completion', etc...
 " PARAM: {dictionary} args Arguments object. e.g. {'file': 'myApp.ts'}.
 function! tsuquyomi#tsClient#sendCommandAsyncEvents(cmd, args)
+  let s:quickfix_list = []
   let l:input = json_encode({'command': a:cmd, 'arguments': a:args, 'type': 'request', 'seq': s:request_seq})
   " call tsuquyomi#perfLogger#record('beforeCmd:'.a:cmd)
   call tsuquyomi#tsClient#sendAsyncRequest(l:input)

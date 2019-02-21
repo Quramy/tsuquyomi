@@ -144,9 +144,9 @@ let s:diagnostics_queue = []
 let s:diagnostics_timer = -1
 
 function! s:addDiagnosticsQueue(delay, bufnum)
-  " if index(s:diagnostics_queue, a:bufnum) != -1
-  "   return
-  " endif
+  if index(s:diagnostics_queue, a:bufnum) != -1
+    return
+  endif
 
   if s:diagnostics_timer != -1
     call timer_stop(s:diagnostics_timer)
@@ -158,9 +158,7 @@ function! s:addDiagnosticsQueue(delay, bufnum)
 endfunction
 
 function! s:sendDiagnosticsQueue(timer) abort
-  " Debunce
-  let l:queue = uniq(s:diagnostics_queue)
-  for l:bufnum in l:queue
+  for l:bufnum in s:diagnostics_queue
     if !bufexists(l:bufnum)
       continue
     endif
@@ -174,9 +172,6 @@ endfunction
 function! s:getErrCallback(file)
   let l:delayMsec = 50 "TODO export global option
   call tsuquyomi#tsClient#tsAsyncGeterr([a:file], l:delayMsec)
-  if len(s:diagnostics_queue) == 0
-    call s:addDiagnosticsQueue(0, bufnum)
-  endif
 endfunction
 
 " ### Utilites }}}
@@ -710,7 +705,7 @@ function! tsuquyomi#asyncCreateFixlist(...)
     " call s:addQueue(delay, bufnum, 'geterr', 's:getErrCallback')
     call s:addDiagnosticsQueue(delay, bufnum)
   else
-    " Stop current timer
+    " Cancel current timer
     " if s:event_timer != -1
     "   call timer_stop(s:event_timer)
     "   let s:event_timer = -1
@@ -718,6 +713,10 @@ function! tsuquyomi#asyncCreateFixlist(...)
     " if has_key(s:event_queue, bufnum . '_geterr')
     "   call remove(s:event_queue, bufnum . '_geterr')
     " endif
+    if s:diagnostics_timer != -1
+      call timer_stop(s:diagnostics_timer)
+      let s:diagnostics_timer = -1
+    endif
 
     let l:file = tsuquyomi#emitChange(bufnum)
     let l:delayMsec = 50 "TODO export global option
