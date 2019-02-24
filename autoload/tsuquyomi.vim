@@ -606,7 +606,9 @@ endfunction
 function! tsuquyomi#asyncGeterr(...)
   if g:tsuquyomi_is_available == 1
     call tsuquyomi#registerNotify(function('s:setqflist'), 'diagnostics')
-    call tsuquyomi#asyncCreateFixlist()
+
+    let l:delay = len(a:000) ? a:1 : 0
+    call tsuquyomi#asyncCreateFixlist(l:delay)
   endif
 endfunction
 
