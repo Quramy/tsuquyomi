@@ -104,7 +104,9 @@ function! s:startTssVim8()
 endfunction
 
 function! s:getEventType(item)
-  if has_key(a:item, 'type') && a:item.type ==# 'event'
+  if type(a:item) == v:t_dict
+    \ && has_key(a:item, 'type')
+    \ && a:item.type ==# 'event'
     \ && (a:item.event ==# 'syntaxDiag'
       \ || a:item.event ==# 'semanticDiag'
       \ || a:item.event ==# 'requestCompleted')
