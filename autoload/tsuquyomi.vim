@@ -109,40 +109,8 @@ function! s:setqflist(quickfix_list, ...)
   endif
 endfunction
 
-" let s:event_queue = {}
-" let s:event_timer = -1
-" function! s:addQueue(delay, bufnum, key, ...)
-"   if s:event_timer != -1
-"     call timer_stop(s:event_timer)
-"     let s:event_timer = -1
-"   endif
-"   let s:event_queue[a:bufnum . '_' . a:key] = len(a:000)
-"         \ ? { 'bufnum': a:bufnum, 'callback': a:1 }
-"         \ : { 'bufnum': a:bufnum }
-"
-"   let s:event_timer = timer_start(a:delay, function('s:sendQueue'))
-" endfunction
-"
-" function! s:sendQueue(timer)
-"   for l:queue in values(s:event_queue)
-"     if !has_key(l:queue, 'bufnum')
-"       continue
-"     endif
-"     if !bufexists(l:queue['bufnum'])
-"       continue
-"     endif
-"     let l:file = tsuquyomi#emitChange(l:queue['bufnum'])
-"     if has_key(l:queue, 'callback')
-"       let Callback = function(l:queue['callback'], [l:file])
-"       call Callback()
-"     endif
-"   endfor
-"   let s:event_queue = {}
-" endfunction
-
 let s:diagnostics_queue = []
 let s:diagnostics_timer = -1
-
 function! s:addDiagnosticsQueue(delay, bufnum)
   if index(s:diagnostics_queue, a:bufnum) != -1
     return
@@ -152,9 +120,13 @@ function! s:addDiagnosticsQueue(delay, bufnum)
     call timer_stop(s:diagnostics_timer)
     let s:diagnostics_timer = -1
   endif
+
   call add(s:diagnostics_queue, a:bufnum)
 
-  let s:diagnostics_timer = timer_start(a:delay, function('s:sendDiagnosticsQueue'))
+  let s:diagnostics_timer = timer_start(
+    \ a:delay,
+    \ function('s:sendDiagnosticsQueue')
+    \ )
 endfunction
 
 function! s:sendDiagnosticsQueue(timer) abort
@@ -163,15 +135,10 @@ function! s:sendDiagnosticsQueue(timer) abort
       continue
     endif
     let l:file = tsuquyomi#emitChange(l:bufnum)
-    call s:getErrCallback(l:file)
+    let l:delayMsec = 50 "TODO export global option
+    call tsuquyomi#tsClient#tsAsyncGeterr([l:file], l:delayMsec)
   endfor
   let s:diagnostics_queue = []
-endfunction
-
-" Callback for TsuGetErr
-function! s:getErrCallback(file)
-  let l:delayMsec = 50 "TODO export global option
-  call tsuquyomi#tsClient#tsAsyncGeterr([a:file], l:delayMsec)
 endfunction
 
 " ### Utilites }}}
@@ -697,28 +664,21 @@ function! tsuquyomi#asyncCreateFixlist(...)
     return []
   endif
 
-  let delay = len(a:000) ? a:1 : 0
-  let bufnum = bufnr('%')
+  let l:delay = len(a:000) ? a:1 : 0
+  let l:bufnum = bufnr('%')
 
   " Tell TSServer to change for get syntaxDiag and semanticDiag errors.
   if delay > 0
-    " call s:addQueue(delay, bufnum, 'geterr', 's:getErrCallback')
-    call s:addDiagnosticsQueue(delay, bufnum)
+    " Debunce request for Textchanged autocmd.
+    call s:addDiagnosticsQueue(l:delay, l:bufnum)
   else
     " Cancel current timer
-    " if s:event_timer != -1
-    "   call timer_stop(s:event_timer)
-    "   let s:event_timer = -1
-    " endif
-    " if has_key(s:event_queue, bufnum . '_geterr')
-    "   call remove(s:event_queue, bufnum . '_geterr')
-    " endif
     if s:diagnostics_timer != -1
       call timer_stop(s:diagnostics_timer)
       let s:diagnostics_timer = -1
     endif
 
-    let l:file = tsuquyomi#emitChange(bufnum)
+    let l:file = tsuquyomi#emitChange(l:bufnum)
     let l:delayMsec = 50 "TODO export global option
     call tsuquyomi#tsClient#tsAsyncGeterr([l:file], l:delayMsec)
   endif
