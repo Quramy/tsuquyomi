@@ -109,6 +109,38 @@ function! s:setqflist(quickfix_list, ...)
   endif
 endfunction
 
+let s:diagnostics_queue = []
+let s:diagnostics_timer = -1
+function! s:addDiagnosticsQueue(delay, bufnum)
+  if index(s:diagnostics_queue, a:bufnum) != -1
+    return
+  endif
+
+  if s:diagnostics_timer != -1
+    call timer_stop(s:diagnostics_timer)
+    let s:diagnostics_timer = -1
+  endif
+
+  call add(s:diagnostics_queue, a:bufnum)
+
+  let s:diagnostics_timer = timer_start(
+    \ a:delay,
+    \ function('s:sendDiagnosticsQueue')
+    \ )
+endfunction
+
+function! s:sendDiagnosticsQueue(timer) abort
+  for l:bufnum in s:diagnostics_queue
+    if !bufexists(l:bufnum)
+      continue
+    endif
+    let l:file = tsuquyomi#emitChange(l:bufnum)
+    let l:delayMsec = 50 "TODO export global option
+    call tsuquyomi#tsClient#tsAsyncGeterr([l:file], l:delayMsec)
+  endfor
+  let s:diagnostics_queue = []
+endfunction
+
 " ### Utilites }}}
 
 " ### Public functions {{{
@@ -574,7 +606,9 @@ endfunction
 function! tsuquyomi#asyncGeterr(...)
   if g:tsuquyomi_is_available == 1
     call tsuquyomi#registerNotify(function('s:setqflist'), 'diagnostics')
-    call tsuquyomi#asyncCreateFixlist()
+
+    let l:delay = len(a:000) ? a:1 : 0
+    call tsuquyomi#asyncCreateFixlist(l:delay)
   endif
 endfunction
 
@@ -620,6 +654,8 @@ function! tsuquyomi#emitChange(bufnum)
 
   " file, line, offset, endLine, endOffset, insertString
   call tsuquyomi#tsClient#tsAsyncChange(l:file, 1, 1, len(l:input), 1, l:input)
+
+  return l:file
 endfunction
 
 function! tsuquyomi#asyncCreateFixlist(...)
@@ -629,16 +665,25 @@ function! tsuquyomi#asyncCreateFixlist(...)
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return []
   endif
-  " `tsuquyomi#getSupportedCodeFixes()` is too slow and block Vim's ui.
-  " call tsuquyomi#getSupportedCodeFixes()
+
+  let l:delay = len(a:000) ? a:1 : 0
+  let l:bufnum = bufnr('%')
 
   " Tell TSServer to change for get syntaxDiag and semanticDiag errors.
-  call tsuquyomi#emitChange(bufnr('%'))
+  if delay > 0
+    " Debunce request for Textchanged autocmd.
+    call s:addDiagnosticsQueue(l:delay, l:bufnum)
+  else
+    " Cancel current timer
+    if s:diagnostics_timer != -1
+      call timer_stop(s:diagnostics_timer)
+      let s:diagnostics_timer = -1
+    endif
 
-  let l:files = [expand('%:p')]
-  let l:delayMsec = 50 "TODO export global option
-
-  call tsuquyomi#tsClient#tsAsyncGeterr(l:files, l:delayMsec)
+    let l:file = tsuquyomi#emitChange(l:bufnum)
+    let l:delayMsec = 50 "TODO export global option
+    call tsuquyomi#tsClient#tsAsyncGeterr([l:file], l:delayMsec)
+  endif
 endfunction
 
 function! tsuquyomi#createQuickFixListFromEvents(event_list)
