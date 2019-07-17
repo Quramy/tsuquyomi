@@ -267,7 +267,7 @@ function! s:findExportingFileForModule(module, current_module_file, module_direc
         \"silent! noautocmd vimgrep /export\\s*\\({.*\\(\\s\\|,\\)"
         \. a:module 
         \."\\(\\s\\|,\\)*.*}\\|\\*\\)\\s\\+from\\s\\+\\(\\'\\|\\\"\\)\\.\\\/"
-        \. substitute(a:current_module_file, '\/', '\\/', '') 
+        \. substitute(a:current_module_file, '\/', '\\/', 'g')
         \."[\\/]*\\(\\'\\|\\\"\\)[;]*/j "
         \. a:module_directory_path 
         \. "*.ts"
