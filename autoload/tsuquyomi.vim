@@ -892,7 +892,9 @@ function! s:renameLocal(should_save)
   let filename = expand('%:p')
   let locations_in_buf = s:locs_dict[expand('%:p')]
   let renameTo = s:rename_to
-  for span in locations_in_buf
+
+  " Changes should be applied from the end
+  for span in reverse(locations_in_buf)
     if span.start.line != span.end.line
       echom '[Tsuquyomi] this span is across multiple lines. '
       return
