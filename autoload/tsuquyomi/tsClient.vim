@@ -54,6 +54,22 @@ function! s:debugLog(msg)
   endif
 endfunction
 
+function! s:decode_response(head, count) abort
+  if a:count > 10
+    throw 'tsuquyomi_read_response_error'
+  endif
+  if !s:is_vim8 || g:tsuquyomi_use_vimproc
+    return s:JSON.decode(a:head)
+  endif
+  try
+    return s:JSON.decode(a:head)
+  catch
+    let l:additionl = ch_readraw(s:tsq['channel'])
+    echom '[Tsuquyomi] read more from ch... ('.a:count.')'
+    return s:decode_response(a:head.l:additionl, a:count + 1)
+  endtry
+endfunction
+
 " ### Utilites }}}
 
 " ### Core Functions {{{
@@ -257,7 +273,7 @@ endfunction
 " PARAM: {int} retry_count Retry count.
 " PARAM: {int} response_length The number of JSONs contained by this response.
 " RETURNS: {list<dict>} A list of response.
-function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
+function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length) abort
   "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
   if !s:is_vim8 || g:tsuquyomi_use_vimproc
@@ -302,7 +318,11 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
             break
           endif
         endfor
-        let l:decoded_res_item = s:JSON.decode(res_item)
+        try
+          let l:decoded_res_item = s:decode_response(res_item, 0)
+        catch
+          return []
+        endtry
         let l:to_be_ignored = l:to_be_ignored || (has_key(l:decoded_res_item, 'request_seq') && l:decoded_res_item.request_seq != s:request_seq)
         if !l:to_be_ignored
           call add(response_list, decoded_res_item)
