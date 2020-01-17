@@ -9,4 +9,4 @@ if !tsuquyomi#config#preconfig()
   finish
 endif
 
-call tsuquyomi#config#initBuffer({ 'pattern': '*.ts' })
+call tsuquyomi#config#initBuffer({ 'pattern': '*.tsx' })
