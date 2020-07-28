@@ -29,7 +29,7 @@ Tsuquyomi requires the following:
 
 + [Vim](http://www.vim.org/) (vim7.4 or later)
 + [Node.js](https://nodejs.org/) & [TypeScript](https://github.com/Microsoft/TypeScript)
-+ [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim) (Not required if you use vim8 or later)
++ [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim) (Required for vim < 8 and for neovim)
 
 ### Install TypeScript
 
