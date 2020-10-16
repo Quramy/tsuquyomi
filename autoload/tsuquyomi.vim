@@ -497,13 +497,13 @@ function! tsuquyomi#gotoDefinition(tsClientFunction, splitMode)
       call cursor(l:info.start.line, l:info.start.offset)
     elseif l:definition_split == 0
       call tsuquyomi#bufManager#winPushNavDef(bufwinnr(bufnr('%')), l:file, {'line': l:line, 'col': l:offset})
-      execute 'edit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
+      execute 'edit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.fnameescape(l:info.file)
     elseif l:definition_split == 1
-      execute 'split +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
+      execute 'split +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.fnameescape(l:info.file)
     elseif l:definition_split == 2
-      execute 'vsplit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
+      execute 'vsplit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.fnameescape(l:info.file)
     elseif l:definition_split == 3
-      execute 'tabedit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.l:info.file
+      execute 'tabedit +call\ cursor('.l:info.start.line.','.l:info.start.offset.') '.fnameescape(l:info.file)
     endif
   else
     " If don't get result, do nothing.
