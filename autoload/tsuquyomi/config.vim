@@ -263,9 +263,16 @@ endfunction
 
 let s:autocmd_patterns = []
 function! tsuquyomi#config#applyBufLocalAutocmd(pattern)
-  if index(s:autocmd_patterns, a:pattern) == -1
-    call add(s:autocmd_patterns, a:pattern)
+  if type(a:pattern) == 3
+    let l:patterns = a:pattern
+  else 
+    let l:patterns = [a:pattern]
   endif
+  for p in l:patterns
+    if index(s:autocmd_patterns, p) == -1
+      call add(s:autocmd_patterns, p)
+    endif
+  endfor
   let all_patterns = join(s:autocmd_patterns, ",")
   if !g:tsuquyomi_disable_quickfix
     augroup tsuquyomi_geterr
