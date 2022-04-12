@@ -157,6 +157,11 @@ function! s:removeTSExtensions(path)
   let l:path = substitute(l:path, '\.tsx$', '', '')
   let l:path = substitute(l:path, '^@types/', '', '')
   let l:path = substitute(l:path, '/index$', '', '')
+  if g:tsuquyomi_javascript_support == 1
+    let l:path = substitute(l:path, '\.d\.js$', '', '')
+    let l:path = substitute(l:path, '\.js$', '', '')
+    let l:path = substitute(l:path, '\.jsx$', '', '')
+  endif
   return l:path
 endfunction
 
