@@ -45,6 +45,10 @@ function! tsuquyomi#bufManager#openedFiles()
   return filter(copy(s:buf_info_map), 'v:val.is_opened')
 endfunction
 
+function! tsuquyomi#bufManager#openedNotReadableFiles()
+  return filter(copy(s:buf_info_map), {idx, val -> filereadable(idx) == 0 && val.is_opened})
+endfunction
+
 function! tsuquyomi#bufManager#clearMap()
   let s:buf_info_map = {}
   return 1
@@ -64,6 +68,7 @@ function! tsuquyomi#bufManager#close(file_name)
     return 0
   endif
   let s:buf_info_map[name].is_opened = 0
+  call remove(s:buf_info_map, name)
   return 1
 endfunction
 

@@ -237,6 +237,7 @@ function! tsuquyomi#config#createBufLocalMap()
   noremap <silent> <buffer> <Plug>(TsuquyomiQuickFix)        :TsuquyomiQuickFix <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiSignatureHelp)   :TsuquyomiSignatureHelp <CR>
   noremap <silent> <buffer> <Plug>(TsuquyomiImport)          :TsuquyomiImport <CR>
+  noremap <silent> <buffer> <Plug>(TsuquyomiReloadProject)   :TsuquyomiReloadProject <CR>
 
   " TODO These commands don't work correctly.
   noremap <silent> <buffer> <Plug>(TsuquyomiRenameSymbolS)   :TsuquyomiRenameSymbolS <CR>

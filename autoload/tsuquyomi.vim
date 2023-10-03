@@ -230,14 +230,11 @@ function! tsuquyomi#reload(...)
 endfunction
 
 function! tsuquyomi#reloadProject()
-  if tsuquyomi#config#isHigher(160)
-    call tsuquyomi#tsClient#tsReloadProjects()
-  else
-    let filelist = values(map(tsuquyomi#bufManager#openedFiles(), 'v:val.bufname'))
-    if len(filelist)
-      call s:closeFromList(filelist)
-      call s:openFromList(filelist)
-    endif
+  let files_to_be_closed = values(map(tsuquyomi#bufManager#openedNotReadableFiles(), 'v:val.bufname'))
+  call s:closeFromList(files_to_be_closed)
+  let filelist = values(map(tsuquyomi#bufManager#openedFiles(), 'v:val.bufname'))
+  if len(filelist)
+    call s:reloadFromList(filelist)
   endif
 endfunction
 
