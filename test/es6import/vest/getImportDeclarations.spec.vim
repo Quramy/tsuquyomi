@@ -1,20 +1,19 @@
 scriptencoding utf-8
 
-let s:V = vital#of('tsuquyomi')
-let s:Filepath = s:V.import('System.Filepath')
-let s:script_dir = s:Filepath.join(tsuquyomi#rootDir(), 'test/es6import/vest')
+Context tsuquyomi#es6import#getImportDeclarations(file)
 
-" FIXME
-" Context tsuquyomi#es6import#getImportDeclarations(file)
-"   let s:resource_dir = s:Filepath.join(s:script_dir, 'resources/importDecPatterns')
-" 
-"   " It returns 'no_nav_bar' reason when input files is empty
-"   "   let s:file = s:Filepath.join(s:resource_dir, 'empty.ts')
-"   "   call tsuquyomi#tsClient#tsOpen(s:file)
-"   "   let [result_list, position, reason] = tsuquyomi#es6import#getImportDeclarations(s:file, readfile(s:file))
-"   "   Should reason ==# 'no_module_info'
-"   "   call tsuquyomi#tsClient#stopTssSync()
-"   " End
+  let s:V = vital#of('tsuquyomi')
+  let s:Filepath = s:V.import('System.Filepath')
+  let s:script_dir = s:Filepath.join(tsuquyomi#rootDir(), 'test/es6import/vest')
+  let s:resource_dir = s:Filepath.join(s:script_dir, 'resources/importDecPatterns')
+ 
+  It returns 'no_nav_bar' reason when input files is empty
+    let file = s:Filepath.join(s:resource_dir, 'empty.ts')
+    call tsuquyomi#tsClient#tsOpen(file)
+    let [result_list, position, reason] = tsuquyomi#es6import#getImportDeclarations(file, readfile(file))
+    Should reason == 'no_nav_bar'
+    call tsuquyomi#tsClient#stopTssSync()
+  End
 " 
 "   " It returns 'no_module_info' reason and position info when input file doesn't have aliases
 "   "   let s:file = s:Filepath.join(s:resource_dir, 'noDec.ts')
@@ -122,4 +121,5 @@ let s:script_dir = s:Filepath.join(tsuquyomi#rootDir(), 'test/es6import/vest')
 "     call tsuquyomi#tsClient#stopTssSync()
 "   End
 " 
-" End
+End
+Fin
